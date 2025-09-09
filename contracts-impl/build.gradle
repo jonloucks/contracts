@@ -1,0 +1,12 @@
+plugins {
+    id 'java-library'
+}
+
+apply from: "${rootDir}/java-library.gradle"
+
+dependencies {
+    api project(":contracts-api")
+
+    testImplementation project(":contracts-test")
+}
+

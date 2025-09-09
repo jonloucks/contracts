@@ -1,0 +1,12 @@
+[versions]
+java-language-version = "9"
+jdk-version = "17"
+junit-version = "5.10.0"
+hamcrest-version = "3.+"
+mockito-version = "5.+"
+
+[libraries]
+junit-bom = { module = "org.junit:junit-bom", version.ref = "junit-version" }
+hamcrest = { module = "org.hamcrest:hamcrest", version.ref = "hamcrest-version" }
+mockito-core = { module = "org.mockito:mockito-core", version.ref = "mockito-version"}
+mockito-junit-jupiter = { module = "org.mockito:mockito-junit-jupiter", version.ref = "mockito-version"}
