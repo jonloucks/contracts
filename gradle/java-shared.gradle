@@ -12,6 +12,10 @@ java {
     }
 }
 
+test {
+    useJUnitPlatform()
+}
+
 compileJava {
     options.warnings = true
     options.deprecation = true
@@ -51,6 +55,9 @@ tasks.register('integrationTest', Test) {
         includeTags 'integration'
     }
 
+    testClassesDirs = testing.suites.test.sources.output.classesDirs
+    classpath = testing.suites.test.sources.runtimeClasspath
+
     shouldRunAfter tasks.named('test')
 }
 
@@ -60,17 +67,4 @@ tasks.named('check') {
 
 repositories {
     mavenCentral()
-}
-
-dependencies {
-    testImplementation platform(libs.junit.bom)
-    testImplementation 'org.junit.jupiter:junit-jupiter'
-    testImplementation libs.hamcrest
-    testImplementation libs.mockito.core
-    testImplementation libs.mockito.junit.jupiter
-    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
-}
-
-test {
-    useJUnitPlatform()
 }

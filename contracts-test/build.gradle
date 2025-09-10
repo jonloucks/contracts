@@ -2,7 +2,7 @@ plugins {
     id 'java-library'
 }
 
-apply from: "${rootDir}/java-test-library.gradle"
+apply from: "${rootDir}/gradle/java-test-library.gradle"
 
 dependencies {
     api project(':contracts-api')
