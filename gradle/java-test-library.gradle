@@ -9,3 +9,12 @@ dependencies {
     runtimeOnly 'org.junit.platform:junit-platform-launcher'
 }
 
+publishing {
+    publications {
+        withType(MavenPublication) {
+            suppressPomMetadataWarningsFor('apiElements')
+            suppressPomMetadataWarningsFor('runtimeElements')
+        }
+    }
+}
+
