@@ -68,3 +68,16 @@ tasks.named('check') {
 repositories {
     mavenCentral()
 }
+
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            from components.java
+        }
+    }
+//    repositories {
+//        maven {
+//            // ... repository configuration
+//        }
+//    }
+}

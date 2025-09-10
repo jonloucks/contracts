@@ -1,6 +1,9 @@
 plugins {
     id 'java-library'
+    id 'maven-publish'
 }
+
+project.tasks.publish.enabled = false
 
 apply from: "${rootDir}/gradle/java-library.gradle"
 
