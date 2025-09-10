@@ -4,11 +4,9 @@ import io.github.jonloucks.contracts.api.Promisor;
 import io.github.jonloucks.contracts.api.Shutdown;
 import io.github.jonloucks.contracts.api.Startup;
 
-import java.util.Optional;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
-import java.util.function.Supplier;
 
 import static io.github.jonloucks.contracts.api.Checks.*;
 import static java.util.Optional.ofNullable;
@@ -17,14 +15,13 @@ final class LifeCyclePromisorImpl<T> implements Promisor<T> {
     
     @Override
     public T demand() {
-        if (usageCounter.get() == 0) {
-            throw new IllegalStateException("Usage count is zero");
+        final AtomicReference<T> currentDeliverable = new AtomicReference<>();
+        
+        if (getCurrentDeliverable(currentDeliverable)) {
+            return currentDeliverable.get();
         }
-        final Optional<Supplier<T>> optionalDeliverableSupplier = getOptionalDeliverableSupplier();
-        if (optionalDeliverableSupplier.isPresent()) {
-            return optionalDeliverableSupplier.get().get();
-        }
-        return createDeliverable();
+        
+        return createDeliverableIfNeeded();
     }
     
     @Override
@@ -58,14 +55,23 @@ final class LifeCyclePromisorImpl<T> implements Promisor<T> {
         this.referentPromisor = promisorCheck(referentPromisor);
     }
     
-    private Optional<Supplier<T>> getOptionalDeliverableSupplier() {
+    private boolean getCurrentDeliverable(AtomicReference<T> placeholder) {
+        if (usageCounter.get() == 0) {
+            throw new IllegalStateException("Usage count is zero");
+        }
+        maybeThrowStartupException();
+        synchronized (simpleLock) {
+            if (isDeliverableAcquired.get()) {
+                placeholder.set(atomicDeliverable.get());
+                return true;
+            }
+            return false;
+        }
+    }
+    
+    private void maybeThrowStartupException() {
         ofNullable(startupException.get())
             .ifPresent(this::reThrowStartupException);
-        if (isDeliverableAcquired.get()) {
-            final T savedDeliverable = atomicDeliverable.get();
-            return Optional.of(() -> savedDeliverable);
-        }
-        return Optional.empty();
     }
     
     private void reThrowStartupException(Throwable thrown) {
@@ -78,15 +84,18 @@ final class LifeCyclePromisorImpl<T> implements Promisor<T> {
         throw new IllegalStateException("Startup", thrown);
     }
     
-    private T createDeliverable() {
+    private T createDeliverableIfNeeded() {
         synchronized (simpleLock) {
-            if (!isDeliverableAcquired.get()) {
+            if (isDeliverableAcquired.get()) {
+                return atomicDeliverable.get();
+            } else {
+                startupException.set(null);
                 final T currentDeliverable = referentPromisor.demand();
                 atomicDeliverable.set(currentDeliverable);
                 startupDeliverable(currentDeliverable);
                 isDeliverableAcquired.set(true);
+                return currentDeliverable;
             }
-            return atomicDeliverable.get();
         }
     }
     
@@ -100,23 +109,22 @@ final class LifeCyclePromisorImpl<T> implements Promisor<T> {
                         startupException.set(thrown);
                         isDeliverableAcquired.set(false);
                     }
+                    throw thrown;
                 }
             }
         }
     }
  
     private void shutdownDeliverable() {
-        synchronized (simpleLock) {
-            if (isDeliverableAcquired.get()) {
-                final T deliverable = atomicDeliverable.get();
-                try {
-                    if (deliverable instanceof Shutdown) {
-                        ((Shutdown) deliverable).shutdown();
-                    }
-                } finally {
-                    atomicDeliverable.compareAndSet(deliverable, null);
-                    isDeliverableAcquired.set(false);
+        if (isDeliverableAcquired.get()) {
+            final T deliverable = atomicDeliverable.get();
+            try {
+                if (deliverable instanceof Shutdown) {
+                    ((Shutdown) deliverable).shutdown();
                 }
+            } finally {
+                atomicDeliverable.compareAndSet(deliverable, null);
+                isDeliverableAcquired.set(false);
             }
         }
     }

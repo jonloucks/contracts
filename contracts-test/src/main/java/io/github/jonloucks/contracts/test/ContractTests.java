@@ -1,6 +1,7 @@
 package io.github.jonloucks.contracts.test;
 
 import io.github.jonloucks.contracts.api.Contract;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
 import static io.github.jonloucks.contracts.test.Tools.assertContract;
@@ -11,6 +12,7 @@ import static org.junit.jupiter.api.Assertions.*;
 public interface ContractTests {
     
     @Test
+    @Tag("integration")
     default void contract_Instantiate_Throws() {
         assertInstantiateThrows(Contract.class);
     }
