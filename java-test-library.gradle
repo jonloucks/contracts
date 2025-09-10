@@ -21,6 +21,12 @@ compileJava {
 tasks.withType(JavaCompile).configureEach {
     options.release.set(LANGUAGE_LEVEL)
 }
+tasks.withType(Test).configureEach {
+    useJUnitPlatform {
+        excludeTags 'integration', 'slow', 'unstable' // Excludes tests tagged with 'integration' or 'slow'
+    }
+}
+
 
 tasks.named('compileTestJava') {
     sourceCompatibility = JavaVersion.toVersion(LANGUAGE_LEVEL)

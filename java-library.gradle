@@ -27,6 +27,37 @@ tasks.named('compileTestJava') {
     targetCompatibility = JavaVersion.toVersion(LANGUAGE_LEVEL)
 }
 
+tasks.withType(Test).configureEach {
+    useJUnitPlatform {
+        excludeTags 'slow', 'unstable'
+        if (project.hasProperty('includeTags')) {
+            Set<String> tags = (project.includeTags as String).split(',')
+            excludeTags.removeAll(tags)
+            includeTags.addAll(tags)
+        }
+        if (project.hasProperty('excludeTags')) {
+            Set<String> values = (project.excludeTags as String).split(',')
+            excludeTags.removeAll(values)
+            excludeTags.addAll(values)
+        }
+    }
+}
+
+tasks.register('integrationTest', Test) {
+    description = 'Runs integration tests tagged with "integration".'
+    group = 'verification'
+
+    useJUnitPlatform {
+        includeTags 'integration'
+    }
+
+    shouldRunAfter tasks.named('test')
+}
+
+tasks.named('check') {
+    dependsOn tasks.named('integrationTest')
+}
+
 repositories {
     mavenCentral()
 }

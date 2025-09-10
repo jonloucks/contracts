@@ -7,8 +7,13 @@ import io.github.jonloucks.contracts.api.ServiceFactory;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InaccessibleObjectException;
 import java.lang.reflect.InvocationTargetException;
+import java.time.Duration;
 import java.util.ServiceLoader;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
+import static io.github.jonloucks.contracts.api.Checks.illegalCheck;
+import static io.github.jonloucks.contracts.api.Checks.nullCheck;
 import static org.junit.jupiter.api.Assertions.*;
 
 public final class Tools {
@@ -104,6 +109,21 @@ public final class Tools {
             final ServiceLoader<? extends ServiceFactory> loader = ServiceLoader.load(config.serviceLoaderClass());
             loader.reload();
         } catch (Throwable ignored) {
+        }
+    }
+    
+    public static void sleep(Duration duration) {
+        final Duration validDuration = nullCheck(duration, "Duration must not be null");
+        final CountDownLatch latch = new CountDownLatch(1);
+        
+        illegalCheck(validDuration, validDuration.isNegative(), "Duration must not be negative");
+        if (validDuration.isZero()) {
+            return;
+        }
+        
+        try {
+            assertFalse(latch.await(validDuration.toMillis(), TimeUnit.MILLISECONDS));
+        } catch (InterruptedException ignored) {
         }
     }
 }

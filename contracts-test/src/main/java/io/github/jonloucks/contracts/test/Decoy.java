@@ -2,5 +2,35 @@ package io.github.jonloucks.contracts.test;
 
 import io.github.jonloucks.contracts.api.*;
 
-public interface Decoy<T> extends Promisor<T>, ServiceFactory, Service, Startup, Shutdown {
+public interface Decoy<D> extends Promisor<D>, ServiceFactory, Service, Startup, Shutdown {
+    @Override
+    default void startup() { }
+    
+    @Override
+    default void shutdown() { }
+    
+    @Override
+    default <T> T claim(Contract<T> contract) {
+        return null;
+    }
+    
+    @Override
+    default boolean isBound(Contract<?> contract) {
+        return false;
+    }
+    
+    @Override
+    default <T> Shutdown bind(Contract<T> contract, Promisor<T> promisor) {
+        return () -> {};
+    }
+    
+    @Override
+    default D demand() {
+        return null;
+    }
+    
+    @Override
+    default Service createService(Service.Config config) {
+        throw new ContractException("Decoy.createService not implemented");
+    }
 }
