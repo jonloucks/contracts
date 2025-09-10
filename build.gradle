@@ -2,18 +2,11 @@ plugins {
     id 'java-library'
 }
 
-apply from: "${rootDir}/java-library.gradle"
+apply from: "${rootDir}/gradle/java-library.gradle"
 
 repositories {
     mavenCentral()
 }
 
 dependencies {
-    testImplementation platform(libs.junit.bom)
-    testImplementation 'org.junit.jupiter:junit-jupiter'
-    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
-}
-
-test {
-    useJUnitPlatform()
 }
