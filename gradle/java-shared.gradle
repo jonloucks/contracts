@@ -10,7 +10,11 @@ java {
     toolchain {
         languageVersion.set(JavaLanguageVersion.of(COMPILER_VERSION))
     }
+    withJavadocJar()
+    withSourcesJar()
 }
+
+
 
 test {
     useJUnitPlatform()
@@ -73,11 +77,39 @@ publishing {
     publications {
         mavenJava(MavenPublication) {
             from components.java
+            pom {
+                name = 'Jon Loucks Contracts Library'
+                description = 'Java Dependency Contracts for dependency inversion.'
+                url = 'https://github.com/jonloucks/contracts'
+                licenses {
+                    license {
+                        name = 'MIT License'
+                        url = 'https://github.com/jonloucks/contracts?tab=MIT-1-ov-file#MIT-1-ov-file'
+                    }
+                }
+                developers {
+                    developer {
+                        id = 'jonloucks'
+                        name = 'Jon Loucks'
+                        email = 'j.loucks@comcast.net'
+                    }
+                }
+                scm {
+                    connection = 'scm:git:git://github.com/jonloucks/contracts.git'
+                    developerConnection = 'scm:git:ssh://github.com:jonloucks/contracts.git'
+                    url = 'https://github.com/jonloucks/contracts'
+                }
+            }
         }
     }
-//    repositories {
-//        maven {
-//            // ... repository configuration
-//        }
-//    }
+}
+tasks.withType(Sign) {
+    onlyIf { rootProject.ext.doingRealRelease }
+}
+
+signing {
+    sign publishing.publications.mavenJava
+    useGpgCmd() // Or useGpgAgent() if you have GPG Agent configured
+    // You might need to set up GPG key in GitHub secrets and pass it as env vars
+    // like System.getenv("GPG_PRIVATE_KEY") and System.getenv("GPG_PASSPHRASE")
 }

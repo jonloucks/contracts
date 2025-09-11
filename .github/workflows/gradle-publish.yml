@@ -41,10 +41,8 @@ jobs:
     - name: Build with Gradle
       run: ./gradlew build
 
-    # The USERNAME and TOKEN need to correspond to the credentials environment variables used in
-    # the publishing section of your build.gradle
     - name: Publish to GitHub Packages
-      if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+      if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
       run: ./gradlew publish
       env:
         USERNAME: ${{ github.actor }}
