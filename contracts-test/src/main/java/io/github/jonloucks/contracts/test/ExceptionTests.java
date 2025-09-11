@@ -22,7 +22,7 @@ public interface ExceptionTests {
     default void exception_ContractException_WithValid_Works() {
         final ContractException exception = new ContractException("abc");
         
-        assertThrown(exception, "abc");
+        Tools.assertThrown(exception, "abc");
     }
     
     @Test

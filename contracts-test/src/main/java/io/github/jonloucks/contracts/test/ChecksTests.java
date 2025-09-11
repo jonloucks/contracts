@@ -5,8 +5,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import static io.github.jonloucks.contracts.test.Tools.assertInstantiateThrows;
-import static io.github.jonloucks.contracts.test.Tools.assertThrown;
+import static io.github.jonloucks.contracts.test.Tools.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 
@@ -48,6 +47,6 @@ public interface ChecksTests {
             Checks.illegalCheck("abc", true, "xyz");
         });
         
-        assertThrown(thrown, "xyz");
+        Tools.assertThrown(thrown, "xyz");
     }
 }

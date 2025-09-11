@@ -22,7 +22,7 @@ Goals
 2. Encapsulation
 3. Use anywhere
 4. Type safe. no casting needed. No uncheck surprises
-5. By default a Contract is only visible to the author
+5. By default, a Contract is only visible to the author
 6. Deploys on oldest supported LTS version of Java with JPMS. (currently 11)
 7. Compiles with minimum Java language (currently 9)
 8. Never impose reflection, injection, annotations etc

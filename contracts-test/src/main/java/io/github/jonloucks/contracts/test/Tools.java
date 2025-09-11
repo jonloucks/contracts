@@ -3,6 +3,7 @@ package io.github.jonloucks.contracts.test;
 import io.github.jonloucks.contracts.api.Contract;
 import io.github.jonloucks.contracts.api.Service;
 import io.github.jonloucks.contracts.api.ServiceFactory;
+import org.junit.jupiter.api.function.Executable;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InaccessibleObjectException;
@@ -14,29 +15,51 @@ import java.util.concurrent.TimeUnit;
 
 import static io.github.jonloucks.contracts.api.Checks.illegalCheck;
 import static io.github.jonloucks.contracts.api.Checks.nullCheck;
+import static java.util.Optional.ofNullable;
 import static org.junit.jupiter.api.Assertions.*;
 
+/**
+ * Contracts testing tools
+ */
 public final class Tools {
     private Tools() {
         throw new AssertionError("Illegal constructor");
     }
     
+    public static void assertFails(Executable executable) {
+        final Executable validExecutable = nullCheck(executable, "executable was null");
+        final AssertionError thrown = assertThrows(AssertionError.class, validExecutable);
+        assertThrown(thrown);
+    }
+    /**
+     * Assert that an object complies with basic expectations
+     * @param object the object to check
+     */
+    @SuppressWarnings("DataFlowIssue")
     public static void assertObject(Object object) {
-        class Unknown {}
-        Unknown unknown = new Unknown();
-        assertNotNull(object, "object was null");
+        final class Unknown {}
+        final Unknown unknown = new Unknown();
         
+        assertNotNull(object, "object was null.");
+        
+        //noinspection SimplifiableAssertion,ConstantValue
         assertAll(
-            () -> assertEquals(object.hashCode(),object.hashCode(), "hash codes should not change."),
+            () -> assertEquals(object.hashCode(), object.hashCode(), "hash codes should not change."),
             () -> assertNotNull(object.toString(), "object toString() was null."),
-            () -> assertNotEquals(null, object, "Object.equals(null) should be false."),
-            () -> assertNotEquals( unknown, object, "Object.equals(null) should be true.")
+            () -> assertFalse(object.equals(null), "Object.equals(null) should be false."),
+            () -> assertFalse(object.equals(unknown), "Object.equals(unknown) should be false.")
         );
     }
     
-    public static void assertInstantiateThrows(Class<?> clazz) {
+    /**
+     * Asserts that a class can NOT be instantiated
+     *
+     * @param theClass the class to check
+     */
+    public static void assertInstantiateThrows(Class<?> theClass) {
+        final Class<?> validClass = nullCheck(theClass, "class was null");
         final Throwable thrown = assertThrows(Throwable.class, () -> {
-            Constructor<?> constructor = clazz.getDeclaredConstructor();
+            final Constructor<?> constructor = validClass.getDeclaredConstructor();
             constructor.setAccessible(true);
             constructor.newInstance();
         });
@@ -49,69 +72,90 @@ public final class Tools {
             , "Exception thrown not expected " + thrown.getClass().getName());
     }
     
+    @SuppressWarnings("DataFlowIssue")
+    public static void assertThrown(Throwable thrown, Throwable cause, String reason) {
+        assertObject(thrown);
+        
+        assertAll(
+            () -> assertEquals(cause, thrown.getCause(), "The cause should match."),
+            () -> assertEquals(reason, thrown.getMessage(), "The reason should match."),
+            () -> assertNotNull(thrown.toString(), "The string should not be null.")
+        );
+    }
+    
     public static void assertThrown(Throwable thrown) {
-        assertThrown(thrown, (Throwable)null);
+        assertNotNull(thrown, "thrown was null.");
+        
+        assertThrown(thrown, thrown.getCause(), thrown.getMessage());
     }
     
     public static void assertThrown(Throwable thrown, Throwable cause) {
-        assertAll(
-            () -> assertObject(thrown),
-            () -> assertNotNull(thrown, "The thrown exception should not be null."),
-            () -> assertEquals(cause, thrown.getCause(), "The cause should match."),
-            () -> assertNotNull(thrown.getMessage(), "The message should not be null."),
-            () -> assertNotNull(thrown.toString(), "The string should not be null.")
-        );
+        assertNotNull(thrown, "thrown was null.");
+        
+        assertThrown(thrown, cause, thrown.getMessage());
     }
     
-    public static void assertThrown(Throwable thrown, Throwable cause, String message) {
-        assertAll(
-            () -> assertObject(thrown),
-            () -> assertNotNull(thrown, "The thrown exception should not be null."),
-            () -> assertEquals(cause, thrown.getCause(), "The cause should match."),
-            () -> assertEquals(message, thrown.getMessage(), "The message should match."),
-            () -> assertNotNull(thrown.toString(), "The string should not be null.")
-        );
+    public static void assertThrown(Throwable thrown, String reason) {
+        assertNotNull(thrown, "thrown was null.");
+        
+        assertThrown(thrown, thrown.getCause(), reason);
     }
-    
-    public static void assertThrown(Throwable thrown, String message) {
-        assertAll(
-            () -> assertNotNull(thrown, "The thrown exception should not be null."),
-            () -> assertEquals(message, thrown.getMessage(), "The message should match."),
-            () -> assertNotNull(thrown.toString(), "The string should not be null.")
-        );
-    }
-    
-    public static <T> void assertContract(Contract<T> contract, T valid ) {
-        assertAll(
-            () -> assertNotNull(contract, "Contract must not be null."),
-            () -> assertNotNull(contract.getName(), "Contract name must not be null."),
-            () -> assertNotNull(contract.getTypeName(), "Contract type must not be null."),
-            () -> assertNull(contract.cast(null), "Cast null should return null."),
-            () -> assertSame(valid, contract.cast(valid), "cast valid value."),
-            () -> assertThrows(ClassCastException.class, () -> contract.cast(System.class), "Invalid cast should thrown."),
-            () -> assertNotNull(contract.toString(), "Contract string must not be null.")
-        );
-    }
-    
+  
+    /**
+     * Assert a Contract is valid
+     * @param contract the contract to check
+     * @param config the expected configuration
+     * @param valid  a valid value
+     * @param <T> the type of deliverable
+     */
+    @SuppressWarnings("DataFlowIssue")
     public static <T> void assertContract(Contract<T> contract, Contract.Config<T> config, T valid) {
+        assertNotNull(contract, "Contract must not be null.");
+
         assertAll(
-            () -> assertContract(contract, valid),
+            () -> assertObject(contract),
             () -> assertSame(config.cast(valid),contract.cast(valid), "cast valid value."),
+            () -> assertNull(contract.cast(null), "Cast null should return null."),
+            () -> assertThrows(ClassCastException.class, () -> contract.cast(System.class), "Invalid cast should thrown."),
             () -> assertSame(config.typeName(), contract.getTypeName(), "Contract type mismatch."),
             () -> assertSame(config.name(), contract.getName(), "Contract name mismatch."),
             () -> assertSame(config.isReplaceable(), contract.isReplaceable(), "Contract replacement mismatch.")
         );
     }
     
-    public static void clean() {
-        try {
-            final Service.Config config = new Service.Config() {};
-            final ServiceLoader<? extends ServiceFactory> loader = ServiceLoader.load(config.serviceLoaderClass());
-            loader.reload();
-        } catch (Throwable ignored) {
+    /**
+     * When cleaning before and after tests.
+     * The strategy is to execute all sanitizers, ignoring any errors.
+     * @param sanitizers the things to sanitize
+     */
+    public static void sanitize(Executable... sanitizers) {
+        if(ofNullable(sanitizers).isPresent()) {
+            for (Executable sanitizer : sanitizers) {
+                if (ofNullable(sanitizer).isPresent()) {
+                    try {
+                        sanitizer.execute();
+                    } catch (Throwable ignored) {
+                    }
+                }
+            }
         }
     }
     
+    /**
+     * Clean state from the testing context.
+     */
+    public static void clean() {
+        sanitize(()-> {
+            final Service.Config config = new Service.Config() {};
+            final ServiceLoader<? extends ServiceFactory> loader = ServiceLoader.load(config.serviceLoaderClass());
+            loader.reload();
+        });
+    }
+    
+    /**
+     * Do nothing for a period of time (Non-busy-wait)
+     * @param duration how long to sleep
+     */
     public static void sleep(Duration duration) {
         final Duration validDuration = nullCheck(duration, "Duration must not be null");
         final CountDownLatch latch = new CountDownLatch(1);
