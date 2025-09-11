@@ -11,7 +11,7 @@ public final class Contracts {
      * Claim the deliverable from a bound contract.
      *
      * @param contract the contract to claim
-     * @param <T> type of value returned
+     * @param <T>      type of value returned
      * @return the value returned by the bound Promisor. A Promisor can return null
      * @throws ContractException if Promisor binding does not exist for the contract
      * @throws SecurityException if permission is denied
@@ -19,9 +19,16 @@ public final class Contracts {
     public static <T> T claimContract(Contract<T> contract) {
         return CONTRACTS.service.claim(contract);
     }
-
+    
     /**
      * Establish a binding between a Contract and a Promisor
+     *
+     * @param contract the contract to bind the Promisor
+     * @param promisor the Promisor for the given contract
+     * @param <T>      The type of the value returned by the promisor
+     * @return Use to release (unbind) this contract
+     * @throws ContractException when contract is already bound and can't be replaced
+     * @throws SecurityException when permission to bind is denied
      */
     public static <T> Shutdown bindContract(Contract<T> contract, Promisor<T> promisor) {
         return CONTRACTS.service.bind(contract, promisor);
@@ -29,19 +36,22 @@ public final class Contracts {
     
     /**
      * Checks if the contract is bound to a Promisor
+     *
      * @param contract the contract to check
+     * @param <T>      The type of the value returned by the promisor
      * @return true iif bound
      */
-    public static boolean isContractBound(Contract<?> contract) {
+    public static <T> boolean isContractBound(Contract<T> contract) {
         return CONTRACTS.service.isBound(contract);
     }
-
+    
     /**
      * Create a standalone Contracts service.
      * Note: Services created from this method are destink any that used internally
      * <p>
-     *  Caller is responsible for invoking startup() before use and shutdown when no longer needed
+     * Caller is responsible for invoking startup() before use and shutdown when no longer needed
      * </p>
+     *
      * @param serviceConfig the service configuration
      * @return the new service
      */
@@ -56,9 +66,10 @@ public final class Contracts {
     private static final Contracts CONTRACTS = new Contracts();
     
     private final Service service;
-
+    
     private Contracts() {
-        this.service = createService(new Service.Config() {});
+        this.service = createService(new Service.Config() {
+        });
         service.startup();
     }
 }

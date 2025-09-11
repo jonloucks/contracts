@@ -1,8 +1,12 @@
 package io.github.jonloucks.contracts.test;
 
 import io.github.jonloucks.contracts.api.*;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.stubbing.Answer;
 
 import java.time.Duration;
@@ -12,11 +16,77 @@ import java.util.function.Supplier;
 
 import static io.github.jonloucks.contracts.api.Contracts.bindContract;
 import static io.github.jonloucks.contracts.test.LifeCyclePromisorTests.ConcurrencyTestsTool.*;
+import static io.github.jonloucks.contracts.test.Tools.assertThrown;
 import static io.github.jonloucks.contracts.test.Tools.sleep;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
+@SuppressWarnings({"Convert2MethodRef", "CodeBlock2Expr"})
+@ExtendWith(MockitoExtension.class)
 public interface LifeCyclePromisorTests {
+    
+
+    @Test
+    default void promisors_createLifeCyclePromisor_WithNull_Throws() {
+        final Promisors promisors = Contracts.claimContract(Promisors.CONTRACT);
+        
+        final IllegalArgumentException thrown = assertThrows(IllegalArgumentException.class, () ->
+            promisors.createLifeCyclePromisor(null)
+        );
+        
+        assertThrown(thrown);
+    }
+    
+    @Test
+    default void promisors_LifeCyclePromisor_get_WithUsage_Throws() {
+        final Promisors promisors = Contracts.claimContract(Promisors.CONTRACT);
+        final Promisor<String> promisor = promisors.createLifeCyclePromisor(() -> "abc");
+        
+        final IllegalStateException thrown = assertThrows(IllegalStateException.class, () -> {
+            promisor.demand();
+        });
+        
+        assertThrown(thrown);
+    }
+    
+    @Test
+    default void promisors_createLifeCyclePromisor_WithNullDeliverable_Works() {
+        final Promisors promisors = Contracts.claimContract(Promisors.CONTRACT);
+        final Promisor<String> promisor = promisors.createLifeCyclePromisor(()->null);
+        promisor.incrementUsage();
+        
+        assertNotNull(promisor, "should not return null.");
+        assertNull(promisor.demand());
+    }
+    
+    @Test
+    default void promisors_createLifeCyclePromisor_Valid_Works(@Mock Promisor<Decoy<Integer>> referent, @Mock Decoy<Integer> deliverable) {
+        final int usages = 5;
+        final Promisors promisors = Contracts.claimContract(Promisors.CONTRACT);
+        when(referent.demand()).thenReturn(deliverable);
+        final Promisor<Decoy<Integer>> promisor = promisors.createLifeCyclePromisor(referent);
+        
+        assertNotNull(promisor, "should not return null.");
+        
+        for (int i = 0; i < usages; i++) {
+            promisor.incrementUsage();
+        }
+        final Decoy<Integer> actual = promisor.demand();
+        for (int i = 0; i < usages; i++) {
+            promisor.decrementUsage();
+        }
+        
+        assertAll(
+            () -> assertSame(deliverable, actual, "deliverables should match."),
+            () -> verify(referent, times(usages)).decrementUsage(),
+            () -> verify(referent, times(usages)).incrementUsage(),
+            () -> verify(deliverable, never()).incrementUsage(),
+            () -> verify(deliverable, never()).decrementUsage(),
+            () -> verify(deliverable, times(1)).startup(),
+            () -> verify(deliverable, times(1)).shutdown()
+        );
+    }
+    
     
     @ParameterizedTest(name = "Threads = {0}")
     @ValueSource(ints = { 1, 2, 3, 5, 8, 12, 17, 29 })

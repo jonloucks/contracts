@@ -6,12 +6,12 @@ import java.util.function.Function;
 
 import static io.github.jonloucks.contracts.api.Checks.*;
 
-final class DependentPromisorImpl<T,R> implements Promisor<R> {
+final class ExtractPromisorImpl<T, R> implements Promisor<R> {
     @Override
     public R demand() {
         return transform.apply(referent.demand());
     }
-
+    
     @Override
     public int incrementUsage() {
         return referent.incrementUsage();
@@ -25,7 +25,7 @@ final class DependentPromisorImpl<T,R> implements Promisor<R> {
     private final Promisor<T> referent;
     private final Function<T, R> transform;
     
-    DependentPromisorImpl(Promisor<T> referent, Function<T, R> transform) {
+    ExtractPromisorImpl(Promisor<T> referent, Function<T, R> transform) {
         this.referent = promisorCheck(referent);
         this.transform = nullCheck(transform, "transform was null");
     }

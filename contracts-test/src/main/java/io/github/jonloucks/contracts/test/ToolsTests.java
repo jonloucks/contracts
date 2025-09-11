@@ -38,7 +38,7 @@ public interface ToolsTests {
     
     @ParameterizedTest(name = "Duration {0} milliseconds")
     @ValueSource(ints = {0, 5, 10, 100, 200})
-    default void tests_sleep_WithDuration(long milliseconds) {
+    default void tools_sleep_WithDuration(long milliseconds) {
         final Duration expectedDuration = Duration.ofMillis(milliseconds);
         final Duration allowedDifference = Duration.ofMillis(10);
         final Instant start = Instant.now();
@@ -53,12 +53,11 @@ public interface ToolsTests {
     
     @ParameterizedTest(name = "Duration {0} milliseconds")
     @ValueSource(ints = {-1, -2 })
-    default void tests_sleep_WithInvalidDuration(long milliseconds) {
+    default void tools_sleep_WithInvalidDuration(long milliseconds) {
         final Duration expectedDuration = Duration.ofMillis(milliseconds);
         final IllegalArgumentException thrown = assertThrows(IllegalArgumentException.class, () -> {
             Tools.sleep(expectedDuration);
         });
         assertThrown(thrown);
     }
-
 }

@@ -21,9 +21,9 @@ public interface ServiceTests {
         final Service.Config config = new Service.Config() {};
         
         assertAll(
-            () -> assertTrue(config.useReflection(), "config.useReflection() default"),
-            () -> assertTrue(config.useServiceLoader(), "config.useServiceLoader() default"),
-            () -> assertTrue(config.useShutdownHooks(), "config.useShutdownHooks() default"),
+            () -> assertTrue(config.useReflection(), "config.useReflection() default."),
+            () -> assertTrue(config.useServiceLoader(), "config.useServiceLoader() default."),
+            () -> assertTrue(config.useShutdownHooks(), "config.useShutdownHooks() default."),
             () -> assertNotNull(config.reflectionClassName(), "config.reflectionClassName() was null.")
         );
     }
@@ -36,14 +36,14 @@ public interface ServiceTests {
         
         final Service service = Contracts.createService(serviceConfig);
         
-        assumeTrue(ofNullable(service).isPresent(), "Create service failed");
+        assumeTrue(ofNullable(service).isPresent(), "create service failed");
         
         service.bind(contract, () -> "hello");
         
         try {
-            assertFalse(service.isBound(unboundContract), "Contract should be bound");
-            assertTrue(service.isBound(contract), "Contract should be bound");
-            assertEquals("hello", service.claim(contract));
+            assertFalse(service.isBound(unboundContract), "Contract should be bound.");
+            assertTrue(service.isBound(contract), "Contract should be bound.");
+            assertEquals("hello", service.claim(contract), "Claimed value should match.");
         } finally {
             service.shutdown();
         }
@@ -109,7 +109,7 @@ public interface ServiceTests {
                     }
                     @Override
                     public Class<? extends ServiceFactory> serviceLoaderClass() {
-                        return UnknownServiceFactoryImpl.class;
+                        return BadServiceFactory.class;
                     }
                 }),
                 Arguments.of(new Service.Config() {
@@ -123,7 +123,7 @@ public interface ServiceTests {
                     }
                     @Override
                     public String reflectionClassName() {
-                        return UnknownServiceFactoryImpl.class.getName();
+                        return BadServiceFactory.class.getName();
                     }
                 }),
                 Arguments.of(new Service.Config() {
@@ -142,6 +142,5 @@ public interface ServiceTests {
                 })
             );
         }
-        
     }
 }

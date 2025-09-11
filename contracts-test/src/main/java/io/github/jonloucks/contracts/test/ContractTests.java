@@ -96,7 +96,7 @@ public interface ContractTests {
             () -> assertFalse(defaults.isReplaceable(), "Default for replaceable."),
             () -> assertEquals("", defaults.name(), "Default for name."),
             () -> assertEquals("", defaults.typeName(), "Default for typeName."),
-            () -> assertSame( "abc", defaults.cast("abc"), "Cast should work"),
+            () -> assertSame( "abc", defaults.cast("abc"), "Cast should work."),
             () -> assertThrows(ClassCastException.class, () -> defaults.cast(12L))
         );
     }

@@ -1,11 +1,15 @@
 plugins {
-    id 'java-library'
+//    id 'java-library'
     id 'maven-publish'
 }
 
+group = 'io.github.jonloucks.contracts'
+version = '1.0-SNAPSHOT'
+
 project.tasks.publish.enabled = false
 
-apply from: "${rootDir}/gradle/java-library.gradle"
+//apply from: "${rootDir}/gradle/java-library.gradle"
+
 
 repositories {
     mavenCentral()
