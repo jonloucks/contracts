@@ -14,17 +14,11 @@ final class ServiceFactoryFinder {
     }
     
     ServiceFactory createServiceFactory() {
-        final Optional<ServiceFactory> optionalByReflection = createByReflection();
-        if (optionalByReflection.isPresent()) {
-            return optionalByReflection.get();
-        }
-        final Optional<? extends ServiceFactory> optionalByServiceLoader = createByServiceLoader();
-        if (optionalByServiceLoader.isPresent()) {
-            return optionalByServiceLoader.get();
-        }
-        throw new ContractException("Unable to bootstrap Contracts");
+        return createByReflection()
+            .or(this::createByServiceLoader)
+            .orElseThrow(this::newNotFoundException);
     }
-    
+
     private Optional<? extends ServiceFactory> createByServiceLoader() {
         if (config.useServiceLoader()) {
             try {
@@ -53,5 +47,9 @@ final class ServiceFactoryFinder {
             }
         }
         return Optional.empty();
+    }
+    
+    private ContractException newNotFoundException() {
+        return new ContractException("Unable to find Contracts ServiceFactory");
     }
 }

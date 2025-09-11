@@ -11,7 +11,7 @@ import java.util.function.Supplier;
 import static io.github.jonloucks.contracts.api.Checks.*;
 import static java.util.Optional.ofNullable;
 
-final class ServiceImpl implements Service, Shutdown {
+final class ServiceImpl implements Service {
     
     @Override
     public void startup() {
@@ -21,24 +21,24 @@ final class ServiceImpl implements Service, Shutdown {
     public void shutdown() {
         for (int attempts = 1, broken = breakAllBindings(); broken > 0; broken = breakAllBindings(), attempts++) {
             if (attempts > 5) {
-                throw newShutdownDidNotCompleteException(Contract.create("Notary"));
+                throw newShutdownDidNotCompleteException();
             }
         }
     }
-
+    
     @Override
     public <T> T claim(Contract<T> contract) {
         final Contract<T> validContract = contractCheck(contract);
-   
+        
         final Object deliverable = getFromPromisorMap(validContract)
-            .orElseThrow(()-> newContractNotPromisedException(validContract))
+            .orElseThrow(() -> newContractNotPromisedException(validContract))
             .demand();
         
         return validContract.cast(deliverable);
     }
     
     @Override
-    public boolean isBound(Contract<?> contract) {
+    public <T> boolean isBound(Contract<T> contract) {
         final Contract<?> validContract = contractCheck(contract);
         
         return getFromPromisorMap(validContract).isPresent();
@@ -50,7 +50,7 @@ final class ServiceImpl implements Service, Shutdown {
         final Promisor<T> validPromisor = promisorCheck(promisor);
         
         checkNewBinding(validContract, validPromisor);
- 
+        
         return makeBinding(validContract, validPromisor);
     }
     
@@ -67,7 +67,7 @@ final class ServiceImpl implements Service, Shutdown {
         }
     }
     
-    private void checkNewBinding(Contract<?> contract, Promisor<?> promisor ) {
+    private void checkNewBinding(Contract<?> contract, Promisor<?> promisor) {
         getFromPromisorMap(contract).ifPresent(currentPromisor -> {
             // This check is required.
             // It prohibits the redundant caller from being able to release
@@ -89,7 +89,7 @@ final class ServiceImpl implements Service, Shutdown {
         promisor.incrementUsage();
         return applyWithLock(mapLock.writeLock(), () -> {
             ofNullable(promisorMap.put(contract, promisor)).ifPresent(Promisor::decrementUsage);
-     
+            
             return () -> breakBinding(contract, promisor);
         });
     }
@@ -112,7 +112,7 @@ final class ServiceImpl implements Service, Shutdown {
     private Optional<Promisor<?>> putIntoPromisorMap(Contract<?> contract) {
         return ofNullable(applyWithLock(mapLock.writeLock(), () -> promisorMap.remove(contract)));
     }
-
+    
     private <T> Optional<Promisor<?>> getFromPromisorMap(Contract<T> validContract) {
         return ofNullable(applyWithLock(mapLock.readLock(), () -> promisorMap.get(validContract)));
     }
@@ -136,7 +136,7 @@ final class ServiceImpl implements Service, Shutdown {
         // The last to be inserted is the first to be removed.
         final AtomicInteger contractCount = new AtomicInteger();
         return applyWithLock(mapLock.writeLock(), () -> {
-            promisorMap.forEach((contract,promisor)-> {
+            promisorMap.forEach((contract, promisor) -> {
                 contracts.push(contract);
                 promisors.push(promisor);
                 contractCount.incrementAndGet();
@@ -154,8 +154,8 @@ final class ServiceImpl implements Service, Shutdown {
         }
     }
     
-    private static <T> ContractException newShutdownDidNotCompleteException(Contract<T> contract) {
-        return new ContractException("Contract " + contract + " shutdown did not complete");
+    private static ContractException newShutdownDidNotCompleteException() {
+        return new ContractException("Service failed to shutdown after trying multiple times");
     }
     
     private static <T> ContractException newContractNotPromisedException(Contract<T> contract) {

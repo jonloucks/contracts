@@ -10,7 +10,7 @@ import static io.github.jonloucks.contracts.test.Tools.assertThrown;
 import static org.junit.jupiter.api.Assertions.*;
 
 
-@SuppressWarnings("CodeBlock2Expr")
+@SuppressWarnings({"CodeBlock2Expr", "DataFlowIssue"})
 @ExtendWith(MockitoExtension.class)
 public interface ChecksTests {
     

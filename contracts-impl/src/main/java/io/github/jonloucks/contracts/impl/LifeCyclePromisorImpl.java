@@ -114,7 +114,7 @@ final class LifeCyclePromisorImpl<T> implements Promisor<T> {
             }
         }
     }
- 
+    
     private void shutdownDeliverable() {
         if (isDeliverableAcquired.get()) {
             final T deliverable = atomicDeliverable.get();

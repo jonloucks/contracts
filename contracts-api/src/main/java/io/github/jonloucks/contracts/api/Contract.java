@@ -4,16 +4,45 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import static io.github.jonloucks.contracts.api.Checks.nullCheck;
 
+/**
+ * The API agreement for a Contract between the claimee and the claimant.
+ * <p>
+ * Each Contract instance is a unique key for establishing a binding between
+ * an implementation and those that use it.
+ * </p>
+ * <ul>
+ *     <li>Create by custom config  {@link #create(Config)}</li>
+ *     <li>Creation by automatic config. {@link #create(String, Object[])}</li>
+ *     <li>Used by {@link Contracts#claimContract(Contract)}</li>
+ *     <li>Used by {@link Contracts#bindContract(Contract, Promisor)}</li>
+ *     <li>Used by {@link Service#claim(Contract)}</li>
+ *     <li>Used by {@link Service#bind(Contract, Promisor)}</li>
+ * </ul>
+ * <h2>A simple factory</h2>
+ * Each call to {@link Service#claim(Contract)} will return a new instance.
+ * <pre class="code">
+ *     <code class="java">
+ *  // Save Contract at some agreed upon place
+ *  public static final Contract&lt;Service&gt; SERVICE = Contract.create("You Choose");
+ *  // The promisor needs to be bound before it is claimed.
+ *  Contracts.bindContract(SERVICE, () -> new ServiceImpl());
+ *  // Ready to be claimed
+ *  Service service = Contracts.claimContract(SERVICE);
+ * </code></pre>
+ * If you need a thread specific
+ *
+ * @param <T> The type of deliverable
+ */
 public final class Contract<T> {
     
     /**
-     * Create a contract with a given name and type is automatically detected.
-     * <p></p>
+     * Create a contract with a given name, the rest is automatic.
      * For custom configuration see {@link #create(Config)}
-     * @param name the name for the contract, null is not allowed
+     *
+     * @param name          the name for the contract, null is not allowed
      * @param instanceArray null is not allowed
+     * @param <T>           the type of deliverable for this Contract
      * @return the new Contract
-     * @param <T> the type of deliverable for this Contract
      */
     @SafeVarargs // Required to safely determine the checked type of T
     public static <T> Contract<T> create(String name, T... instanceArray) {
@@ -22,15 +51,15 @@ public final class Contract<T> {
     
     /**
      * Create a contract derived from the given configuration
-     * <p></p>
+     *
      * @param config the name for the contract, null is not allowed
+     * @param <T>    the type of deliverable for this Contract
      * @return the new Contract
-     * @param <T> the type of deliverable for this Contract
      */
     public static <T> Contract<T> create(Config<T> config) {
         return new Contract<>(config);
     }
- 
+    
     /**
      * Casts the given object to the return type for this Contract
      * This is used to make sure the value is a checked value and does not sneak passed during erasure
@@ -42,7 +71,7 @@ public final class Contract<T> {
     public T cast(Object value) {
         return config.cast(value);
     }
-
+    
     /**
      * @return the contract name
      */
@@ -52,6 +81,8 @@ public final class Contract<T> {
     
     /**
      * Note: Do not rely on this being a java class name
+     * Note: The actual class is never exposed and is by design.
+     *
      * @return the type of deliverable for this contract.
      */
     public String getTypeName() {
@@ -61,6 +92,7 @@ public final class Contract<T> {
     /**
      * When replaceable a new binding can replace in an existing one
      * The default is false
+     *
      * @return true if replaceable
      */
     public boolean isReplaceable() {
@@ -72,11 +104,19 @@ public final class Contract<T> {
         return "Contract[id=" + id + ", name=" + getName() + ", type=" + getTypeName() + "]";
     }
     
+    /**
+     * The configuration for creating a custom Contract.
+     * The required function is {@link Config#cast(Object)} which is plays
+     * a key role in ensuring unchecked or unsafe instances do not escape
+     *
+     * @param <T> The Contract deliverable type
+     */
     @FunctionalInterface
     public interface Config<T> {
         
         /**
-         * Safely cast object to type T
+         * Ensure an instance is of type T (or descendent)
+         *
          * @param instance the value to cast to type T
          * @return the value, null is allowed
          * @throws ClassCastException when type of instance is not correct
@@ -86,6 +126,7 @@ public final class Contract<T> {
         /**
          * User defined name for this contract.
          * Note: Do not rely on this being a java class name
+         *
          * @return the type name
          */
         default String name() {
@@ -95,6 +136,7 @@ public final class Contract<T> {
         /**
          * The type of deliverable for this contract.
          * Note: Do not rely on this being a java class name
+         *
          * @return the type name, null is illegal
          */
         default String typeName() {
@@ -104,6 +146,7 @@ public final class Contract<T> {
         /**
          * When replaceable a new binding can replace in an existing one
          * The default is false
+         *
          * @return true if replaceable
          */
         default boolean isReplaceable() {
@@ -129,20 +172,22 @@ public final class Contract<T> {
         
         return Contract.create(new Contract.Config<>() {
             @Override
+            public T cast(Object instance) {
+                return validDeliverableType.cast(instance);
+            }
+            
+            @Override
             public String name() {
                 return validName;
             }
+            
             @Override
             public String typeName() {
                 return validDeliverableType.getTypeName();
             }
-            
-            @Override
-            public T cast(Object instance) {
-                return validDeliverableType.cast(instance);
-            }
         });
     }
+    
     //Since arrays are reified the following is safe and checked
     @SuppressWarnings("unchecked")
     private static <T> Class<T> detectDeliverableType(T[] validInstanceArray) {

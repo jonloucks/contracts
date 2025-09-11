@@ -15,7 +15,7 @@ public interface Decoy<D> extends Promisor<D>, ServiceFactory, Service, Startup,
     }
     
     @Override
-    default boolean isBound(Contract<?> contract) {
+    default <T> boolean isBound(Contract<T> contract) {
         return false;
     }
     

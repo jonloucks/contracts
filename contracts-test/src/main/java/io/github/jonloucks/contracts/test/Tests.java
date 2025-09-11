@@ -1,15 +1,14 @@
 package io.github.jonloucks.contracts.test;
 
-
+/**
+ * All the tests for a Contracts implementation as well as tests for testing tools.
+ */
 public interface Tests extends
-    ChecksTests,
+    TestTests,
     ContractTests,
     ContractsTests,
-    DecoyTests,
     ExceptionTests,
-    LifeCyclePromisorTests,
     PromisorsTests,
-    ServiceTests,
-    ToolsTests
+    ServiceTests
 {
 }
