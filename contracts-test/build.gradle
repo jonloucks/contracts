@@ -1,9 +1,14 @@
 plugins {
     id 'java-library'
     id 'maven-publish'
+    id 'signing'
 }
 
 apply from: "${rootDir}/gradle/java-test-library.gradle"
+
+javadoc {
+   exclude '**/**'
+}
 
 dependencies {
     api project(':contracts-api')
