@@ -29,6 +29,14 @@ public interface ToolsTests {
     }
     
     @Test
+    default void tools_assertInstantiate_WithNull_Throws() {
+        final IllegalArgumentException thrown = assertThrows(IllegalArgumentException.class, ()-> {
+            assertInstantiateThrows(null);
+        });
+        assertThrown(thrown);
+    }
+    
+    @Test
     default void tools_sleep_WithNullDuration_Throws() {
         final IllegalArgumentException thrown = assertThrows(IllegalArgumentException.class, ()-> {
             Tools.sleep(null);

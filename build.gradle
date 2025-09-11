@@ -1,15 +1,12 @@
 plugins {
-//    id 'java-library'
     id 'maven-publish'
+    id 'jacoco-report-aggregation'
 }
 
 group = 'io.github.jonloucks.contracts'
 version = '1.0-SNAPSHOT'
 
 project.tasks.publish.enabled = false
-
-//apply from: "${rootDir}/gradle/java-library.gradle"
-
 
 repositories {
     mavenCentral()

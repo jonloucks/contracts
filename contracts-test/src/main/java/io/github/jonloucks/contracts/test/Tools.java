@@ -27,16 +27,21 @@ public final class Tools {
         assertNotNull(object, "object was null");
         
         assertAll(
-            () -> assertEquals(object.hashCode(),object.hashCode(), "hash codes should not change."),
+            () -> assertEquals(object.hashCode(), object.hashCode(), "hash codes should not change."),
             () -> assertNotNull(object.toString(), "object toString() was null."),
             () -> assertNotEquals(null, object, "Object.equals(null) should be false."),
             () -> assertNotEquals( unknown, object, "Object.equals(null) should be true.")
         );
     }
     
-    public static void assertInstantiateThrows(Class<?> clazz) {
+    /**
+     * Checks that given class can not be instantiated
+     * @param aClass the class to attempt to instantiate
+     */
+    public static void assertInstantiateThrows(Class<?> aClass) {
+        final Class<?> validClass = nullCheck(aClass, "class was null");;
         final Throwable thrown = assertThrows(Throwable.class, () -> {
-            Constructor<?> constructor = clazz.getDeclaredConstructor();
+            Constructor<?> constructor = validClass.getDeclaredConstructor();
             constructor.setAccessible(true);
             constructor.newInstance();
         });
@@ -54,8 +59,8 @@ public final class Tools {
     }
     
     public static void assertThrown(Throwable thrown, Throwable cause) {
+       assertObject(thrown);
         assertAll(
-            () -> assertObject(thrown),
             () -> assertNotNull(thrown, "The thrown exception should not be null."),
             () -> assertEquals(cause, thrown.getCause(), "The cause should match."),
             () -> assertNotNull(thrown.getMessage(), "The message should not be null."),
@@ -112,6 +117,10 @@ public final class Tools {
         }
     }
     
+    /**
+     * Sleep for testing, without using busy wait
+     * @param duration how long to wait
+     */
     public static void sleep(Duration duration) {
         final Duration validDuration = nullCheck(duration, "Duration must not be null");
         final CountDownLatch latch = new CountDownLatch(1);
