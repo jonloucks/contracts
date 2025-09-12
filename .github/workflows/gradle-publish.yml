@@ -48,4 +48,6 @@ jobs:
         TOKEN: ${{ secrets.GITHUB_TOKEN }}
         OSSRH_USERNAME: ${{ secrets.OSSRH_USERNAME }}
         OSSRH_PASSWORD: ${{ secrets.OSSRH_TOKEN }}
+        OSSRH_TOKEN: ${{ secrets.OSSRH_TOKEN }}Q
+        ORG_GRADLE_PROJECT_signingPassword: ${{ secrets.OSSRH_GPG_SECRET_KEY_PASSWORD }}
         GITHUB_REF: ${{ github.ref }}

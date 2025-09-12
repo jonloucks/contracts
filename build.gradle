@@ -7,10 +7,18 @@ plugins {
 group = 'io.github.jonloucks.contracts'
 version = '1.0-SNAPSHOT'
 
+static def getRepositoryUserName() {
+    System.getenv("OSSRH_USERNAME")
+}
+
+static def getRepositoryPassword() {
+    System.getenv("OSSRH_PASSWORD")
+}
+
 ext.hasGithubActions = providers.environmentVariable("GITHUB_ACTIONS").isPresent()
-ext.hasReleaseCredentials = System.getenv("OSSRH_USERNAME") != null
-ext.doingRealRelease = !version.endsWith("SNAPSHOT") && ext.hasGithubActions && ext.hasReleaseCredentials
-ext.doingSnapshotRelease = !ext.doingRealRelease && ext.hasReleaseCredentials
+ext.hasReleaseCredentials = getRepositoryUserName() != null && getRepositoryPassword() != null
+ext.doingOfficalRelease = !version.endsWith("SNAPSHOT") && ext.hasGithubActions && ext.hasReleaseCredentials
+ext.doingSnapshotRelease = !ext.doingOfficalRelease && ext.hasReleaseCredentials
 
 if (ext.hasGithubActions) {
     println "Has GitHub Actions";
@@ -23,7 +31,7 @@ if (ext.hasReleaseCredentials) {
 }
 
 tasks.withType(Sign) {
-    onlyIf { ext.doingRealRelease }
+    onlyIf { ext.doingOfficalRelease }
 }
 
 project.tasks.publish.enabled = false
@@ -34,15 +42,15 @@ repositories {
 
 publishing {
     repositories {
-        if (doingRealRelease) {
+        if (doingOfficalRelease) {
             println "publishing to sonatype staging"
             maven {
                 name = "OSSRH"
                 url = "https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/"
 
                 credentials {
-                    username = System.getenv("OSSRH_USERNAME")
-                    password = System.getenv("OSSRH_PASSWORD")
+                    username = getRepositoryUserName()
+                    password = getRepositoryPassword()
                 }
             }
         } else if (doingSnapshotRelease) {
@@ -52,8 +60,8 @@ publishing {
                 url = "https://s01.oss.sonatype.org/content/repositories/snapshots/"
 
                 credentials {
-                    username = System.getenv("OSSRH_USERNAME")
-                    password = System.getenv("OSSRH_PASSWORD")
+                    username = getRepositoryUserName()
+                    password = getRepositoryPassword()
                 }
             }
         }
