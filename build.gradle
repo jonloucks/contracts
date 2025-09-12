@@ -1,0 +1,15 @@
+plugins {
+    id 'maven-publish'
+}
+
+group = 'io.github.jonloucks.contracts'
+version = '1.0-SNAPSHOT'
+
+project.tasks.publish.enabled = false
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+}

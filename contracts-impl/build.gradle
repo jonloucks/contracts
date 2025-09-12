@@ -1,0 +1,14 @@
+plugins {
+    id 'java-library'
+    id 'maven-publish'
+    id 'signing'
+}
+
+apply from: "${rootDir}/gradle/java-library.gradle"
+
+dependencies {
+    api project(":contracts-api")
+
+    testImplementation project(":contracts-test")
+}
+
