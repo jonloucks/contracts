@@ -1,5 +1,4 @@
-group = 'io.github.jonloucks.contracts'
-version = '1.0-SNAPSHOT'
+apply from: "${rootDir}/gradle/java-publishing.gradle"
 
 int COMPILER_VERSION = libs.versions.jdk.version.get() as int
 int LANGUAGE_LEVEL = libs.versions.java.language.version.get() as int
@@ -71,33 +70,33 @@ repositories {
     mavenCentral()
 }
 
-publishing {
-    publications {
-        mavenJava(MavenPublication) {
-            from components.java
-            pom {
-                name = 'Contracts'
-                description = 'Java Dependency Contracts for dependency inversion.'
-                url = 'https://github.com/jonloucks/contracts'
-                licenses {
-                    license {
-                        name = 'MIT License'
-                        url = 'https://github.com/jonloucks/contracts?tab=MIT-1-ov-file#MIT-1-ov-file'
-                    }
-                }
-                developers {
-                    developer {
-                        id = 'jonloucks'
-                        name = 'Jon Loucks'
-                        email = 'j.loucks@comcast.net'
-                    }
-                }
-                scm {
-                    connection = 'scm:git:git://github.com/jonloucks/contracts.git'
-                    developerConnection = 'scm:git:ssh://github.com:jonloucks/contracts.git'
-                    url = 'https://github.com/jonloucks/contracts'
-                }
-            }
-        }
-    }
-}
+//publishing {
+//    publications {
+//        mavenJava(MavenPublication) {
+//            from components.java
+//            pom {
+//                name = 'Contracts'
+//                description = 'Java Dependency Contracts for dependency inversion.'
+//                url = 'https://github.com/jonloucks/contracts'
+//                licenses {
+//                    license {
+//                        name = 'MIT License'
+//                        url = 'https://github.com/jonloucks/contracts?tab=MIT-1-ov-file#MIT-1-ov-file'
+//                    }
+//                }
+//                developers {
+//                    developer {
+//                        id = 'jonloucks'
+//                        name = 'Jon Loucks'
+//                        email = 'j.loucks@comcast.net'
+//                    }
+//                }
+//                scm {
+//                    connection = 'scm:git:git://github.com/jonloucks/contracts.git'
+//                    developerConnection = 'scm:git:ssh://github.com:jonloucks/contracts.git'
+//                    url = 'https://github.com/jonloucks/contracts'
+//                }
+//            }
+//        }
+//    }
+//}

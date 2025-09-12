@@ -28,14 +28,14 @@ jobs:
     - name: Build with Gradle
       run: ./gradlew build
       env:
-        CONTRACTS_WORKFLOW: 'main-release-build'
+        CONTRACTS_WORKFLOW: 'main-release'
 
     - name: Publish to GitHub Packages
       run: ./gradlew publish
       env:
-        CONTRACTS_WORKFLOW: 'main-release-publish'
+        CONTRACTS_WORKFLOW: 'main-release'
         USERNAME: ${{ github.actor }}
         TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        OSSRH_USERNAME: ${{ secrets.OSSRH_USERNAME }}
-        OSSRH_PASSWORD: ${{ secrets.OSSRH_TOKEN }}
+        OSSRH_GPG_SECRET_KEY: ${{ secrets.OSSRH_GPG_SECRET_KEY }}
+        OSSRH_GPG_SECRET_KEY_PASSWORD: ${{ secrets.OSSRH_GPG_SECRET_KEY_PASSWORD }}
 
