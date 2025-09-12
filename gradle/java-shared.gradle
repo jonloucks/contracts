@@ -14,8 +14,6 @@ java {
     withSourcesJar()
 }
 
-
-
 test {
     useJUnitPlatform()
 }
@@ -103,13 +101,15 @@ publishing {
         }
     }
 }
+
 tasks.withType(Sign) {
     onlyIf { rootProject.ext.doingSigning }
 }
 
 signing {
+    useInMemoryPgpKeys(
+            rootProject.findProperty("GPG_SIGNING_KEY") as String,
+            rootProject.findProperty("GPG_SIGNING_PASSWORD") as String
+    )
     sign publishing.publications.mavenJava
-    useGpgCmd() // Or useGpgAgent() if you have GPG Agent configured
-    // You might need to set up GPG key in GitHub secrets and pass it as env vars
-    // like System.getenv("GPG_PRIVATE_KEY") and System.getenv("GPG_PASSPHRASE")
 }

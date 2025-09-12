@@ -1,11 +1,10 @@
 plugins {
-//    id 'java-library'
+    id 'java-library'
     id 'maven-publish'
     id 'signing'
 }
 
-group = 'io.github.jonloucks.contracts'
-version = '1.0-SNAPSHOT'
+apply from: "${rootDir}/gradle/java-library.gradle"
 
 static def getRepositoryUserName() {
     System.getenv("OSSRH_USERNAME")
@@ -31,11 +30,12 @@ if (ext.hasReleaseCredentials) {
     println "No Release Credentials"
 }
 
-tasks.withType(Sign) {
+tasks.withType(Sign).configureEach {
     onlyIf { ext.doingSigning }
 }
 
-project.tasks.publish.enabled = false
+//project.tasks.publish.enabled = false
+
 
 repositories {
     mavenCentral()
