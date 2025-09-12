@@ -1,0 +1,119 @@
+
+String getConfig(String name) {
+    findProperty(name) as String ?: System.getenv(name)
+}
+
+String getGpgSecretKey() {
+    getConfig("OSSRH_GPG_SECRET_KEY")
+}
+
+String getGpgSecretPassword() {
+    String value = getConfig("OSSRH_GPG_SECRET_KEY_PASSWORD")
+    if (null == value) {
+        null
+    } else {
+        String newValue  = new String(Base64.decoder.decode(value), "UTF-8")
+        return newValue;
+    }
+}
+
+boolean hasReleaseCredentials() {
+    getGpgSecretKey() != null && getGpgSecretPassword() != null
+}
+
+String getWorkflowName() {
+    getConfig("CONTRACTS_WORKFLOW") ?: "developer"
+}
+
+boolean doingMainRelease() {
+    "main-release" == getWorkflowName() && hasReleaseCredentials()
+}
+
+boolean doingSnapshotRelease() {
+    "main-release" == getWorkflowName() && hasReleaseCredentials() && (version as String).endsWith("SNAPSHOT")
+}
+
+boolean doingSigning() {
+    doingMainRelease() || doingSnapshotRelease()
+}
+
+println "CONTRACTS_WORKFLOW: '" + getWorkflowName() + "'"
+
+if (hasReleaseCredentials()) {
+    println "Has Release Credentials"
+} else {
+    println "No Release Credentials"
+}
+
+if (doingSigning()) {
+    println "Doing signing"
+    apply plugin: 'signing'
+} else {
+    println "No signing"
+}
+
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            from components.java
+            pom {
+                name = 'Contracts'
+                description = 'Java Dependency Contracts for dependency inversion.'
+                url = 'https://github.com/jonloucks/contracts'
+                licenses {
+                    license {
+                        name = 'MIT License'
+                        url = 'https://github.com/jonloucks/contracts?tab=MIT-1-ov-file#MIT-1-ov-file'
+                    }
+                }
+                developers {
+                    developer {
+                        id = 'jonloucks'
+                        name = 'Jon Loucks'
+                        email = 'j.loucks@comcast.net'
+                    }
+                }
+                scm {
+                    connection = 'scm:git:git://github.com/jonloucks/contracts.git'
+                    developerConnection = 'scm:git:ssh://github.com:jonloucks/contracts.git'
+                    url = 'https://github.com/jonloucks/contracts'
+                }
+            }
+        }
+    }
+    repositories {
+        if (doingMainRelease()) {
+            println "publishing to sonatype staging"
+            maven {
+                name = "OSSRH"
+                url = "https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/"
+
+                credentials {
+                    username = getGpgSecretKey()
+                    password = getGpgSecretPassword()
+                }
+            }
+        } else if (doingSnapshotRelease()) {
+            println "publishing to sonatype snapshots"
+            maven {
+                name = "OSSRH"
+                url = "https://s01.oss.sonatype.org/content/repositories/snapshots/"
+
+                credentials {
+                    username = getGpgSecretKey()
+                    password = getGpgSecretPassword()
+                }
+            }
+        }
+    }
+}
+
+if (doingSigning()) {
+signing {
+    useInMemoryPgpKeys(
+            getGpgSecretKey(),
+            getGpgSecretPassword()
+    )
+    sign publishing.publications.mavenJava
+}
+}
