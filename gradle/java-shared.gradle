@@ -14,8 +14,6 @@ java {
     withSourcesJar()
 }
 
-
-
 test {
     useJUnitPlatform()
 }
@@ -78,7 +76,7 @@ publishing {
         mavenJava(MavenPublication) {
             from components.java
             pom {
-                name = 'Jon Loucks Contracts Library'
+                name = 'Contracts'
                 description = 'Java Dependency Contracts for dependency inversion.'
                 url = 'https://github.com/jonloucks/contracts'
                 licenses {
@@ -102,14 +100,4 @@ publishing {
             }
         }
     }
-}
-tasks.withType(Sign) {
-    onlyIf { rootProject.ext.doingRealRelease }
-}
-
-signing {
-    sign publishing.publications.mavenJava
-    useGpgCmd() // Or useGpgAgent() if you have GPG Agent configured
-    // You might need to set up GPG key in GitHub secrets and pass it as env vars
-    // like System.getenv("GPG_PRIVATE_KEY") and System.getenv("GPG_PASSPHRASE")
 }

@@ -1,21 +1,8 @@
-# This workflow uses actions that are not certified by GitHub.
-# They are provided by a third-party and are governed by
-# separate terms of service, privacy policy, and support
-# documentation.
-# This workflow will build a package using Gradle and then publish it to GitHub packages when a release is created
-# For more information see: https://github.com/actions/setup-java/blob/main/docs/advanced-usage.md#Publishing-using-gradle
-
-name: Gradle Package
+name: Main Release
 
 on:
   release:
     types: [created]
-  push:
-    branches:
-      - main
-  pull_request:
-    branches:
-      - main
 
 jobs:
   build:
@@ -40,12 +27,15 @@ jobs:
 
     - name: Build with Gradle
       run: ./gradlew build
+      env:
+        CONTRACTS_WORKFLOW: 'main-release-build'
 
     - name: Publish to GitHub Packages
       run: ./gradlew publish
       env:
+        CONTRACTS_WORKFLOW: 'main-release-publish'
         USERNAME: ${{ github.actor }}
         TOKEN: ${{ secrets.GITHUB_TOKEN }}
         OSSRH_USERNAME: ${{ secrets.OSSRH_USERNAME }}
         OSSRH_PASSWORD: ${{ secrets.OSSRH_TOKEN }}
-        GITHUB_REF: ${{ github.ref }}
+
