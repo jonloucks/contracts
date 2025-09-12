@@ -6,67 +6,15 @@ plugins {
 
 apply from: "${rootDir}/gradle/java-library.gradle"
 
-static def getRepositoryUserName() {
-    System.getenv("OSSRH_USERNAME")
-}
-
-static def getRepositoryPassword() {
-    System.getenv("OSSRH_PASSWORD")
-}
-
-ext.hasGithubActions = providers.environmentVariable("GITHUB_ACTIONS").isPresent()
-ext.hasReleaseCredentials = getRepositoryUserName() != null && getRepositoryPassword() != null
-ext.doingOfficalRelease = !version.endsWith("SNAPSHOT") && ext.hasGithubActions && ext.hasReleaseCredentials
-ext.doingSnapshotRelease = !ext.doingOfficalRelease && ext.hasReleaseCredentials
-ext.doingSigning = ext.doingOfficalRelease || ext.doingSnapshotRelease
-
-if (ext.hasGithubActions) {
-    println "Has GitHub Actions";
-}
-
-if (ext.hasReleaseCredentials) {
-    println "Has Release Credentials"
-} else {
-    println "No Release Credentials"
-}
-
-tasks.withType(Sign).configureEach {
-    onlyIf { ext.doingSigning }
-}
+//tasks.withType(Sign).configureEach {
+//    onlyIf { rootProject.ext.doingSigning }
+//}
 
 //project.tasks.publish.enabled = false
 
 
 repositories {
     mavenCentral()
-}
-
-publishing {
-    repositories {
-        if (doingOfficalRelease) {
-            println "publishing to sonatype staging"
-            maven {
-                name = "OSSRH"
-                url = "https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/"
-
-                credentials {
-                    username = getRepositoryUserName()
-                    password = getRepositoryPassword()
-                }
-            }
-        } else if (doingSnapshotRelease) {
-            println "publishing to sonatype snapshots"
-            maven {
-                name = "OSSRH"
-                url = "https://s01.oss.sonatype.org/content/repositories/snapshots/"
-
-                credentials {
-                    username = getRepositoryUserName()
-                    password = getRepositoryPassword()
-                }
-            }
-        }
-    }
 }
 
 dependencies {

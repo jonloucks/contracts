@@ -71,6 +71,50 @@ repositories {
     mavenCentral()
 }
 
+static def getRepositoryUserName() {
+    System.getenv("OSSRH_USERNAME")
+}
+
+static def getRepositoryPassword() {
+    System.getenv("OSSRH_PASSWORD")
+}
+
+static boolean hasReleaseCredentials() {
+    getRepositoryUserName() != null && getRepositoryPassword() != null
+}
+
+boolean hasGithubActions() {
+    providers.environmentVariable("GITHUB_ACTIONS").isPresent()
+}
+
+boolean doingOfficalRelease() {
+    !(version as String).endsWith("SNAPSHOT") && ext.hasGithubActions && ext.hasReleaseCredentials
+}
+
+boolean doingSnapshotRelease() {
+    !doingOfficalRelease() && hasReleaseCredentials() && (version as String).endsWith("SNAPSHOT")
+}
+
+boolean doingSigning() {
+    doingOfficalRelease() || doingSnapshotRelease()
+}
+
+if (hasGithubActions()) {
+    println "Has GitHub Actions";
+}
+
+if (hasReleaseCredentials()) {
+    println "Has Release Credentials"
+} else {
+    println "No Release Credentials"
+}
+
+if (doingSigning()) {
+    println "Doing signing"
+} else {
+    println "No signing"
+}
+
 publishing {
     publications {
         mavenJava(MavenPublication) {
@@ -101,15 +145,41 @@ publishing {
         }
     }
 }
+publishing {
+    repositories {
+        if (doingOfficalRelease()) {
+            println "publishing to sonatype staging"
+            maven {
+                name = "OSSRH"
+                url = "https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/"
 
-tasks.withType(Sign) {
-    onlyIf { rootProject.ext.doingSigning }
+                credentials {
+                    username = getRepositoryUserName()
+                    password = getRepositoryPassword()
+                }
+            }
+        } else if (doingSnapshotRelease()) {
+            println "publishing to sonatype snapshots"
+            maven {
+                name = "OSSRH"
+                url = "https://s01.oss.sonatype.org/content/repositories/snapshots/"
+
+                credentials {
+                    username = getRepositoryUserName()
+                    password = getRepositoryPassword()
+                }
+            }
+        }
+    }
 }
 
+if (doingSigning()) {
 signing {
     useInMemoryPgpKeys(
-            rootProject.findProperty("GPG_SIGNING_KEY") as String,
-            rootProject.findProperty("GPG_SIGNING_PASSWORD") as String
+            project.findProperty("GPG_SIGNING_KEY") as String,
+            project.findProperty("GPG_SIGNING_PASSWORD") as String
     )
     sign publishing.publications.mavenJava
 }
+}
+
