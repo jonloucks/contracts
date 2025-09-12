@@ -42,7 +42,7 @@ jobs:
       run: ./gradlew build
 
     - name: Publish to GitHub Packages
-      run: ./gradlew publish
+      run: ./gradlew publish --info
       env:
         USERNAME: ${{ github.actor }}
         TOKEN: ${{ secrets.GITHUB_TOKEN }}
