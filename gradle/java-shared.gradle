@@ -104,7 +104,7 @@ publishing {
     }
 }
 tasks.withType(Sign) {
-    onlyIf { rootProject.ext.doingOfficalRelease }
+    onlyIf { rootProject.ext.doingSigning }
 }
 
 signing {

@@ -19,6 +19,7 @@ ext.hasGithubActions = providers.environmentVariable("GITHUB_ACTIONS").isPresent
 ext.hasReleaseCredentials = getRepositoryUserName() != null && getRepositoryPassword() != null
 ext.doingOfficalRelease = !version.endsWith("SNAPSHOT") && ext.hasGithubActions && ext.hasReleaseCredentials
 ext.doingSnapshotRelease = !ext.doingOfficalRelease && ext.hasReleaseCredentials
+ext.doingSigning = ext.doingOfficalRelease || ext.doingSnapshotRelease
 
 if (ext.hasGithubActions) {
     println "Has GitHub Actions";
@@ -31,7 +32,7 @@ if (ext.hasReleaseCredentials) {
 }
 
 tasks.withType(Sign) {
-    onlyIf { ext.doingOfficalRelease }
+    onlyIf { ext.doingSigning }
 }
 
 project.tasks.publish.enabled = false
