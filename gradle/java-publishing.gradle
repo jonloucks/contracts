@@ -1,28 +1,37 @@
-
 String getConfig(String name) {
-    findProperty(name) as String ?: System.getenv(name)
+    final Provider<String> variable = providers.environmentVariable(name);
+    if (variable.isPresent()) {
+        return variable.get();
+    }
+    return project.findProperty(name) as String
 }
 
 String getGpgSecretKey() {
-    getConfig("OSSRH_GPG_SECRET_KEY")
-}
-
-String getGpgSecretPassword() {
-    String value = getConfig("OSSRH_GPG_SECRET_KEY_PASSWORD")
+    String value = getConfig("OSSRH_GPG_SECRET_KEY")
     if (null == value) {
         null
     } else {
-        String newValue  = new String(Base64.decoder.decode(value), "UTF-8")
-        return newValue;
+        if (value.startsWith("-")) {
+            return value;
+        }
+        return new String(Base64.decoder.decode(value), "UTF-8")
     }
 }
 
+String getGpgSecretKeyPassword() {
+    getConfig("OSSRH_GPG_SECRET_KEY_PASSWORD")
+}
+
 boolean hasReleaseCredentials() {
-    getGpgSecretKey() != null && getGpgSecretPassword() != null
+    getGpgSecretKey() != null && getGpgSecretKeyPassword() != null
 }
 
 String getWorkflowName() {
-    getConfig("CONTRACTS_WORKFLOW") ?: "developer"
+    getConfig("CONTRACTS_WORKFLOW") ?: "developer-release"
+}
+
+boolean doingDeveloperRelease() {
+    "developer-release" == getWorkflowName()
 }
 
 boolean doingMainRelease() {
@@ -34,7 +43,7 @@ boolean doingSnapshotRelease() {
 }
 
 boolean doingSigning() {
-    doingMainRelease() || doingSnapshotRelease()
+    doingDeveloperRelease()|| doingMainRelease() || doingSnapshotRelease()
 }
 
 println "CONTRACTS_WORKFLOW: '" + getWorkflowName() + "'"
@@ -50,6 +59,15 @@ if (doingSigning()) {
     apply plugin: 'signing'
 } else {
     println "No signing"
+}
+
+if (doingDeveloperRelease()) {
+    tasks.withType(Jar) { task ->
+        task.doLast {
+            ant.checksum algorithm: 'md5', file: it.archivePath
+            ant.checksum algorithm: 'sha1', file: it.archivePath
+        }
+    }
 }
 
 publishing {
@@ -82,7 +100,13 @@ publishing {
         }
     }
     repositories {
-        if (doingMainRelease()) {
+        if (doingDeveloperRelease()) {
+            println "publishing to developer staging"
+            maven {
+                name = "LocalMavenWithChecksums"
+                url = uri(layout.buildDirectory.dir("staging-deploy"))
+            }
+        } else if (doingMainRelease()) {
             println "publishing to sonatype staging"
             maven {
                 name = "OSSRH"
@@ -90,7 +114,7 @@ publishing {
 
                 credentials {
                     username = getGpgSecretKey()
-                    password = getGpgSecretPassword()
+                    password = getGpgSecretKeyPassword()
                 }
             }
         } else if (doingSnapshotRelease()) {
@@ -101,7 +125,7 @@ publishing {
 
                 credentials {
                     username = getGpgSecretKey()
-                    password = getGpgSecretPassword()
+                    password = getGpgSecretKeyPassword()
                 }
             }
         }
@@ -109,11 +133,8 @@ publishing {
 }
 
 if (doingSigning()) {
-signing {
-    useInMemoryPgpKeys(
-            getGpgSecretKey(),
-            getGpgSecretPassword()
-    )
-    sign publishing.publications.mavenJava
-}
+    signing {
+        useInMemoryPgpKeys(getGpgSecretKey(), getGpgSecretKeyPassword())
+        sign publishing.publications.mavenJava
+    }
 }
