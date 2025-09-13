@@ -6,6 +6,14 @@ String getConfig(String name) {
     return project.findProperty(name) as String
 }
 
+String getPublishUsername() {
+    getConfig("OSSRH_USERNAME")
+}
+
+String getPublishPassword() {
+    getConfig("OSSRH_PASSWORD")
+}
+
 String getGpgSecretKey() {
     String value = getConfig("OSSRH_GPG_SECRET_KEY")
     if (null == value) {
@@ -24,6 +32,10 @@ String getGpgSecretKeyPassword() {
 
 boolean hasReleaseCredentials() {
     getGpgSecretKey() != null && getGpgSecretKeyPassword() != null
+}
+
+boolean hasPublishCredentials() {
+    getPublishUsername() != null && getPublishPassword() != null
 }
 
 String getWorkflowName() {
@@ -52,6 +64,12 @@ if (hasReleaseCredentials()) {
     println "Has Release Credentials"
 } else {
     println "No Release Credentials"
+}
+
+if (hasPublishCredentials()) {
+    println "Has Publish Credentials"
+} else {
+    println "No Publish Credentials"
 }
 
 if (doingSigning()) {
@@ -113,8 +131,8 @@ publishing {
                 url = "https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/"
 
                 credentials {
-                    username = getGpgSecretKey()
-                    password = getGpgSecretKeyPassword()
+                    username = getPublishUsername()
+                    password = getPublishPassword()
                 }
             }
         } else if (doingSnapshotRelease()) {
@@ -124,8 +142,8 @@ publishing {
                 url = "https://s01.oss.sonatype.org/content/repositories/snapshots/"
 
                 credentials {
-                    username = getGpgSecretKey()
-                    password = getGpgSecretKeyPassword()
+                    username = getPublishUsername()
+                    password = getPublishPassword()
                 }
             }
         }
