@@ -31,7 +31,7 @@ jobs:
         CONTRACTS_WORKFLOW: 'main-release'
 
     - name: Publish to GitHub Packages
-      run: ./gradlew publish
+      run: ./gradlew publish createPublisherBundle uploadPublisherBundle
       env:
         CONTRACTS_WORKFLOW: 'main-release'
         USERNAME: ${{ github.actor }}
