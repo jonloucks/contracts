@@ -51,7 +51,7 @@ boolean doingMainRelease() {
 }
 
 boolean doingSnapshotRelease() {
-    "main-release" == getWorkflowName() && hasReleaseCredentials() && !(version as String).endsWith("SNAPSHOT")
+    "main-release" == getWorkflowName() && hasReleaseCredentials() && (version as String).endsWith("SNAPSHOT")
 }
 
 boolean doingRelease() {
