@@ -51,11 +51,15 @@ boolean doingMainRelease() {
 }
 
 boolean doingSnapshotRelease() {
-    "main-release" == getWorkflowName() && hasReleaseCredentials() && (version as String).endsWith("SNAPSHOT")
+    "main-release" == getWorkflowName() && hasReleaseCredentials() && !(version as String).endsWith("SNAPSHOT")
+}
+
+boolean doingRelease() {
+    doingDeveloperRelease()|| doingMainRelease() || doingSnapshotRelease()
 }
 
 boolean doingSigning() {
-    doingDeveloperRelease()|| doingMainRelease() || doingSnapshotRelease()
+    doingRelease()
 }
 
 println "CONTRACTS_WORKFLOW: '" + getWorkflowName() + "'"
@@ -79,7 +83,7 @@ if (doingSigning()) {
     println "No signing"
 }
 
-if (doingDeveloperRelease()) {
+if (doingRelease()) {
     tasks.withType(Jar) { task ->
         task.doLast {
             ant.checksum algorithm: 'md5', file: it.archivePath
@@ -118,33 +122,10 @@ publishing {
         }
     }
     repositories {
-        if (doingDeveloperRelease()) {
-            println "publishing to developer staging"
+        if (doingDeveloperRelease() || doingMainRelease()) {
             maven {
                 name = "LocalMavenWithChecksums"
                 url = uri(layout.buildDirectory.dir("staging-deploy"))
-            }
-        } else if (doingMainRelease()) {
-            println "publishing to sonatype staging"
-            maven {
-                name = "OSSRH"
-                url = "https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/"
-
-                credentials {
-                    username = getPublishUsername()
-                    password = getPublishPassword()
-                }
-            }
-        } else if (doingSnapshotRelease()) {
-            println "publishing to sonatype snapshots"
-            maven {
-                name = "OSSRH"
-                url = "https://s01.oss.sonatype.org/content/repositories/snapshots/"
-
-                credentials {
-                    username = getPublishUsername()
-                    password = getPublishPassword()
-                }
             }
         }
     }
