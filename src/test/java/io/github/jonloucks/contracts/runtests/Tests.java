@@ -1,4 +1,4 @@
-package io.github.jonloucks.contracts.test.run;
+package io.github.jonloucks.contracts.runtests;
 
 import io.github.jonloucks.contracts.Stub;
 import org.junit.jupiter.api.Test;

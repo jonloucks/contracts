@@ -1,4 +1,4 @@
-package io.github.jonloucks.contracts.test.run;
+package io.github.jonloucks.contracts.runtests;
 
 import io.github.jonloucks.contracts.test.Tools;
 import org.junit.jupiter.api.extension.AfterTestExecutionCallback;
@@ -9,7 +9,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
 @ExtendWith(RunTests.MyExtension.class)
-public class RunTests implements Tests,
+public class RunTests implements
+    io.github.jonloucks.contracts.test.Tests,
     Tests {
 
     public static class MyExtension implements BeforeTestExecutionCallback, AfterTestExecutionCallback {

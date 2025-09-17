@@ -1,4 +1,4 @@
-module io.github.jonloucks.contracts.test.run {
+module io.github.jonloucks.contracts.test.runtests {
     requires io.github.jonloucks.contracts.test;
     requires org.junit.jupiter.api;
     requires org.mockito.junit.jupiter;
@@ -8,5 +8,5 @@ module io.github.jonloucks.contracts.test.run {
     
     uses io.github.jonloucks.contracts.api.ServiceFactory;
 
-    exports io.github.jonloucks.contracts.test.run to org.junit.platform.commons;
+    exports io.github.jonloucks.contracts.runtests to org.junit.platform.commons;
 }
