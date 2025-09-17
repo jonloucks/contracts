@@ -9,7 +9,6 @@
         <option name="modules">
           <set>
             <option value="$PROJECT_DIR$" />
-            <option value="$PROJECT_DIR$/contracts-all" />
             <option value="$PROJECT_DIR$/contracts-api" />
             <option value="$PROJECT_DIR$/contracts-impl" />
             <option value="$PROJECT_DIR$/contracts-test" />
