@@ -11,11 +11,15 @@ buildscript {
     }
 }
 
+
 plugins {
+    id 'java-library'
     id 'maven-publish'
 }
 
-project.tasks.publish.enabled = false
+apply from: "${rootDir}/gradle/java-library.gradle"
+
+//project.tasks.publish.enabled = false
 
 String getConfig(String name) {
     final Provider<String> variable = providers.environmentVariable(name);
@@ -42,8 +46,8 @@ tasks.register('createPublisherBundle', Tar) {
     archiveVersion = project.version as String
     destinationDirectory = layout.buildDirectory.dir('distributions') // Output directory
 
-    subprojects { subproject ->
-        from subproject.layout.buildDirectory.dir("staging-deploy")
+    allprojects { aProject ->
+        from aProject.layout.buildDirectory.dir("staging-deploy")
     }
 }
 
@@ -100,4 +104,8 @@ repositories {
 }
 
 dependencies {
+    api project(':contracts-api')
+    api project(':contracts-impl')
+
+    testImplementation project(':contracts-test')
 }

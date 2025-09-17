@@ -1,4 +1,4 @@
-package io.github.jonloucks.contracts.all;
+package io.github.jonloucks.contracts;
 
 import io.github.jonloucks.contracts.api.Contract;
 import io.github.jonloucks.contracts.api.Contracts;

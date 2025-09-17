@@ -1,6 +1,6 @@
-package io.github.jonloucks.contracts.all.test;
+package io.github.jonloucks.contracts.runtests;
 
-import io.github.jonloucks.contracts.all.Stub;
+import io.github.jonloucks.contracts.Stub;
 import org.junit.jupiter.api.Test;
 
 public interface Tests {
