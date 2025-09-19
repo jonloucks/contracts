@@ -1,45 +1,17 @@
-String getConfig(String name) {
+String getConfig(String name, String theDefault) {
     final Provider<String> variable = providers.environmentVariable(name);
     if (variable.isPresent()) {
-        return variable.get();
+        return variable.orElse(theDefault).get()
     }
-    return project.findProperty(name) as String
-}
-
-String getPublishUsername() {
-    getConfig("OSSRH_USERNAME")
-}
-
-String getPublishPassword() {
-    getConfig("OSSRH_PASSWORD")
-}
-
-String getGpgSecretKey() {
-    String value = getConfig("OSSRH_GPG_SECRET_KEY")
+    final Object value = project.findProperty(name)
     if (null == value) {
-        null
-    } else {
-        if (value.startsWith("-")) {
-            return value;
-        }
-        return new String(Base64.decoder.decode(value), "UTF-8")
+        return theDefault
     }
-}
-
-String getGpgSecretKeyPassword() {
-    getConfig("OSSRH_GPG_SECRET_KEY_PASSWORD")
-}
-
-boolean hasReleaseCredentials() {
-    getGpgSecretKey() != null && getGpgSecretKeyPassword() != null
-}
-
-boolean hasPublishCredentials() {
-    getPublishUsername() != null && getPublishPassword() != null
+    return value.toString()
 }
 
 String getWorkflowName() {
-    getConfig("CONTRACTS_WORKFLOW") ?: "developer-release"
+    getConfig("CONTRACTS_WORKFLOW", "developer-release")
 }
 
 boolean doingDeveloperRelease() {
@@ -47,11 +19,15 @@ boolean doingDeveloperRelease() {
 }
 
 boolean doingMainRelease() {
-    "main-release" == getWorkflowName() && hasReleaseCredentials()
+    "main-release" == getWorkflowName() && !isSnapshot()
+}
+
+boolean isSnapshot() {
+    (version as String).endsWith("SNAPSHOT")
 }
 
 boolean doingSnapshotRelease() {
-    "main-release" == getWorkflowName() && hasReleaseCredentials() && (version as String).endsWith("SNAPSHOT")
+    "main-release" == getWorkflowName()  && isSnapshot()
 }
 
 boolean doingRelease() {
@@ -62,35 +38,11 @@ boolean doingSigning() {
     doingRelease()
 }
 
-println "CONTRACTS_WORKFLOW: '" + getWorkflowName() + "'"
-
-if (hasReleaseCredentials()) {
-    println "Has Release Credentials"
-} else {
-    println "No Release Credentials"
-}
-
-if (hasPublishCredentials()) {
-    println "Has Publish Credentials"
-} else {
-    println "No Publish Credentials"
-}
-
 if (doingSigning()) {
     println "Doing signing"
-
-    apply plugin: 'signing-ext'
+    apply plugin: 'signing-kit'
 } else {
     println "No signing"
-}
-
-if (doingRelease()) {
-    tasks.withType(Zip).configureEach {task ->
-        task.doLast {
-            ant.checksum algorithm: 'md5', file: task.archiveFile.get().asFile
-            ant.checksum algorithm: 'sha1', file: task.archiveFile.get().asFile
-        }
-    }
 }
 
 publishing {
@@ -122,19 +74,10 @@ publishing {
             }
         }
     }
-    repositories {
-        if (doingDeveloperRelease() || doingMainRelease()) {
-            maven {
-                name = "LocalMavenWithChecksums"
-                url = uri(layout.buildDirectory.dir("staging-deploy"))
-            }
-        }
-    }
 }
 
 if (doingSigning()) {
     signing {
-        useInMemoryPgpKeys(getGpgSecretKey(), getGpgSecretKeyPassword())
         sign publishing.publications.mavenJava
     }
 }

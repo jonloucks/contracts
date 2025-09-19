@@ -1,6 +1,6 @@
 plugins {
-    id 'java-library-ext'
-    id 'maven-publish-ext'
+    id 'java-library-kit'
+    id 'maven-publish-kit'
 }
 
 apply from: "${rootDir}/gradle/java-publishing.gradle"
