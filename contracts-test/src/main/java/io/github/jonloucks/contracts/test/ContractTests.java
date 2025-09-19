@@ -12,7 +12,6 @@ import static org.junit.jupiter.api.Assertions.*;
 public interface ContractTests {
     
     @Test
-    @Tag("integration")
     default void contract_Instantiate_Throws() {
         assertInstantiateThrows(Contract.class);
     }

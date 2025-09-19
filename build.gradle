@@ -1,106 +1,22 @@
-import okhttp3.*
-import java.time.ZonedDateTime
-import java.time.format.DateTimeFormatter;
-
 buildscript {
     repositories {
         mavenCentral()
-    }
-    dependencies {
-        classpath libs.okhttp3
+        gradlePluginPortal()
+        mavenLocal()
     }
 }
-
 
 plugins {
-    id 'java-library'
-    id 'maven-publish'
+    id 'java-library-kit' version libs.versions.gradle.kit.version
+    id 'maven-publish-kit' version libs.versions.gradle.kit.version
+    id 'signing-kit' version libs.versions.gradle.kit.version
 }
 
-apply from: "${rootDir}/gradle/java-library.gradle"
-
-//project.tasks.publish.enabled = false
-
-String getConfig(String name) {
-    final Provider<String> variable = providers.environmentVariable(name);
-    if (variable.isPresent()) {
-        return variable.get();
-    }
-    return project.findProperty(name) as String
-}
-
-String getWorkflowName() {
-    getConfig("CONTRACTS_WORKFLOW") ?: "developer-release"
-}
-
-String getPublishUsername() {
-    getConfig("OSSRH_USERNAME")
-}
-
-String getPublishPassword() {
-    getConfig("OSSRH_PASSWORD")
-}
-
-tasks.register('createPublisherBundle', Tar) {
-    archiveBaseName = project.group as String
-    archiveVersion = project.version as String
-    destinationDirectory = layout.buildDirectory.dir('distributions') // Output directory
-
-    allprojects { aProject ->
-        from aProject.layout.buildDirectory.dir("staging-deploy")
-    }
-}
-
-static String createTimestamp() {
-    ZonedDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss XXX"))
-}
-
-tasks.register('uploadPublisherBundle') {
-    doLast {
-        def apiUrl = "https://central.sonatype.com/api/v1/publisher/upload?publishingType=USER_MANAGED"
-        def username = getPublishUsername()
-        def password = getPublishPassword()
-
-        if (!username || !password) {
-            throw new GradleException("Publisher environment variables must be set.")
-        }
-
-        def bundleName = project.group + "-" + project.version + " by " + getWorkflowName() + " @ "+ createTimestamp()
-        def bundleFile = file("build/distributions/" + project.group + "-" + project.version + ".tar") // Adjust path as needed
-        def authString = "${username}:${password}"
-        def encodedAuthString = authString.bytes.encodeBase64().toString()
-
-        if (!bundleFile.exists()) {
-            throw new GradleException("Bundle file not found at: ${bundleFile.absolutePath}")
-        }
-
-        final OkHttpClient client = new OkHttpClient()
-
-        final RequestBody requestBody = new MultipartBody.Builder()
-                .setType(MultipartBody.FORM)
-                .addFormDataPart("bundle", bundleName,
-                        RequestBody.create(bundleFile,MediaType.parse("application/x-tar")))
-                .build();
-
-        final Request request = new Request.Builder()
-                .url(apiUrl)
-                .post(requestBody)
-                .header("Authorization", "Bearer ${encodedAuthString}")
-                .header("accept", "text/plain; charset=UTF-8")
-                .build();
-
-        try (Response response = client.newCall(request).execute()) {
-            if (!response.isSuccessful()) {
-                throw new IOException("Unexpected code " + response);
-            }
-            println "API Response Body: ${response.body()}"
-        }
-    }
-}
+apply from: "${rootDir}/gradle/java-publishing.gradle"
 
 repositories {
-    mavenCentral()
     mavenLocal()
+    mavenCentral()
 }
 
 dependencies {

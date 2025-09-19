@@ -60,6 +60,9 @@ public interface ServiceTests {
     }
     
     final class ServiceTestsTools {
+        private ServiceTestsTools() {
+        
+        }
         static Stream<Arguments> validConfigs() {
             return Stream.of(
                 Arguments.of(new Service.Config() {}),
