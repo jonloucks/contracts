@@ -11,7 +11,7 @@ String getConfig(String name, String theDefault) {
 }
 
 String getWorkflowName() {
-    getConfig("CONTRACTS_WORKFLOW", "developer-release")
+    getConfig("PROJECT_WORKFLOW", "unknown")
 }
 
 boolean doingDeveloperRelease() {
@@ -37,6 +37,8 @@ boolean doingRelease() {
 boolean doingSigning() {
     doingRelease()
 }
+
+println "Project workflow: " + getWorkflowName()
 
 if (doingSigning()) {
     println "Doing signing"

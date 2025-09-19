@@ -40,11 +40,11 @@ jobs:
       working-directory: gradle-kit
       run: ./gradlew publishToMavenLocal
       env:
-        CONTRACTS_WORKFLOW: 'utility'
+        PROJECT_WORKFLOW: 'utility'
 
     - name: Build with Gradle
       working-directory: main-project
       run: ./gradlew build
       env:
-        CONTRACTS_WORKFLOW: 'main-pull-request'
+        PROJECT_WORKFLOW: 'main-pull-request'
 
