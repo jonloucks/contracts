@@ -39,19 +39,19 @@ jobs:
         working-directory: gradle-kit
         run: ./gradlew publishToMavenLocal
         env:
-          CONTRACTS_WORKFLOW: 'utility'
+          PROJECT_WORKFLOW: 'utility'
 
       - name: Build with Gradle
         working-directory: main-project
         run: ./gradlew build
         env:
-          CONTRACTS_WORKFLOW: 'main-release'
+          PROJECT_WORKFLOW: 'main-release'
 
       - name: Publish to GitHub Packages
         working-directory: main-project
         run: ./gradlew publish createPublisherBundle uploadPublisherBundle
         env:
-          CONTRACTS_WORKFLOW: 'main-release'
+          PROJECT_WORKFLOW: 'main-release'
           USERNAME: ${{ github.actor }}
           TOKEN: ${{ secrets.GITHUB_TOKEN }}
           OSSRH_GPG_SECRET_KEY: ${{ secrets.OSSRH_GPG_SECRET_KEY }}
