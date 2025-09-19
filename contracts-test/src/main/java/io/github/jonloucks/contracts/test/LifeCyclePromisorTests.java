@@ -160,6 +160,9 @@ public interface LifeCyclePromisorTests {
     }
     
     final class ConcurrencyTestsTool {
+        private ConcurrencyTestsTool() {
+        
+        }
         interface ScenarioConfig {
             int threadCount();
             

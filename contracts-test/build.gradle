@@ -1,9 +1,9 @@
 plugins {
-    id 'java-library'
-    id 'maven-publish'
+    id 'java-library-ext'
+    id 'maven-publish-ext'
 }
 
-apply from: "${rootDir}/gradle/java-test-library.gradle"
+apply from: "${rootDir}/gradle/java-publishing.gradle"
 
 javadoc {
    exclude '**/**'
@@ -11,4 +11,25 @@ javadoc {
 
 dependencies {
     api project(':contracts-api')
+
+    api platform(libs.junit.bom)
+    api 'org.junit.jupiter:junit-jupiter'
+    api libs.hamcrest
+    api libs.mockito.core
+    api libs.mockito.junit.jupiter
+    runtimeOnly 'org.junit.platform:junit-platform-launcher'
+}
+
+publishing {
+    publications {
+        withType(MavenPublication) {
+            suppressPomMetadataWarningsFor('apiElements')
+            suppressPomMetadataWarningsFor('runtimeElements')
+        }
+    }
+}
+
+repositories {
+    mavenLocal()
+    mavenCentral()
 }

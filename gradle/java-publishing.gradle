@@ -78,7 +78,8 @@ if (hasPublishCredentials()) {
 
 if (doingSigning()) {
     println "Doing signing"
-    apply plugin: 'signing'
+
+    apply plugin: 'signing-ext'
 } else {
     println "No signing"
 }

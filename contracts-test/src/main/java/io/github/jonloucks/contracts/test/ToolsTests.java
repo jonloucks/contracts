@@ -135,6 +135,10 @@ public interface ToolsTests {
             public boolean equals(Object that) {
                 return null == that;
             }
+            @Override
+            public int hashCode() {
+                return 1;
+            }
         };
         assertFails(()->assertObject(object));
     }

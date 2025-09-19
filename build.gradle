@@ -5,19 +5,22 @@ import java.time.format.DateTimeFormatter;
 buildscript {
     repositories {
         mavenCentral()
+        gradlePluginPortal()
+        mavenLocal()
     }
     dependencies {
         classpath libs.okhttp3
+        classpath libs.bundles.gradle.ext
     }
 }
 
-
 plugins {
-    id 'java-library'
-    id 'maven-publish'
+    id 'java-library-ext' version libs.versions.gradle.ext.version
+    id 'maven-publish-ext' version libs.versions.gradle.ext.version
+    id 'signing-ext' version libs.versions.gradle.ext.version
 }
 
-apply from: "${rootDir}/gradle/java-library.gradle"
+apply from: "${rootDir}/gradle/java-publishing.gradle"
 
 //project.tasks.publish.enabled = false
 
@@ -99,8 +102,8 @@ tasks.register('uploadPublisherBundle') {
 }
 
 repositories {
-    mavenCentral()
     mavenLocal()
+    mavenCentral()
 }
 
 dependencies {

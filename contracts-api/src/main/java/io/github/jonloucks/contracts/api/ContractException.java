@@ -8,6 +8,8 @@ import static io.github.jonloucks.contracts.api.Checks.*;
  */
 public class ContractException extends RuntimeException {
     
+    private static final long serialVersionUID = 7311228400588901174L;
+    
     /**
      * Passthrough for {@link java.lang.RuntimeException#RuntimeException(String)}
      *
