@@ -9,7 +9,7 @@ public interface ServiceFactory {
     /**
      * Create a new Service
      * Note: Caller is responsible for invoking 'startup' before using service methods
-     * Note: If caller does invoke 'startup' it is required to invoke 'shutdown' when appropriate
+     * Note: If caller does invoke 'open' it is required to invoke 'close' when appropriate
      * @param config the service configuration
      * @return the new Service
      */

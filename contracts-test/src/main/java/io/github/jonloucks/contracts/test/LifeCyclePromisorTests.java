@@ -7,6 +7,8 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
 import org.mockito.stubbing.Answer;
 
 import java.time.Duration;
@@ -23,6 +25,7 @@ import static org.mockito.Mockito.*;
 
 @SuppressWarnings({"Convert2MethodRef", "CodeBlock2Expr"})
 @ExtendWith(MockitoExtension.class)
+@MockitoSettings(strictness = Strictness.LENIENT)
 public interface LifeCyclePromisorTests {
     
 
@@ -64,6 +67,7 @@ public interface LifeCyclePromisorTests {
         final int usages = 5;
         final Promisors promisors = Contracts.claimContract(Promisors.CONTRACT);
         when(referent.demand()).thenReturn(deliverable);
+        when(deliverable.open()).thenReturn(deliverable);
         final Promisor<Decoy<Integer>> promisor = promisors.createLifeCyclePromisor(referent);
         
         assertNotNull(promisor, "should not return null.");
@@ -71,7 +75,7 @@ public interface LifeCyclePromisorTests {
         for (int i = 0; i < usages; i++) {
             promisor.incrementUsage();
         }
-        final Decoy<Integer> actual = promisor.demand();
+        @SuppressWarnings("resource") final Decoy<Integer> actual = promisor.demand();
         for (int i = 0; i < usages; i++) {
             promisor.decrementUsage();
         }
@@ -82,15 +86,15 @@ public interface LifeCyclePromisorTests {
             () -> verify(referent, times(usages)).incrementUsage(),
             () -> verify(deliverable, never()).incrementUsage(),
             () -> verify(deliverable, never()).decrementUsage(),
-            () -> verify(deliverable, times(1)).startup(),
-            () -> verify(deliverable, times(1)).shutdown()
+            () -> verify(deliverable, times(1)).open(),
+            () -> verify(deliverable, times(1)).close()
         );
     }
     
     
     @ParameterizedTest(name = "Threads = {0}")
     @ValueSource(ints = { 1, 2, 3, 5, 8, 12, 17, 29 })
-    default void lifeCyclePromisor_ClaimsDuringStartup(int threadCount) throws Throwable {
+    default void lifeCyclePromisor_ClaimsDuringOpen(int threadCount) throws Throwable {
         runWithScenario(new ScenarioConfig() {
             @Override
             public int threadCount() {
@@ -98,14 +102,14 @@ public interface LifeCyclePromisorTests {
             }
             @Override
             public void mockupDeliverable(Decoy<String> mockDeliverable) {
-                overrideStartup(mockDeliverable, Duration.ofMillis(200), () -> {});
+                overrideOpen(mockDeliverable, Duration.ofMillis(200), () -> {});
             }
         });
     }
     
     @ParameterizedTest(name = "Threads = {0}")
     @ValueSource(ints = { 1, 2, 3, 5, 8, 12, 17, 29 })
-    default void lifeCyclePromisor_ThrowingStartup(int threadCount) throws Throwable {
+    default void lifeCyclePromisor_ThrowingOpen(int threadCount) throws Throwable {
         runWithScenario(new ScenarioConfig() {
             @Override
             public int threadCount() {
@@ -117,7 +121,7 @@ public interface LifeCyclePromisorTests {
             }
             @Override
             public void mockupDeliverable(Decoy<String> mockDeliverable) {
-                overrideStartup(mockDeliverable, Duration.ofMillis(0), () -> {
+                overrideOpen(mockDeliverable, Duration.ofMillis(0), () -> {
                     throw new IllegalStateException("Problem");
                 });
             }
@@ -126,7 +130,7 @@ public interface LifeCyclePromisorTests {
     
     @ParameterizedTest(name = "Threads = {0}")
     @ValueSource(ints = { 1, 2, 3, 5, 8, 12, 17, 29 })
-    default void lifeCyclePromisor_ClaimsDuringShutdown(int threadCount) throws Throwable  {
+    default void lifeCyclePromisor_ClaimsDuringClose(int threadCount) throws Throwable  {
         runWithScenario(new ScenarioConfig() {
             @Override
             public int threadCount() {
@@ -134,7 +138,7 @@ public interface LifeCyclePromisorTests {
             }
             @Override
             public void mockupDeliverable(Decoy<String> mockDeliverable) {
-                overrideShutdown(mockDeliverable, Duration.ofMillis(100), () -> {});
+                overrideClose(mockDeliverable, Duration.ofMillis(100), () -> {});
             }
             @Override
             public void beforeWaitForCompletion(Promisor<Decoy<String>> testSubject) {
@@ -202,8 +206,7 @@ public interface LifeCyclePromisorTests {
   
             final Promisor<Decoy<String>> testSubject = createTestSubject(mockPromisor);
             
-            final Shutdown unbind = bindContract(contract, testSubject);
-            try {
+            try (AutoClose ignored = bindContract(contract, testSubject)){
                 for (int i = 0; i < config.threadCount(); i++) {
                     claimThreads[i] = new Thread("Claim-" + i) {
                         @Override
@@ -211,6 +214,7 @@ public interface LifeCyclePromisorTests {
                             try {
                                 for (int i = 0; i < config.claimsPerThread(); i++) {
                                     try {
+                                        //noinspection resource
                                         Contracts.claimContract(contract);
                                         successCount.incrementAndGet();
                                     } catch (Throwable thrown) {
@@ -228,8 +232,6 @@ public interface LifeCyclePromisorTests {
                 }
                 config.beforeWaitForCompletion(testSubject);
                 assertTrue(latch.await(1, TimeUnit.MINUTES), "Test took too long");
-            } finally {
-                unbind.shutdown();
             }
             
             assertAll(
@@ -237,8 +239,8 @@ public interface LifeCyclePromisorTests {
                 () -> assertEquals(expectedFailures, failedCount.get(), "Failed count")
             );
             if (expectedSuccesses > 0) {
-               verify(mockDeliverable, times(1)).startup();
-               verify(mockDeliverable, times(1)).shutdown();
+               verify(mockDeliverable, times(1)).open();
+               verify(mockDeliverable, times(1)).close();
             }
         }
         
@@ -247,20 +249,20 @@ public interface LifeCyclePromisorTests {
             return promisors.createLifeCyclePromisor(promisor);
         }
    
-        static <T> void overrideStartup(Decoy<T> decoy, Duration duration, Runnable block) {
-            doAnswer((Answer<Void>) invocation -> {
+        static <T> void overrideOpen(Decoy<T> decoy, Duration duration, Runnable block) {
+            doAnswer((Answer<AutoClose>) invocation -> {
                 sleep(duration);
                 block.run();
-                return null; // Void methods return null in doAnswer
-            }).when(decoy).startup();
+                return decoy;
+            }).when(decoy).open();
         }
         
-        static <T> void overrideShutdown(Decoy<T> decoy, Duration duration, Runnable block) {
+        static <T> void overrideClose(Decoy<T> decoy, Duration duration, Runnable block) {
             doAnswer((Answer<Void>) invocation -> {
                 sleep(duration);
                 block.run();
                 return null; // Void methods return null in doAnswer
-            }).when(decoy).shutdown();
+            }).when(decoy).close();
         }
         
         static <T> void overrideDemand(Promisor<T> promisor, Duration duration, Supplier<T> block) {

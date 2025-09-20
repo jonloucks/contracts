@@ -4,6 +4,8 @@ import io.github.jonloucks.contracts.api.Checks;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
 
 import static io.github.jonloucks.contracts.test.Tools.*;
 import static org.junit.jupiter.api.Assertions.*;
@@ -11,6 +13,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 @SuppressWarnings({"CodeBlock2Expr", "DataFlowIssue"})
 @ExtendWith(MockitoExtension.class)
+@MockitoSettings(strictness = Strictness.LENIENT)
 public interface ChecksTests {
     
     @Test

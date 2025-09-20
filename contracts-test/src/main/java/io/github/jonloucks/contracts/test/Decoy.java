@@ -2,12 +2,13 @@ package io.github.jonloucks.contracts.test;
 
 import io.github.jonloucks.contracts.api.*;
 
-public interface Decoy<D> extends Promisor<D>, ServiceFactory, Service, Startup, Shutdown {
+public interface Decoy<D> extends Promisor<D>, ServiceFactory, Service, AutoOpen, AutoCloseable {
     @Override
-    default void startup() { }
-    
+    default AutoClose open() { return this;}
+
     @Override
-    default void shutdown() { }
+    default void close() {
+    }
     
     @Override
     default <T> T claim(Contract<T> contract) {
@@ -20,7 +21,7 @@ public interface Decoy<D> extends Promisor<D>, ServiceFactory, Service, Startup,
     }
     
     @Override
-    default <T> Shutdown bind(Contract<T> contract, Promisor<T> promisor) {
+    default <T> AutoClose bind(Contract<T> contract, Promisor<T> promisor) {
         return () -> {};
     }
     

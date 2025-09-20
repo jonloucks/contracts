@@ -3,16 +3,20 @@ package io.github.jonloucks.contracts.test;
 import io.github.jonloucks.contracts.api.*;
 import org.junit.jupiter.api.Test;
 
-import static io.github.jonloucks.contracts.test.Tools.assertInstantiateThrows;
-import static io.github.jonloucks.contracts.test.Tools.assertThrown;
+import static io.github.jonloucks.contracts.test.Tools.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 @SuppressWarnings("CodeBlock2Expr")
 public interface ContractsTests {
-    
+
     @Test
     default void contracts_Instantiate_Throws() {
         assertInstantiateThrows(Contracts.class);
+    }
+    
+    @Test
+    default void contracts_getService_Works() {
+        assertObject(Contracts.getService());
     }
     
     @Test
@@ -37,13 +41,10 @@ public interface ContractsTests {
     @Test
     default void contracts_claimContract_WithPromisedContract_Works() {
         final Contract<String> contract = Contract.create("testContract");
-        final Shutdown releaseBinding = Contracts.bindContract(contract, () -> "abc");
-        try {
+        try (AutoClose releaseBinding = Contracts.bindContract(contract, () -> "abc")){
             assertAll(
                 () -> assertNotNull(releaseBinding),
                 () -> assertSame("abc", Contracts.claimContract(contract)));
-        } finally {
-            releaseBinding.shutdown();
         }
     }
     
@@ -57,12 +58,9 @@ public interface ContractsTests {
     @Test
     default void contracts_isContractBound_WithBoundContract_Works() {
         final Contract<String> contract = Contract.create("testContract");
-        final Shutdown releaseBinding = Contracts.bindContract(contract, () -> "abc");
         
-        try {
+        try (AutoClose ignored = Contracts.bindContract(contract, () -> "abc")){
             assertTrue(Contracts.isContractBound(contract), "Unbound Contract was bound.");
-        } finally {
-            releaseBinding.shutdown();
         }
     }
 }

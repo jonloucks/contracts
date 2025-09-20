@@ -38,14 +38,12 @@ public interface ServiceTests {
         
         assumeTrue(ofNullable(service).isPresent(), "create service failed");
         
-        service.bind(contract, () -> "hello");
-        
-        try {
+        try (AutoClose ignored = service.open()) {
+            service.bind(contract, () -> "hello");
+            
             assertFalse(service.isBound(unboundContract), "Contract should be bound.");
             assertTrue(service.isBound(contract), "Contract should be bound.");
             assertEquals("hello", service.claim(contract), "Claimed value should match.");
-        } finally {
-            service.shutdown();
         }
     }
     
@@ -53,6 +51,7 @@ public interface ServiceTests {
     @MethodSource("io.github.jonloucks.contracts.test.ServiceTests$ServiceTestsTools#invalidConfigs")
     default void service_SadPath(Service.Config serviceConfig) {
         final ContractException thrown = assertThrows(ContractException.class, () -> {
+            //noinspection resource
             Contracts.createService(serviceConfig);
         });
         

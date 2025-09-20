@@ -33,7 +33,7 @@ public interface Promisors {
     <T> Promisor<T> createSingletonPromisor(Promisor<T> promisor);
     
     /**
-     * Reference counted, lazy loaded, with opt-in 'startup' and 'shutdown' invoked on deliverable.
+     * Reference counted, lazy loaded, with opt-in 'open' and 'close' invoked on deliverable.
      * Note: increment and decrementUsage are relayed to the source promisor.
      *
      * @param promisor the source promisor

@@ -30,7 +30,7 @@ public final class Contracts {
      * @throws ContractException when contract is already bound and can't be replaced
      * @throws SecurityException when permission to bind is denied
      */
-    public static <T> Shutdown bindContract(Contract<T> contract, Promisor<T> promisor) {
+    public static <T> AutoClose bindContract(Contract<T> contract, Promisor<T> promisor) {
         return CONTRACTS.service.bind(contract, promisor);
     }
     
@@ -46,10 +46,18 @@ public final class Contracts {
     }
     
     /**
+     * Return the global Contracts service
+     * @return the service
+     */
+    public static Service getService() {
+        return CONTRACTS.service;
+    }
+    
+    /**
      * Create a standalone Contracts service.
      * Note: Services created from this method are destink any that used internally
      * <p>
-     * Caller is responsible for invoking startup() before use and shutdown when no longer needed
+     * Caller is responsible for invoking open() before use and close when no longer needed
      * </p>
      *
      * @param serviceConfig the service configuration
@@ -66,10 +74,11 @@ public final class Contracts {
     private static final Contracts CONTRACTS = new Contracts();
     
     private final Service service;
+    @SuppressWarnings({"FieldCanBeLocal","unused"})
+    private final AutoClose close;
     
     private Contracts() {
-        this.service = createService(new Service.Config() {
-        });
-        service.startup();
+        this.service = createService(new Service.Config() {});
+        this.close = service.open();
     }
 }
