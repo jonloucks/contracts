@@ -7,6 +7,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
 
 import static io.github.jonloucks.contracts.test.Tools.assertObject;
 import static io.github.jonloucks.contracts.test.Tools.assertThrown;
@@ -14,6 +16,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
+@MockitoSettings(strictness = Strictness.LENIENT)
 public interface SingletonPromisorTests {
     
     @Test
@@ -32,6 +35,7 @@ public interface SingletonPromisorTests {
         final int usages = 5;
         final Promisors promisors = Contracts.claimContract(Promisors.CONTRACT);
         when(referent.demand()).thenReturn(deliverable);
+//        when(deliverable.startup()).thenReturn(deliverable::close);
         final Promisor<Decoy<Integer>> promisor = promisors.createSingletonPromisor(referent);
         
         assertNotNull(promisor, "should not return null.");
@@ -39,12 +43,13 @@ public interface SingletonPromisorTests {
         for (int i = 0; i < usages; i++) {
             promisor.incrementUsage();
         }
-        final Decoy<Integer> delivery1 = promisor.demand();
-        final Decoy<Integer> delivery2 = promisor.demand();
+        @SuppressWarnings("resource") final Decoy<Integer> delivery1 = promisor.demand();
+        @SuppressWarnings("resource") final Decoy<Integer> delivery2 = promisor.demand();
         
         for (int i = 0; i < usages; i++) {
             promisor.decrementUsage();
         }
+        //noinspection resource
         assertAll(
             () -> assertObject(promisor),
             () -> assertSame(deliverable, delivery1, "first deliverable should match."),
@@ -54,8 +59,8 @@ public interface SingletonPromisorTests {
             () -> verify(referent, times(usages)).incrementUsage(),
             () -> verify(deliverable, never()).incrementUsage(),
             () -> verify(deliverable, never()).decrementUsage(),
-            () -> verify(deliverable, never()).startup(),
-            () -> verify(deliverable, never()).shutdown()
+            () -> verify(deliverable, never()).open(),
+            () -> verify(deliverable, never()).close()
         );
     }
 }

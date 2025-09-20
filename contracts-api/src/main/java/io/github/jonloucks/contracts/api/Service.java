@@ -6,7 +6,7 @@ package io.github.jonloucks.contracts.api;
  * It does know how to load the default from contracts-impl.
  * However, the design is open to have it replaced with an alternative implementation.
  */
-public interface Service extends Startup, Shutdown {
+public interface Service extends AutoOpen, AutoClose {
     
     /**
      * Claim the deliverable from a bound contract.
@@ -38,7 +38,7 @@ public interface Service extends Startup, Shutdown {
      * @throws ContractException when contract is already bound and can't be replaced
      * @throws SecurityException when permission to bind is denied
      */
-    <T> Shutdown bind(Contract<T> contract, Promisor<T> promisor);
+    <T> AutoClose bind(Contract<T> contract, Promisor<T> promisor);
     
     /**
      * The service configuration

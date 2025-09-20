@@ -1,8 +1,8 @@
 package io.github.jonloucks.contracts.impl;
 
+import io.github.jonloucks.contracts.api.AutoClose;
+import io.github.jonloucks.contracts.api.AutoOpen;
 import io.github.jonloucks.contracts.api.Promisor;
-import io.github.jonloucks.contracts.api.Shutdown;
-import io.github.jonloucks.contracts.api.Startup;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -36,7 +36,7 @@ final class LifeCyclePromisorImpl<T> implements Promisor<T> {
         final int currentUsage = usageCounter.decrementAndGet();
         try {
             if (currentUsage == 0) {
-                shutdownDeliverable();
+                closeDeliverable();
             }
         } finally {
             referentPromisor.decrementUsage();
@@ -49,6 +49,7 @@ final class LifeCyclePromisorImpl<T> implements Promisor<T> {
     private final AtomicBoolean isDeliverableAcquired = new AtomicBoolean();
     private final AtomicReference<T> atomicDeliverable = new AtomicReference<>();
     private final AtomicReference<Throwable> startupException = new AtomicReference<>();
+    private final AtomicReference<AutoClose> atomicClose = new AtomicReference<>();
     private final Object simpleLock = new Object();
     
     LifeCyclePromisorImpl(Promisor<T> referentPromisor) {
@@ -59,7 +60,7 @@ final class LifeCyclePromisorImpl<T> implements Promisor<T> {
         if (usageCounter.get() == 0) {
             throw new IllegalStateException("Usage count is zero");
         }
-        maybeThrowStartupException();
+        maybeThrowOpenException();
         synchronized (simpleLock) {
             if (isDeliverableAcquired.get()) {
                 placeholder.set(atomicDeliverable.get());
@@ -69,19 +70,19 @@ final class LifeCyclePromisorImpl<T> implements Promisor<T> {
         }
     }
     
-    private void maybeThrowStartupException() {
+    private void maybeThrowOpenException() {
         ofNullable(startupException.get())
-            .ifPresent(this::reThrowStartupException);
+            .ifPresent(this::reThrowOpenException);
     }
     
-    private void reThrowStartupException(Throwable thrown) {
+    private void reThrowOpenException(Throwable thrown) {
         if (thrown instanceof Error) {
             throw (Error) thrown;
         }
         if (thrown instanceof RuntimeException) {
             throw (RuntimeException) thrown;
         }
-        throw new IllegalStateException("Startup", thrown);
+        throw new IllegalStateException("AutoOpen", thrown);
     }
     
     private T createDeliverableIfNeeded() {
@@ -92,18 +93,18 @@ final class LifeCyclePromisorImpl<T> implements Promisor<T> {
                 startupException.set(null);
                 final T currentDeliverable = referentPromisor.demand();
                 atomicDeliverable.set(currentDeliverable);
-                startupDeliverable(currentDeliverable);
+                openDeliverable(currentDeliverable);
                 isDeliverableAcquired.set(true);
                 return currentDeliverable;
             }
         }
     }
     
-    private void startupDeliverable(final T deliverable) {
-        if (deliverable instanceof Startup) {
+    private void openDeliverable(final T deliverable) {
+        if (deliverable instanceof AutoOpen) {
             synchronized (simpleLock) {
                 try {
-                    ((Startup) deliverable).startup();
+                    atomicClose.set(((AutoOpen) deliverable).open());
                 } catch (Throwable thrown) {
                     if (atomicDeliverable.compareAndSet(deliverable, null)) {
                         startupException.set(thrown);
@@ -115,14 +116,15 @@ final class LifeCyclePromisorImpl<T> implements Promisor<T> {
         }
     }
     
-    private void shutdownDeliverable() {
+    private void closeDeliverable() {
         if (isDeliverableAcquired.get()) {
             final T deliverable = atomicDeliverable.get();
             try {
-                if (deliverable instanceof Shutdown) {
-                    ((Shutdown) deliverable).shutdown();
+                if (ofNullable(atomicClose.get()).isPresent()) {
+                    atomicClose.get().close();
                 }
             } finally {
+                atomicClose.set(null);
                 atomicDeliverable.compareAndSet(deliverable, null);
                 isDeliverableAcquired.set(false);
             }

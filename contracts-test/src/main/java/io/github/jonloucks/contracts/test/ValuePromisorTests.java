@@ -1,14 +1,12 @@
 package io.github.jonloucks.contracts.test;
 
-import io.github.jonloucks.contracts.api.Contracts;
-import io.github.jonloucks.contracts.api.Promisor;
-import io.github.jonloucks.contracts.api.Promisors;
-import io.github.jonloucks.contracts.api.Shutdown;
-import io.github.jonloucks.contracts.api.Startup;
+import io.github.jonloucks.contracts.api.*;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
 
 import static io.github.jonloucks.contracts.test.Tools.assertObject;
 import static org.junit.jupiter.api.Assertions.*;
@@ -16,6 +14,7 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 
 @ExtendWith(MockitoExtension.class)
+@MockitoSettings(strictness = Strictness.LENIENT)
 public interface ValuePromisorTests {
     
     @Test
@@ -38,24 +37,25 @@ public interface ValuePromisorTests {
     }
     
     @Test
-    default void createValuePromisor_incrementUsage(@Mock Startup deliverable) {
+    default void createValuePromisor_incrementUsage(@Mock AutoOpen deliverable) {
         final Promisors promisors = Contracts.claimContract(Promisors.CONTRACT);
-        final Promisor<Startup> promisor = promisors.createValuePromisor(deliverable);
+        final Promisor<AutoOpen> promisor = promisors.createValuePromisor(deliverable);
         
         assertNotNull(promisor, "should not return null.");
         
         promisor.incrementUsage();
         
+        //noinspection resource,LambdaBodyCanBeCodeBlock
         assertAll(
             () -> assertSame(deliverable, promisor.demand(), "deliverables should match."),
-            () -> verify(deliverable, never()).startup()
+            () -> verify(deliverable, never()).open()
         );
     }
     
     @Test
-    default void createValuePromisor_decrementUsage(@Mock Shutdown deliverable) {
+    default void createValuePromisor_decrementUsage(@Mock AutoClose deliverable) {
         final Promisors promisors = Contracts.claimContract(Promisors.CONTRACT);
-        final Promisor<Shutdown> promisor = promisors.createValuePromisor(deliverable);
+        final Promisor<AutoClose> promisor = promisors.createValuePromisor(deliverable);
         
         assertNotNull(promisor, "should not return null.");
         
@@ -63,7 +63,7 @@ public interface ValuePromisorTests {
         
         assertAll(
             () -> assertSame(deliverable, promisor.demand(), "deliverables should match."),
-            () -> verify(deliverable, never()).shutdown()
+            () -> verify(deliverable, never()).close()
         );
     }
 }

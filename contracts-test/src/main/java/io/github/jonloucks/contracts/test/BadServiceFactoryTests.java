@@ -26,6 +26,7 @@ public interface BadServiceFactoryTests {
         final BadServiceFactory badServiceFactory = new BadServiceFactory();
         final Service.Config config = new Service.Config(){};
         final Exception thrown = assertThrows(Exception.class, () -> {
+            //noinspection resource
             badServiceFactory.createService(config);
         });
         

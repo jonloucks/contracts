@@ -18,8 +18,8 @@ public interface Promisor<T> {
     /**
      * Reference counting used for advanced resource management
      * Incremented by {@link Contracts#bindContract(Contract, Promisor)}
-     * Decremented if caller invokes {@link Shutdown#shutdown()} on the return value of bind
-     * Every successful 'startup' must be followed by a 'shutdown' at the appropriate time
+     * Decremented if caller invokes {@link AutoClose#close()} on the return value of bind
+     * Every successful 'open' must be followed by a 'close' at the appropriate time
      * @return the usage count.  This might be a constant
      */
     default int incrementUsage() {
@@ -29,8 +29,8 @@ public interface Promisor<T> {
     /**
      * Reference counting used for advanced resource management
      * Incremented by {@link Contracts#bindContract(Contract, Promisor)}
-     * Decremented if caller invokes {@link Shutdown#shutdown()} on the return value of bind
-     * Every successful 'startup' must be followed by a 'shutdown' at the appropriate time
+     * Decremented if caller invokes {@link AutoClose#close()} on the return value of bind
+     * Every successful 'open' must be followed by a 'close' at the appropriate time
      * @return the usage count.  This might be a constant
      */
     default int decrementUsage() {

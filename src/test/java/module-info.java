@@ -5,6 +5,7 @@ module io.github.jonloucks.contracts.test.runtests {
     requires io.github.jonloucks.contracts.api;
     requires io.github.jonloucks.contracts.impl;
     requires io.github.jonloucks.contracts;
+    requires org.mockito;
     
     uses io.github.jonloucks.contracts.api.ServiceFactory;
 

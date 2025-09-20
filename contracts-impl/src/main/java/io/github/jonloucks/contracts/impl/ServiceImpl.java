@@ -3,6 +3,7 @@ package io.github.jonloucks.contracts.impl;
 import io.github.jonloucks.contracts.api.*;
 
 import java.util.*;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
@@ -12,20 +13,27 @@ import static io.github.jonloucks.contracts.api.Checks.*;
 import static java.util.Optional.ofNullable;
 
 final class ServiceImpl implements Service {
-    
+    final AtomicBoolean opened = new AtomicBoolean(false);
     @Override
-    public void startup() {
-    }
-    
-    @Override
-    public void shutdown() {
-        for (int attempts = 1, broken = breakAllBindings(); broken > 0; broken = breakAllBindings(), attempts++) {
-            if (attempts > 5) {
-                throw newShutdownDidNotCompleteException();
-            }
+    public AutoClose open() {
+        if (opened.compareAndSet(false, true)) {
+            return this;
+        } else {
+            throw new IllegalStateException("Service has already been started");
         }
     }
     
+    @Override
+    public void close() {
+        if (opened.compareAndSet(true, false)) {
+            for (int attempts = 1, broken = breakAllBindings(); broken > 0; broken = breakAllBindings(), attempts++) {
+                if (attempts > 5) {
+                    throw newCloseDidNotCompleteException();
+                }
+            }
+        }
+    }
+
     @Override
     public <T> T claim(Contract<T> contract) {
         final Contract<T> validContract = contractCheck(contract);
@@ -45,7 +53,7 @@ final class ServiceImpl implements Service {
     }
     
     @Override
-    public <T> Shutdown bind(Contract<T> contract, Promisor<T> promisor) {
+    public <T> AutoClose bind(Contract<T> contract, Promisor<T> promisor) {
         final Contract<T> validContract = contractCheck(contract);
         final Promisor<T> validPromisor = promisorCheck(promisor);
         
@@ -63,7 +71,7 @@ final class ServiceImpl implements Service {
         bind(Promisors.CONTRACT, PromisorsImpl::new);
         
         if (validConfig.useShutdownHooks()) {
-            Runtime.getRuntime().addShutdownHook(new Thread(this::shutdown));
+            Runtime.getRuntime().addShutdownHook(new Thread(this::close));
         }
     }
     
@@ -82,7 +90,7 @@ final class ServiceImpl implements Service {
         });
     }
     
-    private <T> Shutdown makeBinding(Contract<T> contract, Promisor<T> promisor) {
+    private <T> AutoClose makeBinding(Contract<T> contract, Promisor<T> promisor) {
         // Since ReentrantReadWriteLock does not support lock upgrade, there are opportunities
         // for changes by other threads between the reads and writes.
         // This is mitigated by always incrementing the new value and decrementing the old value.
@@ -154,8 +162,8 @@ final class ServiceImpl implements Service {
         }
     }
     
-    private static ContractException newShutdownDidNotCompleteException() {
-        return new ContractException("Service failed to shutdown after trying multiple times");
+    private static ContractException newCloseDidNotCompleteException() {
+        return new ContractException("Service failed to close after trying multiple times");
     }
     
     private static <T> ContractException newContractNotPromisedException(Contract<T> contract) {
