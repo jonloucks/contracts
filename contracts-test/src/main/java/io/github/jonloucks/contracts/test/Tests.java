@@ -8,6 +8,7 @@ public interface Tests extends
     ContractTests,
     ContractsTests,
     ExceptionTests,
+    RepositoryTests,
     PromisorsTests,
     ServiceTests
 {

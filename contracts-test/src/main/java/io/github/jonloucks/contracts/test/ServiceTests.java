@@ -8,12 +8,13 @@ import org.junit.jupiter.params.provider.MethodSource;
 
 import java.util.stream.Stream;
 
+import static io.github.jonloucks.contracts.api.Checks.nullCheck;
 import static io.github.jonloucks.contracts.test.Tools.assertThrown;
 import static java.util.Optional.ofNullable;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
-@SuppressWarnings({"CodeBlock2Expr", "RedundantMethodOverride"})
+@SuppressWarnings({"RedundantMethodOverride"})
 public interface ServiceTests {
     
     @Test
@@ -38,7 +39,9 @@ public interface ServiceTests {
         
         assumeTrue(ofNullable(service).isPresent(), "create service failed");
         
-        try (AutoClose ignored = service.open()) {
+        try (AutoClose closeService = service.open()) {
+            nullCheck(closeService, "warning: [try] workaround");
+            
             service.bind(contract, () -> "hello");
             
             assertFalse(service.isBound(unboundContract), "Contract should be bound.");

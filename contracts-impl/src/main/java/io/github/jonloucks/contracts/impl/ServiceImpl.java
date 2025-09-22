@@ -13,10 +13,11 @@ import static io.github.jonloucks.contracts.api.Checks.*;
 import static java.util.Optional.ofNullable;
 
 final class ServiceImpl implements Service {
-    final AtomicBoolean opened = new AtomicBoolean(false);
+
     @Override
     public AutoClose open() {
-        if (opened.compareAndSet(false, true)) {
+        if (state.compareAndSet(IS_CLOSED, IS_OPEN)) {
+            this.closeRepository = respository.open();
             return this;
         } else {
             throw new IllegalStateException("Service has already been started");
@@ -25,10 +26,17 @@ final class ServiceImpl implements Service {
     
     @Override
     public void close() {
-        if (opened.compareAndSet(true, false)) {
-            for (int attempts = 1, broken = breakAllBindings(); broken > 0; broken = breakAllBindings(), attempts++) {
-                if (attempts > 5) {
-                    throw newCloseDidNotCompleteException();
+        if (state.compareAndSet(IS_OPEN, IS_CLOSED)) {
+            try {
+                for (int attempts = 1, broken = breakAllBindings(); broken > 0; broken = breakAllBindings(), attempts++) {
+                    if (attempts > 5) {
+                        throw newCloseDidNotCompleteException();
+                    }
+                }
+            } finally {
+                if (ofNullable(closeRepository).isPresent()) {
+                    closeRepository.close();
+                    closeRepository = null;
                 }
             }
         }
@@ -62,13 +70,20 @@ final class ServiceImpl implements Service {
         return makeBinding(validContract, validPromisor);
     }
     
+    private static final boolean IS_CLOSED = false;
+    private static final boolean IS_OPEN = true;
+    private final AtomicBoolean state = new AtomicBoolean(false);
     private final ReentrantReadWriteLock mapLock = new ReentrantReadWriteLock();
     private final LinkedHashMap<Contract<?>, Promisor<?>> promisorMap = new LinkedHashMap<>();
+    private final RepositoryImpl respository = new RepositoryImpl(this);
+    private AutoClose closeRepository;
     
     ServiceImpl(Service.Config config) {
         final Service.Config validConfig = nullCheck(config, "config was null");
         
-        bind(Promisors.CONTRACT, PromisorsImpl::new);
+        // keeping the promises open permanently
+        respository.store(Promisors.CONTRACT, PromisorsImpl::new);
+        respository.store(Repository.FACTORY, () -> () -> new RepositoryImpl(this));
         
         if (validConfig.useShutdownHooks()) {
             Runtime.getRuntime().addShutdownHook(new Thread(this::close));

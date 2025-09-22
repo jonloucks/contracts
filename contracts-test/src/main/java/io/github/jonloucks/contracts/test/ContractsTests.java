@@ -3,6 +3,7 @@ package io.github.jonloucks.contracts.test;
 import io.github.jonloucks.contracts.api.*;
 import org.junit.jupiter.api.Test;
 
+import static io.github.jonloucks.contracts.api.Checks.nullCheck;
 import static io.github.jonloucks.contracts.test.Tools.*;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -59,7 +60,8 @@ public interface ContractsTests {
     default void contracts_isContractBound_WithBoundContract_Works() {
         final Contract<String> contract = Contract.create("testContract");
         
-        try (AutoClose ignored = Contracts.bindContract(contract, () -> "abc")){
+        try (AutoClose closeBinding = Contracts.bindContract(contract, () -> "abc")){
+            nullCheck(closeBinding, "warning: [try] workaround");
             assertTrue(Contracts.isContractBound(contract), "Unbound Contract was bound.");
         }
     }
