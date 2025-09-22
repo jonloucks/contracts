@@ -1,6 +1,6 @@
 package io.github.jonloucks.contracts.test;
 
-import io.github.jonloucks.contracts.api.Contracts;
+import io.github.jonloucks.contracts.api.GlobalContracts;
 import io.github.jonloucks.contracts.api.Promisor;
 import io.github.jonloucks.contracts.api.Promisors;
 import org.junit.jupiter.api.Test;
@@ -20,7 +20,7 @@ public interface ExtractorPromisorTests {
     
     @Test
     default void extractPromisor_NullReferent_Throws() {
-        final Promisors promisors = Contracts.claimContract(Promisors.CONTRACT);
+        final Promisors promisors = GlobalContracts.claimContract(Promisors.CONTRACT);
         
         final IllegalArgumentException thrown = assertThrows(IllegalArgumentException.class, () ->
             promisors.createExtractPromisor(null, t -> "xyz")
@@ -31,7 +31,7 @@ public interface ExtractorPromisorTests {
     
     @Test
     default void extractPromisor_NullRecast_Throws() {
-        final Promisors promisors = Contracts.claimContract(Promisors.CONTRACT);
+        final Promisors promisors = GlobalContracts.claimContract(Promisors.CONTRACT);
         
         final IllegalArgumentException thrown = assertThrows(IllegalArgumentException.class, () ->
             promisors.createExtractPromisor(() -> "abc", null)
@@ -43,7 +43,7 @@ public interface ExtractorPromisorTests {
     @Test
     default void extractPromisor_Valid_Works(@Mock Promisor<Decoy<Integer>> referent, @Mock Decoy<Integer> deliverable) {
         final int usages = 5;
-        final Promisors promisors = Contracts.claimContract(Promisors.CONTRACT);
+        final Promisors promisors = GlobalContracts.claimContract(Promisors.CONTRACT);
         when(referent.demand()).thenReturn(deliverable);
         final Promisor<String> promisor = promisors.createExtractPromisor(referent, c -> "abc");
         

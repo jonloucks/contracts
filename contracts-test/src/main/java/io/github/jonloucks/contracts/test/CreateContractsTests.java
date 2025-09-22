@@ -15,11 +15,11 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
 @SuppressWarnings({"RedundantMethodOverride"})
-public interface ServiceTests {
+public interface CreateContractsTests {
     
     @Test
-    default void service_DefaultConfig() {
-        final Service.Config config = new Service.Config() {};
+    default void createContracts_DefaultConfig() {
+        final Contracts.Config config = new Contracts.Config() {};
         
         assertAll(
             () -> assertTrue(config.useReflection(), "config.useReflection() default."),
@@ -30,45 +30,45 @@ public interface ServiceTests {
     }
     
     @ParameterizedTest
-    @MethodSource("io.github.jonloucks.contracts.test.ServiceTests$ServiceTestsTools#validConfigs")
-    default void service_HappyPath(Service.Config serviceConfig) {
+    @MethodSource("io.github.jonloucks.contracts.test.CreateContractsTests$CreateContractsTestsTools#validConfigs")
+    default void createContracts_HappyPath(Contracts.Config contractsConfig) {
         final Contract<String> contract = Contract.create("string contract");
         final Contract<String> unboundContract = Contract.create("unbound string contract");
         
-        final Service service = Contracts.createService(serviceConfig);
+        final Contracts contracts = GlobalContracts.createContracts(contractsConfig);
         
-        assumeTrue(ofNullable(service).isPresent(), "create service failed");
+        assumeTrue(ofNullable(contracts).isPresent(), "createContracts failed");
         
-        try (AutoClose closeService = service.open()) {
-            nullCheck(closeService, "warning: [try] workaround");
+        try (AutoClose closeContracts = contracts.open()) {
+            nullCheck(closeContracts, "warning: [try] workaround");
             
-            service.bind(contract, () -> "hello");
+            contracts.bind(contract, () -> "hello");
             
-            assertFalse(service.isBound(unboundContract), "Contract should be bound.");
-            assertTrue(service.isBound(contract), "Contract should be bound.");
-            assertEquals("hello", service.claim(contract), "Claimed value should match.");
+            assertFalse(contracts.isBound(unboundContract), "Contract should be bound.");
+            assertTrue(contracts.isBound(contract), "Contract should be bound.");
+            assertEquals("hello", contracts.claim(contract), "Claimed value should match.");
         }
     }
     
     @ParameterizedTest
-    @MethodSource("io.github.jonloucks.contracts.test.ServiceTests$ServiceTestsTools#invalidConfigs")
-    default void service_SadPath(Service.Config serviceConfig) {
+    @MethodSource("io.github.jonloucks.contracts.test.CreateContractsTests$CreateContractsTestsTools#invalidConfigs")
+    default void createContracts_SadPath(Contracts.Config contractsConfig) {
         final ContractException thrown = assertThrows(ContractException.class, () -> {
             //noinspection resource
-            Contracts.createService(serviceConfig);
+            GlobalContracts.createContracts(contractsConfig);
         });
         
         assertThrown(thrown);
     }
     
-    final class ServiceTestsTools {
-        private ServiceTestsTools() {
+    final class CreateContractsTestsTools {
+        private CreateContractsTestsTools() {
         
         }
         static Stream<Arguments> validConfigs() {
             return Stream.of(
-                Arguments.of(new Service.Config() {}),
-                Arguments.of(new Service.Config() {
+                Arguments.of(new Contracts.Config() {}),
+                Arguments.of(new Contracts.Config() {
                     @Override
                     public boolean useServiceLoader() {
                         return false;
@@ -78,7 +78,7 @@ public interface ServiceTests {
                         return true;
                     }
                 }),
-                Arguments.of(new Service.Config() {
+                Arguments.of(new Contracts.Config() {
                     @Override
                     public boolean useServiceLoader() {
                         return true;
@@ -93,7 +93,7 @@ public interface ServiceTests {
         
         static Stream<Arguments> invalidConfigs() {
             return Stream.of(
-                Arguments.of(new Service.Config() {
+                Arguments.of(new Contracts.Config() {
                     @Override
                     public boolean useServiceLoader() {
                         return false;
@@ -103,7 +103,7 @@ public interface ServiceTests {
                         return false;
                     }
                 }),
-                Arguments.of(new Service.Config() {
+                Arguments.of(new Contracts.Config() {
                     @Override
                     public boolean useServiceLoader() {
                         return true;
@@ -113,11 +113,11 @@ public interface ServiceTests {
                         return false;
                     }
                     @Override
-                    public Class<? extends ServiceFactory> serviceLoaderClass() {
-                        return BadServiceFactory.class;
+                    public Class<? extends ContractsFactory> serviceLoaderClass() {
+                        return BadContractsFactory.class;
                     }
                 }),
-                Arguments.of(new Service.Config() {
+                Arguments.of(new Contracts.Config() {
                     @Override
                     public boolean useServiceLoader() {
                         return false;
@@ -128,10 +128,10 @@ public interface ServiceTests {
                     }
                     @Override
                     public String reflectionClassName() {
-                        return BadServiceFactory.class.getName();
+                        return BadContractsFactory.class.getName();
                     }
                 }),
-                Arguments.of(new Service.Config() {
+                Arguments.of(new Contracts.Config() {
                     @Override
                     public boolean useServiceLoader() {
                         return false;

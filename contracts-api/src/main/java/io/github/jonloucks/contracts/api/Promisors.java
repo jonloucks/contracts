@@ -3,7 +3,7 @@ package io.github.jonloucks.contracts.api;
 import java.util.function.Function;
 
 /**
- * Helper methods for creating and chaining Promisors used for {@link Contracts#bindContract(Contract, Promisor)}
+ * Helper methods for creating and chaining Promisors used for {@link GlobalContracts#bindContract(Contract, Promisor)}
  */
 public interface Promisors {
     

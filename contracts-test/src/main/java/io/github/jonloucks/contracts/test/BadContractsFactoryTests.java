@@ -1,6 +1,6 @@
 package io.github.jonloucks.contracts.test;
 
-import io.github.jonloucks.contracts.api.Service;
+import io.github.jonloucks.contracts.api.Contracts;
 import org.junit.jupiter.api.Test;
 
 import java.lang.reflect.Constructor;
@@ -9,10 +9,10 @@ import java.lang.reflect.Modifier;
 import static io.github.jonloucks.contracts.test.Tools.assertObject;
 import static org.junit.jupiter.api.Assertions.*;
 
-public interface BadServiceFactoryTests {
+public interface BadContractsFactoryTests {
     @Test
-    default void badServiceFactory_HasProtectedConstructor() throws Throwable {
-        final Class<?> klass = Class.forName(BadServiceFactory.class.getCanonicalName());
+    default void badContractsFactory_HasProtectedConstructor() throws Throwable {
+        final Class<?> klass = Class.forName(BadContractsFactory.class.getCanonicalName());
         final Constructor<?> constructor = klass.getDeclaredConstructor();
         constructor.setAccessible(true);
         final int modifiers = constructor.getModifiers();
@@ -21,12 +21,12 @@ public interface BadServiceFactoryTests {
     }
     
     @Test
-    default void badServiceFactory_HasPrivateConstructor() throws Throwable {
-        final BadServiceFactory badServiceFactory = new BadServiceFactory();
-        final Service.Config config = new Service.Config(){};
+    default void badContractsFactory_HasPrivateConstructor() throws Throwable {
+        final BadContractsFactory badContractsFactory = new BadContractsFactory();
+        final Contracts.Config config = new Contracts.Config(){};
         final Exception thrown = assertThrows(Exception.class, () -> {
             //noinspection resource
-            badServiceFactory.createService(config);
+            badContractsFactory.create(config);
         });
         
         assertObject(thrown);

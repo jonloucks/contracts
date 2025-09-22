@@ -1,3 +1,5 @@
+import io.github.jonloucks.contracts.api.ContractsFactory;
+
 module io.github.jonloucks.contracts.test.runtests {
     requires io.github.jonloucks.contracts.test;
     requires org.junit.jupiter.api;
@@ -7,7 +9,7 @@ module io.github.jonloucks.contracts.test.runtests {
     requires io.github.jonloucks.contracts;
     requires org.mockito;
     
-    uses io.github.jonloucks.contracts.api.ServiceFactory;
+    uses ContractsFactory;
 
     exports io.github.jonloucks.contracts.runtests to org.junit.platform.commons;
 }

@@ -1,8 +1,10 @@
+import io.github.jonloucks.contracts.api.ContractsFactory;
+
 /**
  * The API module for Contracts
  */
 module io.github.jonloucks.contracts.api {
-    uses io.github.jonloucks.contracts.api.ServiceFactory;
+    uses ContractsFactory;
     
     exports io.github.jonloucks.contracts.api;
 }

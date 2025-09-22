@@ -6,10 +6,10 @@ package io.github.jonloucks.contracts.test;
 public interface Tests extends
     TestTests,
     ContractTests,
-    ContractsTests,
+    GlobalContractsTests,
     ExceptionTests,
     RepositoryTests,
     PromisorsTests,
-    ServiceTests
+    CreateContractsTests
 {
 }

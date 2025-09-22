@@ -8,22 +8,22 @@ import static io.github.jonloucks.contracts.test.Tools.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 @SuppressWarnings("CodeBlock2Expr")
-public interface ContractsTests {
+public interface GlobalContractsTests {
 
     @Test
     default void contracts_Instantiate_Throws() {
-        assertInstantiateThrows(Contracts.class);
+        assertInstantiateThrows(GlobalContracts.class);
     }
     
     @Test
-    default void contracts_getService_Works() {
-        assertObject(Contracts.getService());
+    default void contracts_getInstance_Works() {
+        assertObject(GlobalContracts.getInstance());
     }
     
     @Test
     default void contracts_claimContract_WithNullContract_Throws() {
         final IllegalArgumentException thrown = assertThrows(IllegalArgumentException.class, () ->  {
-            Contracts.claimContract(null);
+            GlobalContracts.claimContract(null);
         });
 
         assertThrown(thrown);
@@ -33,7 +33,7 @@ public interface ContractsTests {
     default void contracts_claimContract_WithUnknownContract_Throws() {
         final Contract<String> contract = Contract.create("testContract");
         final ContractException thrown = assertThrows(ContractException.class, () ->  {
-            Contracts.claimContract(contract);
+            GlobalContracts.claimContract(contract);
         });
         
         assertThrown(thrown);
@@ -42,10 +42,10 @@ public interface ContractsTests {
     @Test
     default void contracts_claimContract_WithPromisedContract_Works() {
         final Contract<String> contract = Contract.create("testContract");
-        try (AutoClose releaseBinding = Contracts.bindContract(contract, () -> "abc")){
+        try (AutoClose releaseBinding = GlobalContracts.bindContract(contract, () -> "abc")){
             assertAll(
                 () -> assertNotNull(releaseBinding),
-                () -> assertSame("abc", Contracts.claimContract(contract)));
+                () -> assertSame("abc", GlobalContracts.claimContract(contract)));
         }
     }
     
@@ -53,16 +53,16 @@ public interface ContractsTests {
     default void contracts_isContractBound_WithUnboundContract_Works() {
         final Contract<String> contract = Contract.create("testContract");
         
-        assertFalse(Contracts.isContractBound(contract), "Unbound Contract was bound.");
+        assertFalse(GlobalContracts.isContractBound(contract), "Unbound Contract was bound.");
     }
     
     @Test
     default void contracts_isContractBound_WithBoundContract_Works() {
         final Contract<String> contract = Contract.create("testContract");
         
-        try (AutoClose closeBinding = Contracts.bindContract(contract, () -> "abc")){
+        try (AutoClose closeBinding = GlobalContracts.bindContract(contract, () -> "abc")){
             nullCheck(closeBinding, "warning: [try] workaround");
-            assertTrue(Contracts.isContractBound(contract), "Unbound Contract was bound.");
+            assertTrue(GlobalContracts.isContractBound(contract), "Unbound Contract was bound.");
         }
     }
 }
