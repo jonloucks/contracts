@@ -22,8 +22,8 @@ final class ServiceFactoryFinder {
     private Optional<? extends ServiceFactory> createByServiceLoader() {
         if (config.useServiceLoader()) {
             try {
-                final Class<? extends ServiceFactory> bootstrapClass = nullCheck(config.serviceLoaderClass(), "bootstrapClass was null");
-                final ServiceLoader<? extends ServiceFactory> serviceLoader = ServiceLoader.load(bootstrapClass);
+                final Class<? extends ServiceFactory> serviceFactoryClass = nullCheck(config.serviceLoaderClass(), "config.serviceLoaderClass() was null");
+                final ServiceLoader<? extends ServiceFactory> serviceLoader = ServiceLoader.load(serviceFactoryClass);
                 return serviceLoader.findFirst();
             } catch (Throwable thrown) {
                 return Optional.empty();
@@ -34,7 +34,7 @@ final class ServiceFactoryFinder {
     
     private Optional<ServiceFactory> createByReflection() {
         if (config.useReflection()) {
-            final String className = nullCheck(config.reflectionClassName(), "config.bootstrapClassName() was null");
+            final String className = nullCheck(config.reflectionClassName(), "config.reflectionClassName() was null");
             if (className.isEmpty()) {
                 return Optional.empty();
             }

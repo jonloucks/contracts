@@ -14,7 +14,6 @@ dependencies {
 
     api platform(libs.junit.bom)
     api 'org.junit.jupiter:junit-jupiter'
-    api libs.hamcrest
     api libs.mockito.core
     api libs.mockito.junit.jupiter
     runtimeOnly 'org.junit.platform:junit-platform-launcher'

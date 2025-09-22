@@ -15,6 +15,8 @@ public final class Contracts {
      * @return the value returned by the bound Promisor. A Promisor can return null
      * @throws ContractException if Promisor binding does not exist for the contract
      * @throws SecurityException if permission is denied
+     * 
+     * @see Service#claim(Contract) 
      */
     public static <T> T claimContract(Contract<T> contract) {
         return CONTRACTS.service.claim(contract);
@@ -66,8 +68,8 @@ public final class Contracts {
     public static Service createService(Service.Config serviceConfig) {
         final Service.Config validServiceConfig = nullCheck(serviceConfig, "Service config was null");
         
-        final ServiceFactoryFinder factory = new ServiceFactoryFinder(serviceConfig);
-        final ServiceFactory serviceFactory = nullCheck(factory.createServiceFactory(), "createBootstrap() was null");
+        final ServiceFactoryFinder factoryFinder = new ServiceFactoryFinder(serviceConfig);
+        final ServiceFactory serviceFactory = nullCheck(factoryFinder.createServiceFactory(), "createServiceFactory() was null");
         return nullCheck(serviceFactory.createService(validServiceConfig), "createService() was null");
     }
     

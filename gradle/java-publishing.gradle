@@ -1,5 +1,6 @@
+//file:noinspection GroovyAssignabilityCheck
 String getConfig(String name, String theDefault) {
-    final Provider<String> variable = providers.environmentVariable(name);
+    final Provider<String> variable = providers.environmentVariable(name)
     if (variable.isPresent()) {
         return variable.orElse(theDefault).get()
     }

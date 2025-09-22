@@ -9,7 +9,6 @@ import java.lang.reflect.Modifier;
 import static io.github.jonloucks.contracts.test.Tools.assertObject;
 import static org.junit.jupiter.api.Assertions.*;
 
-@SuppressWarnings("CodeBlock2Expr")
 public interface BadServiceFactoryTests {
     @Test
     default void badServiceFactory_HasProtectedConstructor() throws Throwable {

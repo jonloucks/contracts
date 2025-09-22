@@ -16,6 +16,7 @@ import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Supplier;
 
+import static io.github.jonloucks.contracts.api.Checks.nullCheck;
 import static io.github.jonloucks.contracts.api.Contracts.bindContract;
 import static io.github.jonloucks.contracts.test.LifeCyclePromisorTests.ConcurrencyTestsTool.*;
 import static io.github.jonloucks.contracts.test.Tools.assertThrown;
@@ -206,7 +207,8 @@ public interface LifeCyclePromisorTests {
   
             final Promisor<Decoy<String>> testSubject = createTestSubject(mockPromisor);
             
-            try (AutoClose ignored = bindContract(contract, testSubject)){
+            try (AutoClose closeBinding = bindContract(contract, testSubject)){
+                nullCheck(closeBinding, "warning: [try] workaround");
                 for (int i = 0; i < config.threadCount(); i++) {
                     claimThreads[i] = new Thread("Claim-" + i) {
                         @Override

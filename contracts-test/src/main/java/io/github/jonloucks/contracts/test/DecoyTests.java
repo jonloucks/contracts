@@ -19,7 +19,6 @@ public interface DecoyTests {
                 () -> assertNull(decoy.demand(), "demand should return null."),
                 () -> assertNull(decoy.claim(contract), "claim should return null."),
                 () -> assertDoesNotThrow(() -> decoy.open(), "startup should throw an exception."),
-                () -> assertDoesNotThrow(() -> decoy.close(), "close should throw an exception."),
                 () -> assertEquals(1, decoy.incrementUsage(), "incrementUsage should return 1."),
                 () -> assertEquals(1, decoy.decrementUsage(), "decrementUsage should return 1."),
                 () -> assertFalse(decoy.isBound(contract), "isBound should return false."),

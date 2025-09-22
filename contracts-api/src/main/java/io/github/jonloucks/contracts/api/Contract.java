@@ -40,13 +40,13 @@ public final class Contract<T> {
      * For custom configuration see {@link #create(Config)}
      *
      * @param name          the name for the contract, null is not allowed
-     * @param instanceArray null is not allowed
+     * @param reifiedArray null is not allowed
      * @param <T>           the type of deliverable for this Contract
      * @return the new Contract
      */
     @SafeVarargs // Required to safely determine the checked type of T
-    public static <T> Contract<T> create(String name, T... instanceArray) {
-        return safelyGetTypeAndCreate(name, instanceArray);
+    public static <T> Contract<T> create(String name, T... reifiedArray) {
+        return safelyGetTypeAndCreate(name, reifiedArray);
     }
     
     /**
@@ -165,8 +165,8 @@ public final class Contract<T> {
         nullCheck(config.typeName(), "config type was not present");
     }
     
-    private static <T> Contract<T> safelyGetTypeAndCreate(String name, T[] instanceArray) {
-        final T[] validInstanceArray = nullCheck(instanceArray, "instance array was not present");
+    private static <T> Contract<T> safelyGetTypeAndCreate(String name, T[] reifiedArray) {
+        final T[] validInstanceArray = nullCheck(reifiedArray, "reified array was not present");
         final String validName = nullCheck(name, "name was not present");
         final Class<T> validDeliverableType = detectDeliverableType(validInstanceArray);
         
