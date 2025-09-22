@@ -1,7 +1,7 @@
 package io.github.jonloucks.contracts.test;
 
 public interface TestTests extends
-    BadServiceFactoryTests,
+    BadContractsFactoryTests,
     ChecksTests,
     DecoyTests,
     ToolsTests

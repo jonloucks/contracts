@@ -5,7 +5,7 @@ import io.github.jonloucks.contracts.api.Contract;
 import io.github.jonloucks.contracts.api.ContractException;
 
 import static io.github.jonloucks.contracts.api.Checks.nullCheck;
-import static io.github.jonloucks.contracts.api.Contracts.*;
+import static io.github.jonloucks.contracts.api.GlobalContracts.*;
 import static java.util.Optional.ofNullable;
 
 /**

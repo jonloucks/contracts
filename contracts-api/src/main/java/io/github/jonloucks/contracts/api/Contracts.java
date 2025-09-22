@@ -1,11 +1,12 @@
 package io.github.jonloucks.contracts.api;
 
-import static io.github.jonloucks.contracts.api.Checks.nullCheck;
-
 /**
- * Provides access to the shared singleton Contracts service
+ * The actual implementation used for Contracts itself.
+ * It is used to bootstrap Contracts without it knowing the implementation if Contracts.
+ * It does know how to load the default from contracts-impl.
+ * However, the design is open to have it replaced with an alternative implementation.
  */
-public final class Contracts {
+public interface Contracts extends AutoOpen, AutoClose {
     
     /**
      * Claim the deliverable from a bound contract.
@@ -15,12 +16,17 @@ public final class Contracts {
      * @return the value returned by the bound Promisor. A Promisor can return null
      * @throws ContractException if Promisor binding does not exist for the contract
      * @throws SecurityException if permission is denied
-     * 
-     * @see Service#claim(Contract) 
      */
-    public static <T> T claimContract(Contract<T> contract) {
-        return CONTRACTS.service.claim(contract);
-    }
+    <T> T claim(Contract<T> contract);
+    
+    /**
+     * Checks if the contract is bound to a Promisor
+     *
+     * @param contract the contract to check
+     * @param <T>      The type of the value returned by the promisor
+     * @return true iif bound
+     */
+    <T> boolean isBound(Contract<T> contract);
     
     /**
      * Establish a binding between a Contract and a Promisor
@@ -32,55 +38,46 @@ public final class Contracts {
      * @throws ContractException when contract is already bound and can't be replaced
      * @throws SecurityException when permission to bind is denied
      */
-    public static <T> AutoClose bindContract(Contract<T> contract, Promisor<T> promisor) {
-        return CONTRACTS.service.bind(contract, promisor);
-    }
+    <T> AutoClose bind(Contract<T> contract, Promisor<T> promisor);
     
     /**
-     * Checks if the contract is bound to a Promisor
-     *
-     * @param contract the contract to check
-     * @param <T>      The type of the value returned by the promisor
-     * @return true iif bound
+     * The Contracts configuration
      */
-    public static <T> boolean isContractBound(Contract<T> contract) {
-        return CONTRACTS.service.isBound(contract);
-    }
-    
-    /**
-     * Return the global Contracts service
-     * @return the service
-     */
-    public static Service getService() {
-        return CONTRACTS.service;
-    }
-    
-    /**
-     * Create a standalone Contracts service.
-     * Note: Services created from this method are destink any that used internally
-     * <p>
-     * Caller is responsible for invoking open() before use and close when no longer needed
-     * </p>
-     *
-     * @param serviceConfig the service configuration
-     * @return the new service
-     */
-    public static Service createService(Service.Config serviceConfig) {
-        final Service.Config validServiceConfig = nullCheck(serviceConfig, "Service config was null");
+    interface Config {
         
-        final ServiceFactoryFinder factoryFinder = new ServiceFactoryFinder(serviceConfig);
-        final ServiceFactory serviceFactory = nullCheck(factoryFinder.createServiceFactory(), "createServiceFactory() was null");
-        return nullCheck(serviceFactory.createService(validServiceConfig), "createService() was null");
-    }
-    
-    private static final Contracts CONTRACTS = new Contracts();
-    
-    private final Service service;
-    @SuppressWarnings({"FieldCanBeLocal","unused"})
-    private final AutoClose close;
-    
-    private Contracts() {
-        this.service = createService(new Service.Config() {});
-        this.close = service.open();
+        /**
+         * @return if true, shutdown hooks will be added to ensure cleanup of Contracts
+         */
+        default boolean useShutdownHooks() {
+            return true;
+        }
+        
+        /**
+         * @return if true, reflection might be used to locate the ContractsFactory
+         */
+        default boolean useReflection() {
+            return true;
+        }
+        
+        /**
+         * @return if true, the ServiceLoader might be used to locate the ContractsFactory
+         */
+        default boolean useServiceLoader() {
+            return true;
+        }
+        
+        /**
+         * @return the class name to load from the ServiceLoader to find the ContractsFactory
+         */
+        default Class<? extends ContractsFactory> serviceLoaderClass() {
+            return ContractsFactory.class;
+        }
+        
+        /**
+         * @return the class name to use if reflection is used to find the ContractsFactory
+         */
+        default String reflectionClassName() {
+            return "io.github.jonloucks.contracts.impl.ContractsFactoryImpl";
+        }
     }
 }

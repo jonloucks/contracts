@@ -1,8 +1,8 @@
 package io.github.jonloucks.contracts.test;
 
 import io.github.jonloucks.contracts.api.Contract;
-import io.github.jonloucks.contracts.api.Service;
-import io.github.jonloucks.contracts.api.ServiceFactory;
+import io.github.jonloucks.contracts.api.Contracts;
+import io.github.jonloucks.contracts.api.ContractsFactory;
 import org.junit.jupiter.api.function.Executable;
 
 import java.lang.reflect.Constructor;
@@ -146,8 +146,8 @@ public final class Tools {
      */
     public static void clean() {
         sanitize(()-> {
-            final Service.Config config = new Service.Config() {};
-            final ServiceLoader<? extends ServiceFactory> loader = ServiceLoader.load(config.serviceLoaderClass());
+            final Contracts.Config config = new Contracts.Config() {};
+            final ServiceLoader<? extends ContractsFactory> loader = ServiceLoader.load(config.serviceLoaderClass());
             loader.reload();
         });
     }

@@ -17,7 +17,7 @@ public interface Promisor<T> {
     
     /**
      * Reference counting used for advanced resource management
-     * Incremented by {@link Contracts#bindContract(Contract, Promisor)}
+     * Incremented by {@link GlobalContracts#bindContract(Contract, Promisor)}
      * Decremented if caller invokes {@link AutoClose#close()} on the return value of bind
      * Every successful 'open' must be followed by a 'close' at the appropriate time
      * @return the usage count.  This might be a constant
@@ -28,7 +28,7 @@ public interface Promisor<T> {
     
     /**
      * Reference counting used for advanced resource management
-     * Incremented by {@link Contracts#bindContract(Contract, Promisor)}
+     * Incremented by {@link GlobalContracts#bindContract(Contract, Promisor)}
      * Decremented if caller invokes {@link AutoClose#close()} on the return value of bind
      * Every successful 'open' must be followed by a 'close' at the appropriate time
      * @return the usage count.  This might be a constant

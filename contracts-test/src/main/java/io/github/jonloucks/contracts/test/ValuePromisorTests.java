@@ -19,7 +19,7 @@ public interface ValuePromisorTests {
     
     @Test
     default void createValuePromisor_WithNullValue_Works() {
-        final Promisors promisors = Contracts.claimContract(Promisors.CONTRACT);
+        final Promisors promisors = GlobalContracts.claimContract(Promisors.CONTRACT);
         final Promisor<String> promisor = promisors.createValuePromisor(null);
         
         assertNotNull(promisor, "should not return null.");
@@ -28,7 +28,7 @@ public interface ValuePromisorTests {
     
     @Test
     default void createValuePromisor_WithSimpleValue_Works() {
-        final Promisors promisors = Contracts.claimContract(Promisors.CONTRACT);
+        final Promisors promisors = GlobalContracts.claimContract(Promisors.CONTRACT);
         final Promisor<String> promisor = promisors.createValuePromisor("abc");
         
         assertNotNull(promisor, "should not return null.");
@@ -38,7 +38,7 @@ public interface ValuePromisorTests {
     
     @Test
     default void createValuePromisor_incrementUsage(@Mock AutoOpen deliverable) {
-        final Promisors promisors = Contracts.claimContract(Promisors.CONTRACT);
+        final Promisors promisors = GlobalContracts.claimContract(Promisors.CONTRACT);
         final Promisor<AutoOpen> promisor = promisors.createValuePromisor(deliverable);
         
         assertNotNull(promisor, "should not return null.");
@@ -54,7 +54,7 @@ public interface ValuePromisorTests {
     
     @Test
     default void createValuePromisor_decrementUsage(@Mock AutoClose deliverable) {
-        final Promisors promisors = Contracts.claimContract(Promisors.CONTRACT);
+        final Promisors promisors = GlobalContracts.claimContract(Promisors.CONTRACT);
         final Promisor<AutoClose> promisor = promisors.createValuePromisor(deliverable);
         
         assertNotNull(promisor, "should not return null.");

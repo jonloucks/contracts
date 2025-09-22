@@ -12,7 +12,7 @@ import java.util.function.Supplier;
 import static io.github.jonloucks.contracts.api.Checks.*;
 import static java.util.Optional.ofNullable;
 
-final class ServiceImpl implements Service {
+final class ContractsImpl implements Contracts {
 
     @Override
     public AutoClose open() {
@@ -20,7 +20,7 @@ final class ServiceImpl implements Service {
             this.closeRepository = respository.open();
             return this;
         } else {
-            throw new IllegalStateException("Service has already been started");
+            throw new IllegalStateException("Contracts has already been started");
         }
     }
     
@@ -78,8 +78,8 @@ final class ServiceImpl implements Service {
     private final RepositoryImpl respository = new RepositoryImpl(this);
     private AutoClose closeRepository;
     
-    ServiceImpl(Service.Config config) {
-        final Service.Config validConfig = nullCheck(config, "config was null");
+    ContractsImpl(Contracts.Config config) {
+        final Contracts.Config validConfig = nullCheck(config, "config was null");
         
         // keeping the promises open permanently
         respository.store(Promisors.CONTRACT, PromisorsImpl::new);
@@ -121,7 +121,7 @@ final class ServiceImpl implements Service {
         // it is possible the Contract has already been removed or updated with a new Promisor
         // Checking the removed promisor is required to avoid:
         //   1. Calling decrementUsage twice on Promisors already removed
-        //   2. Never calling decrementUsage Contracts with updated Promisors
+        //   2. Not calling decrementUsage enough times
         // decrementing usage too many times.
         putIntoPromisorMap(contract).ifPresent(removedPromisor -> {
             if (promisor == removedPromisor) {
@@ -178,7 +178,7 @@ final class ServiceImpl implements Service {
     }
     
     private static ContractException newCloseDidNotCompleteException() {
-        return new ContractException("Service failed to close after trying multiple times");
+        return new ContractException("Contracts failed to close after trying multiple times");
     }
     
     private static <T> ContractException newContractNotPromisedException(Contract<T> contract) {

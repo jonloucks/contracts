@@ -37,7 +37,7 @@ final class RepositoryImpl implements Repository, AutoClose {
         if (storedContracts.containsKey(validContract)) {
             throw new ContractException( "The contract " + validContract + " already promised");
         }
-        final StorageImpl<T> storage = new StorageImpl<>(service,validContract, validPromisor);
+        final StorageImpl<T> storage = new StorageImpl<>(contracts,validContract, validPromisor);
         
         storedContracts.put(validContract, storage);
   
@@ -54,7 +54,7 @@ final class RepositoryImpl implements Repository, AutoClose {
     @Override
     public void check() {
         requiredContracts.forEach(contract -> {
-            if (!service.isBound(contract)) {
+            if (!contracts.isBound(contract)) {
                 throw new ContractException( "The contract " + contract + " is required");
             }
         });
@@ -67,14 +67,14 @@ final class RepositoryImpl implements Repository, AutoClose {
         requiredContracts.add(validContract);
     }
     
-    RepositoryImpl(Service service) {
-        this.service = service;
+    RepositoryImpl(Contracts contracts) {
+        this.contracts = contracts;
     }
     
     private static final boolean IS_CLOSED = false;
     private static final boolean IS_OPEN = true;
     
-    private final Service service;
+    private final Contracts contracts;
     private final AtomicBoolean state = new AtomicBoolean(false);
     private final Set<Contract<?>> requiredContracts = new HashSet<>();
     
@@ -86,19 +86,19 @@ final class RepositoryImpl implements Repository, AutoClose {
     private static final class StorageImpl<T> implements AutoClose {
         private final Contract<T> contract;
         private final Promisor<T> promisor;
-        private final Service service;
+        private final Contracts contracts;
         private AutoClose closeBinding;
         
-        StorageImpl(Service service, Contract<T> contract, Promisor<T> promisor) {
-            this.service = service;
+        StorageImpl(Contracts contracts, Contract<T> contract, Promisor<T> promisor) {
+            this.contracts = contracts;
             this.contract = contract;
             this.promisor = promisor;
         }
     
         private void bind() {
-            if (contract.isReplaceable() || !service.isBound(contract)) {
+            if (contract.isReplaceable() || !contracts.isBound(contract)) {
                 close();
-                closeBinding = service.bind(contract, promisor);
+                closeBinding = contracts.bind(contract, promisor);
             }
         }
         

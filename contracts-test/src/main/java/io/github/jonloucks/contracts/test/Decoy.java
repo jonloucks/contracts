@@ -2,7 +2,7 @@ package io.github.jonloucks.contracts.test;
 
 import io.github.jonloucks.contracts.api.*;
 
-public interface Decoy<D> extends Promisor<D>, ServiceFactory, Service, AutoOpen, AutoCloseable {
+public interface Decoy<D> extends Promisor<D>, ContractsFactory, Contracts, AutoOpen, AutoCloseable {
     @Override
     default AutoClose open() { return this;}
 
@@ -31,7 +31,7 @@ public interface Decoy<D> extends Promisor<D>, ServiceFactory, Service, AutoOpen
     }
     
     @Override
-    default Service createService(Service.Config config) {
-        throw new ContractException("Decoy.createService not implemented");
+    default Contracts create(Contracts.Config config) {
+        throw new ContractException("Decoy.create not implemented");
     }
 }

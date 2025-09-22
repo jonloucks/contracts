@@ -14,7 +14,7 @@ public interface PromisorsTests extends
  
     @Test
     default void promisors_getContractDeliverable() {
-        final Promisors promisors = Contracts.claimContract(Promisors.CONTRACT);
+        final Promisors promisors = GlobalContracts.claimContract(Promisors.CONTRACT);
         
         assertNotNull(promisors);
         assertObject(promisors);

@@ -1,7 +1,7 @@
 package io.github.jonloucks.contracts.test;
 
 import io.github.jonloucks.contracts.api.Contract;
-import io.github.jonloucks.contracts.api.Service;
+import io.github.jonloucks.contracts.api.Contracts;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -23,7 +23,7 @@ public interface DecoyTests {
                 () -> assertEquals(1, decoy.decrementUsage(), "decrementUsage should return 1."),
                 () -> assertFalse(decoy.isBound(contract), "isBound should return false."),
                 () -> assertNotNull(decoy.bind(contract, () -> "hello")),
-                () -> assertThrows(Exception.class, () -> decoy.createService(new Service.Config() {
+                () -> assertThrows(Exception.class, () -> decoy.create(new Contracts.Config() {
                 }))
             );
         }

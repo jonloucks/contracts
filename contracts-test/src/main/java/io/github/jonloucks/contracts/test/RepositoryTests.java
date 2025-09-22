@@ -7,7 +7,7 @@ import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 import static io.github.jonloucks.contracts.api.Checks.nullCheck;
-import static io.github.jonloucks.contracts.api.Contracts.*;
+import static io.github.jonloucks.contracts.api.GlobalContracts.*;
 import static io.github.jonloucks.contracts.test.RepositoryTests.RepositoryTestsTool.runWithScenario;
 import static io.github.jonloucks.contracts.test.Tools.assertObject;
 import static io.github.jonloucks.contracts.test.Tools.assertThrown;

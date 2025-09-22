@@ -13,21 +13,21 @@ import static io.github.jonloucks.contracts.api.Checks.nullCheck;
  * <ul>
  *     <li>Create by custom config  {@link #create(Config)}</li>
  *     <li>Creation by automatic config. {@link #create(String, Object[])}</li>
- *     <li>Used by {@link Contracts#claimContract(Contract)}</li>
- *     <li>Used by {@link Contracts#bindContract(Contract, Promisor)}</li>
- *     <li>Used by {@link Service#claim(Contract)}</li>
- *     <li>Used by {@link Service#bind(Contract, Promisor)}</li>
+ *     <li>Used by {@link GlobalContracts#claimContract(Contract)}</li>
+ *     <li>Used by {@link GlobalContracts#bindContract(Contract, Promisor)}</li>
+ *     <li>Used by {@link Contracts#claim(Contract)}</li>
+ *     <li>Used by {@link Contracts#bind(Contract, Promisor)}</li>
  * </ul>
  * <h2>A simple factory</h2>
- * Each call to {@link Service#claim(Contract)} will return a new instance.
+ * Each call to {@link Contracts#claim(Contract)} will return a new instance.
  * <pre class="code">
  *     <code class="java">
  *  // Save Contract at some agreed upon place
- *  public static final Contract&lt;Service&gt; SERVICE = Contract.create("You Choose");
+ *  public static final Contract&lt;Contracts&gt; SERVICE = Contract.create("You Choose");
  *  // The promisor needs to be bound before it is claimed.
- *  Contracts.bindContract(SERVICE, () -> new ServiceImpl());
+ *  GlobalContracts.bindContract(SERVICE, () -> new ServiceImpl());
  *  // Ready to be claimed
- *  Service service = Contracts.claimContract(SERVICE);
+ *  Contracts service = GlobalContracts.claimContract(SERVICE);
  * </code></pre>
  * If you need a thread specific
  *

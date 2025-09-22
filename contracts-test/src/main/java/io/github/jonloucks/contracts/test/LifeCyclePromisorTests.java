@@ -17,7 +17,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Supplier;
 
 import static io.github.jonloucks.contracts.api.Checks.nullCheck;
-import static io.github.jonloucks.contracts.api.Contracts.bindContract;
+import static io.github.jonloucks.contracts.api.GlobalContracts.bindContract;
 import static io.github.jonloucks.contracts.test.LifeCyclePromisorTests.ConcurrencyTestsTool.*;
 import static io.github.jonloucks.contracts.test.Tools.assertThrown;
 import static io.github.jonloucks.contracts.test.Tools.sleep;
@@ -32,7 +32,7 @@ public interface LifeCyclePromisorTests {
 
     @Test
     default void promisors_createLifeCyclePromisor_WithNull_Throws() {
-        final Promisors promisors = Contracts.claimContract(Promisors.CONTRACT);
+        final Promisors promisors = GlobalContracts.claimContract(Promisors.CONTRACT);
         
         final IllegalArgumentException thrown = assertThrows(IllegalArgumentException.class, () ->
             promisors.createLifeCyclePromisor(null)
@@ -43,7 +43,7 @@ public interface LifeCyclePromisorTests {
     
     @Test
     default void promisors_LifeCyclePromisor_get_WithUsage_Throws() {
-        final Promisors promisors = Contracts.claimContract(Promisors.CONTRACT);
+        final Promisors promisors = GlobalContracts.claimContract(Promisors.CONTRACT);
         final Promisor<String> promisor = promisors.createLifeCyclePromisor(() -> "abc");
         
         final IllegalStateException thrown = assertThrows(IllegalStateException.class, () -> {
@@ -55,7 +55,7 @@ public interface LifeCyclePromisorTests {
     
     @Test
     default void promisors_createLifeCyclePromisor_WithNullDeliverable_Works() {
-        final Promisors promisors = Contracts.claimContract(Promisors.CONTRACT);
+        final Promisors promisors = GlobalContracts.claimContract(Promisors.CONTRACT);
         final Promisor<String> promisor = promisors.createLifeCyclePromisor(()->null);
         promisor.incrementUsage();
         
@@ -66,7 +66,7 @@ public interface LifeCyclePromisorTests {
     @Test
     default void promisors_createLifeCyclePromisor_Valid_Works(@Mock Promisor<Decoy<Integer>> referent, @Mock Decoy<Integer> deliverable) {
         final int usages = 5;
-        final Promisors promisors = Contracts.claimContract(Promisors.CONTRACT);
+        final Promisors promisors = GlobalContracts.claimContract(Promisors.CONTRACT);
         when(referent.demand()).thenReturn(deliverable);
         when(deliverable.open()).thenReturn(deliverable);
         final Promisor<Decoy<Integer>> promisor = promisors.createLifeCyclePromisor(referent);
@@ -217,7 +217,7 @@ public interface LifeCyclePromisorTests {
                                 for (int i = 0; i < config.claimsPerThread(); i++) {
                                     try {
                                         //noinspection resource
-                                        Contracts.claimContract(contract);
+                                        GlobalContracts.claimContract(contract);
                                         successCount.incrementAndGet();
                                     } catch (Throwable thrown) {
                                         failedCount.incrementAndGet();
@@ -247,7 +247,7 @@ public interface LifeCyclePromisorTests {
         }
         
         static <T> Promisor<T> createTestSubject(Promisor<T> promisor) {
-            final Promisors promisors = Contracts.claimContract(Promisors.CONTRACT);
+            final Promisors promisors = GlobalContracts.claimContract(Promisors.CONTRACT);
             return promisors.createLifeCyclePromisor(promisor);
         }
    
