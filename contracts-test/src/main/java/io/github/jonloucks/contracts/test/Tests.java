@@ -10,6 +10,7 @@ public interface Tests extends
     ExceptionTests,
     RepositoryTests,
     PromisorsTests,
-    CreateContractsTests
+    CreateContractsTests,
+    ValidateTests
 {
 }

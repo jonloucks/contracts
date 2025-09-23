@@ -43,9 +43,15 @@ jobs:
 
       - name: Build with Gradle
         working-directory: main-project
-        run: ./gradlew build
+        run: ./gradlew build jacocoTestReport
         env:
           PROJECT_WORKFLOW: 'main-release'
+
+      - name: Upload JaCoCo report artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: jacoco-report
+          path: build/reports/jacoco/test/html/
 
       - name: Publish to GitHub Packages
         working-directory: main-project
