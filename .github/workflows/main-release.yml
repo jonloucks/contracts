@@ -56,7 +56,7 @@ jobs:
       - name: Generate JaCoCo Badge
         uses: cicirello/jacoco-badge-generator@v2.11.0
         with:
-          jacoco-xml-path: main-project/build/reports/jacoco/test/jacocoTestReport.xml
+          jacoco-csv-file: main-project/build/reports/jacoco/test/jacocoTestReport.csv
 
       - name: Commit and Push the Badge
         uses: EndBug/add-and-commit@v9
