@@ -1,6 +1,7 @@
 package io.github.jonloucks.contracts.api;
 
 import static io.github.jonloucks.contracts.api.Checks.nullCheck;
+import static io.github.jonloucks.contracts.api.Checks.validateContracts;
 
 /**
  * Provides access to the shared singleton of a Contracts implementation
@@ -82,5 +83,6 @@ public final class GlobalContracts {
     private GlobalContracts() {
         this.contracts = createContracts(new Contracts.Config() {});
         this.close = contracts.open();
+        validateContracts(contracts);
     }
 }
