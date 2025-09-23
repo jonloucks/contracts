@@ -81,12 +81,17 @@ public final class Checks {
         return t;
     }
     
+    /**
+     * A simple runtime validation of deployed implementation
+     *
+     * @param contracts the contracts to check
+     */
     public static void validateContracts(Contracts contracts) {
         final Contracts validContracts = nullCheck(contracts, "contracts was null");
         final Contract<String> contract = Contract.create("validation contract");
         final String deliverableValue = "validate value";
         
-        if (contracts.isBound(contract)) {
+        if (validContracts.isBound(contract)) {
             throw new ContractException("Contract should not be bound");
         }
         try (AutoClose closeBinding = nullCheck(validContracts.bind(contract, () -> deliverableValue), "bind() was null")) {
