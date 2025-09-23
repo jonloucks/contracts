@@ -48,6 +48,7 @@ jobs:
           PROJECT_WORKFLOW: 'main-release'
 
       - name: Upload JaCoCo report artifact
+        working-directory: main-project
         uses: actions/upload-artifact@v4
         with:
           name: jacoco-report
