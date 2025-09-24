@@ -10,8 +10,9 @@ jobs:
 
     runs-on: ubuntu-latest
     permissions:
-      contents: read
+      contents: write
       packages: write
+      pages: write
 
     steps:
     - name: Checkout badges branch dedicated to storing badges only
@@ -81,7 +82,9 @@ jobs:
         echo "branches = ${{ steps.jacoco.outputs.branches }}"
 
     - name: Commit and push
+      working-directory: branches
 #      if: ${{ github.event_name != 'pull_request' }}
+      if: github.ref == 'refs/heads/badges'
       run: |
         cd badges
         if [[ `git status --porcelain *.svg` ]]; then
