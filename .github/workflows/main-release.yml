@@ -11,6 +11,7 @@ jobs:
     permissions:
       contents: read
       packages: write
+      pages: write
 
     steps:
       - name: Checkout badges branch dedicated to storing badges only
