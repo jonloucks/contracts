@@ -1,5 +1,5 @@
-# contracts
-Java Dependency Contracts for dependency inversion
+# contracts 
+Java Dependency Contracts for dependency inversion 
 
 Separates the consumption of an API from its implementation by using a 'Contract'
 
@@ -15,6 +15,8 @@ Contracts.bindContract(WEATHER, () -> "Raining");
 // Consumption
 String weather = Contracts.claimContract(WEATHER);
 ```
+## Badges
+![Coverage Badge](https://github.com/jonloucks/contracts/blob/main/jacoco-badge.svg)
 
 
 Goals
