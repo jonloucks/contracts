@@ -64,6 +64,7 @@ jobs:
           default_author: github_actions
           message: 'Update JaCoCo coverage badge'
           add: 'jacoco-badge.svg'
+          cwd: main-project
 
       - name: Publish to GitHub Packages
         working-directory: main-project
