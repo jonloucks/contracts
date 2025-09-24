@@ -65,11 +65,9 @@ jobs:
       id: jacoco
       uses: cicirello/jacoco-badge-generator@v2.11.0
       with:
-        coverage-badge-filename: ${{ env.BRANCH_NAME }}-coverage.svg
+        coverage-badge-filename: ${{ github.head_ref }}-coverage.svg
         badges-directory: badges
         jacoco-csv-file: main-project/build/reports/jacoco/test/jacocoTestReport.csv
-      env:
-        BRANCH_NAME: ${{ github.ref_name }}
 
     - name: Commit and Push the Badge
       uses: EndBug/add-and-commit@v9
