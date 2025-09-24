@@ -13,6 +13,12 @@ jobs:
       packages: write
 
     steps:
+      - name: Checkout badges branch dedicated to storing badges only
+        uses: actions/checkout@v4
+        with:
+          ref: badges
+          path: badges
+
       - name: Checkout Main Project
         uses: actions/checkout@v4
         with:
@@ -53,18 +59,36 @@ jobs:
           name: jacoco-report
           path: main-project/build/reports/jacoco/test/html/
 
-      - name: Generate JaCoCo Badge
-        uses: cicirello/jacoco-badge-generator@v2.11.0
-        with:
-          jacoco-csv-file: main-project/build/reports/jacoco/test/jacocoTestReport.csv
-
       - name: Commit and Push the Badge
         uses: EndBug/add-and-commit@v9
         with:
           default_author: github_actions
           message: 'Update JaCoCo coverage badge'
           add: 'jacoco-badge.svg'
-          cwd: main-project
+          cwd: badges
+
+      - name: Generate JaCoCo Badge
+        id: jacoco
+        uses: cicirello/jacoco-badge-generator@v2.11.0
+        with:
+          coverage-badge-filename: ${{ env.BRANCH_NAME }}-coverage.svg
+          badges-directory: badges
+          jacoco-csv-file: main-project/build/reports/jacoco/test/jacocoTestReport.csv
+        env:
+          BRANCH_NAME: ${{ github.ref_name }}
+
+      - name: Commit and Push the Badge
+        uses: EndBug/add-and-commit@v9
+        with:
+          default_author: github_actions
+          message: 'Update JaCoCo coverage badge'
+          add: '*.svg'
+          cwd: badges
+
+      - name: Log coverage percentage
+        run: |
+          echo "coverage = ${{ steps.jacoco.outputs.coverage }}"
+          echo "branches = ${{ steps.jacoco.outputs.branches }}"
 
       - name: Publish to GitHub Packages
         working-directory: main-project
