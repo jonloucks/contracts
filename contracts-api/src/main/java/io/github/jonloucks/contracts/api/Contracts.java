@@ -6,7 +6,7 @@ package io.github.jonloucks.contracts.api;
  * It does know how to load the default from contracts-impl.
  * However, the design is open to have it replaced with an alternative implementation.
  */
-public interface Contracts extends AutoOpen, AutoClose {
+public interface Contracts extends AutoOpen {
     
     /**
      * Claim the deliverable from a bound contract.
