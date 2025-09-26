@@ -12,7 +12,7 @@ import java.util.function.Supplier;
 import static io.github.jonloucks.contracts.api.Checks.*;
 import static java.util.Optional.ofNullable;
 
-final class ContractsImpl implements Contracts {
+final class ContractsImpl implements Contracts, AutoClose  {
 
     @Override
     public AutoClose open() {

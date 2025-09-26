@@ -2,7 +2,7 @@ package io.github.jonloucks.contracts.test;
 
 import io.github.jonloucks.contracts.api.*;
 
-public interface Decoy<D> extends Promisor<D>, ContractsFactory, Contracts, AutoOpen, AutoCloseable {
+public interface Decoy<D> extends Promisor<D>, ContractsFactory, Contracts, AutoOpen, AutoClose {
     @Override
     default AutoClose open() { return this;}
 
