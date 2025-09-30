@@ -27,7 +27,16 @@ public interface ContractTests {
     @Test
     default void contract_create_withNullConfig_Throws() {
         final IllegalArgumentException thrown = assertThrows(IllegalArgumentException.class, () -> {
-            Contract.create(null);
+            Contract.create((Contract.Config<?>)null);
+        });
+        
+        assertNotNull(thrown.getMessage());
+    }
+    
+    @Test
+    default void contract_create_withNullClass_Throws() {
+        final IllegalArgumentException thrown = assertThrows(IllegalArgumentException.class, () -> {
+            Contract.create((Class<?>)null);
         });
         
         assertNotNull(thrown.getMessage());
@@ -56,6 +65,31 @@ public interface ContractTests {
             
         };
         assertContract(contract, expectedConfig, 0);
+    }
+    
+    @Test
+    default void contract_create_ByClass_Works() {
+        final Class<String> contractClass = String.class;
+        final Contract<String> contract = Contract.create(contractClass);
+        final Contract.Config<String> expectedConfig = new Contract.Config<>() {
+            
+            @Override
+            public String name() {
+                return contractClass.getTypeName();
+            }
+            
+            @Override
+            public String typeName() {
+                return contractClass.getTypeName();
+            }
+            
+            @Override
+            public String cast(Object instance) {
+                return contractClass.cast(instance);
+            }
+            
+        };
+        assertContract(contract, expectedConfig, "hello");
     }
     
     @Test
