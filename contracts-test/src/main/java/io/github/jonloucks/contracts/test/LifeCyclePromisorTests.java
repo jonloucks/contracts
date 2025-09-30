@@ -208,7 +208,7 @@ public interface LifeCyclePromisorTests {
             final Promisor<Decoy<String>> testSubject = createTestSubject(mockPromisor);
             
             try (AutoClose closeBinding = bindContract(contract, testSubject)){
-                nullCheck(closeBinding, "warning: [try] workaround");
+                final AutoClose ignored = closeBinding;
                 for (int i = 0; i < config.threadCount(); i++) {
                     claimThreads[i] = new Thread("Claim-" + i) {
                         @Override

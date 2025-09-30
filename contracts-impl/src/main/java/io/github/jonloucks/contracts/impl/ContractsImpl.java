@@ -3,7 +3,6 @@ package io.github.jonloucks.contracts.impl;
 import io.github.jonloucks.contracts.api.*;
 
 import java.util.*;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
@@ -16,17 +15,16 @@ final class ContractsImpl implements Contracts, AutoClose  {
 
     @Override
     public AutoClose open() {
-        if (state.compareAndSet(IS_CLOSED, IS_OPEN)) {
-            this.closeRepository = respository.open();
+        if (openState.transitionToOpen()) {
+            closeRepository = respository.open();
             return this;
-        } else {
-            throw new IllegalStateException("Contracts has already been started");
         }
+        return ()->{};
     }
     
     @Override
     public void close() {
-        if (state.compareAndSet(IS_OPEN, IS_CLOSED)) {
+        if (openState.transitionToClosed()) {
             try {
                 for (int attempts = 1, broken = breakAllBindings(); broken > 0; broken = breakAllBindings(), attempts++) {
                     if (attempts > 5) {
@@ -34,10 +32,11 @@ final class ContractsImpl implements Contracts, AutoClose  {
                     }
                 }
             } finally {
-                if (ofNullable(closeRepository).isPresent()) {
-                    closeRepository.close();
+                ofNullable(closeRepository).ifPresent( close -> {
                     closeRepository = null;
-                }
+                    close.close();
+                });
+
             }
         }
     }
@@ -70,9 +69,7 @@ final class ContractsImpl implements Contracts, AutoClose  {
         return makeBinding(validContract, validPromisor);
     }
     
-    private static final boolean IS_CLOSED = false;
-    private static final boolean IS_OPEN = true;
-    private final AtomicBoolean state = new AtomicBoolean(false);
+    private final IdempotentImpl openState = new IdempotentImpl();
     private final ReentrantReadWriteLock mapLock = new ReentrantReadWriteLock();
     private final LinkedHashMap<Contract<?>, Promisor<?>> promisorMap = new LinkedHashMap<>();
     private final RepositoryImpl respository = new RepositoryImpl(this);
@@ -113,7 +110,13 @@ final class ContractsImpl implements Contracts, AutoClose  {
         return applyWithLock(mapLock.writeLock(), () -> {
             ofNullable(promisorMap.put(contract, promisor)).ifPresent(Promisor::decrementUsage);
             
-            return () -> breakBinding(contract, promisor);
+            final IdempotentImpl breakBindingOnce = new IdempotentImpl();
+            breakBindingOnce.transitionToOpen();
+            return () -> {
+              if (breakBindingOnce.transitionToClosed()) {
+                  breakBinding(contract, promisor);
+              }
+            };
         });
     }
     
@@ -123,17 +126,15 @@ final class ContractsImpl implements Contracts, AutoClose  {
         //   1. Calling decrementUsage twice on Promisors already removed
         //   2. Not calling decrementUsage enough times
         // decrementing usage too many times.
-        putIntoPromisorMap(contract).ifPresent(removedPromisor -> {
-            if (promisor == removedPromisor) {
-                promisor.decrementUsage();
-            } else {
-                removedPromisor.decrementUsage();
-            }
-        });
+        try {
+            removeFromPromisorMap(contract, promisor);
+        } finally {
+            promisor.decrementUsage();
+        }
     }
     
-    private Optional<Promisor<?>> putIntoPromisorMap(Contract<?> contract) {
-        return ofNullable(applyWithLock(mapLock.writeLock(), () -> promisorMap.remove(contract)));
+    private void removeFromPromisorMap(Contract<?> contract, Promisor<?> promisor) {
+        applyWithLock(mapLock.writeLock(), () -> promisorMap.remove(contract, promisor));
     }
     
     private <T> Optional<Promisor<?>> getFromPromisorMap(Contract<T> validContract) {
