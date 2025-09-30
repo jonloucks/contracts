@@ -46,7 +46,25 @@ public final class Contract<T> {
      */
     @SafeVarargs // Required to safely determine the checked type of T
     public static <T> Contract<T> create(String name, T... reifiedArray) {
-        return safelyGetTypeAndCreate(name, reifiedArray);
+        final T[] validInstanceArray = nullCheck(reifiedArray, "reified array was not present");
+        final String validName = nullCheck(name, "name was not present");
+        final Class<T> validDeliverableType = detectDeliverableType(validInstanceArray);
+        
+        return createHelper(validDeliverableType, validName);
+    }
+    
+    /**
+     * Create a contract with a given name, the rest is automatic.
+     * For custom configuration see {@link #create(Config)}
+     *
+     * @param type          The deliverable class for the contract
+     * @param <T>           the type of deliverable for this Contract
+     * @return the new Contract
+     */
+    public static <T> Contract<T> create(Class<T> type) {
+        final Class<T> validDeliverableType = nullCheck(type, "type was not present");
+        
+        return createHelper(validDeliverableType, type.getTypeName());
     }
     
     /**
@@ -165,25 +183,21 @@ public final class Contract<T> {
         nullCheck(config.typeName(), "config type was not present");
     }
     
-    private static <T> Contract<T> safelyGetTypeAndCreate(String name, T[] reifiedArray) {
-        final T[] validInstanceArray = nullCheck(reifiedArray, "reified array was not present");
-        final String validName = nullCheck(name, "name was not present");
-        final Class<T> validDeliverableType = detectDeliverableType(validInstanceArray);
-        
-        return Contract.create(new Contract.Config<>() {
+    private static <T> Contract<T> createHelper(Class<T> deliverableType, String name) {
+        return Contract.create(new Config<>() {
             @Override
             public T cast(Object instance) {
-                return validDeliverableType.cast(instance);
+                return deliverableType.cast(instance);
             }
             
             @Override
             public String name() {
-                return validName;
+                return name;
             }
             
             @Override
             public String typeName() {
-                return validDeliverableType.getTypeName();
+                return deliverableType.getTypeName();
             }
         });
     }
