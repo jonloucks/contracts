@@ -40,7 +40,7 @@ public interface CreateContractsTests {
         assumeTrue(ofNullable(contracts).isPresent(), "createContracts failed");
         
         try (AutoClose closeContracts = contracts.open()) {
-            nullCheck(closeContracts, "warning: [try] workaround");
+            final AutoClose ignored = closeContracts;
             
             contracts.bind(contract, () -> "hello");
             

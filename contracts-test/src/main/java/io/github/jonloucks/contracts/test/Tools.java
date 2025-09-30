@@ -170,4 +170,17 @@ public final class Tools {
         } catch (InterruptedException ignored) {
         }
     }
+    
+    public static <T> Contract<T> createReplaceableContract(Class<T> type) {
+        return Contract.create(new Contract.Config<T>() {
+            @Override
+            public T cast(Object instance) {
+                return type.cast(instance);
+            }
+            @Override
+            public boolean isReplaceable() {
+                return true;
+            }
+        });
+    }
 }

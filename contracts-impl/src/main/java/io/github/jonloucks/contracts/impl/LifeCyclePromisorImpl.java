@@ -120,11 +120,11 @@ final class LifeCyclePromisorImpl<T> implements Promisor<T> {
         if (isDeliverableAcquired.get()) {
             final T deliverable = atomicDeliverable.get();
             try {
-                if (ofNullable(atomicClose.get()).isPresent()) {
-                    atomicClose.get().close();
-                }
+                ofNullable(atomicClose.get()).ifPresent(close -> {
+                    atomicClose.set(null);
+                    close.close();
+                });
             } finally {
-                atomicClose.set(null);
                 atomicDeliverable.compareAndSet(deliverable, null);
                 isDeliverableAcquired.set(false);
             }

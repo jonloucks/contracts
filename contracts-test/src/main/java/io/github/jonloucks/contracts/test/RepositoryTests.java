@@ -6,14 +6,13 @@ import org.junit.jupiter.api.Test;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
-import static io.github.jonloucks.contracts.api.Checks.nullCheck;
 import static io.github.jonloucks.contracts.api.GlobalContracts.*;
 import static io.github.jonloucks.contracts.test.RepositoryTests.RepositoryTestsTool.runWithScenario;
 import static io.github.jonloucks.contracts.test.Tools.assertObject;
 import static io.github.jonloucks.contracts.test.Tools.assertThrown;
 import static org.junit.jupiter.api.Assertions.*;
 
-@SuppressWarnings("try")
+@SuppressWarnings({"try", "CodeBlock2Expr"})
 public interface RepositoryTests {
     
     @Test
@@ -34,9 +33,7 @@ public interface RepositoryTests {
     
     @Test
     default void repository_check_WithNoRequirements() {
-        runWithScenario(repository -> {
-            assertDoesNotThrow(repository::check);
-        });
+        runWithScenario(repository -> assertDoesNotThrow(repository::check));
     }
     
     @Test
@@ -55,8 +52,7 @@ public interface RepositoryTests {
             final Contract<Integer> contract = Contract.create("a requirement");
             repository.require(contract);
             try (AutoClose closeBinding = bindContract(contract, () -> 42)) {
-                nullCheck(closeBinding, "warning: [try] workaround");
-                
+                final AutoClose ignored = closeBinding;
                 assertDoesNotThrow(repository::check);
             }
         });
@@ -67,8 +63,7 @@ public interface RepositoryTests {
         runWithScenario(repository -> {
             final Contract<String> textContract = Contract.create("test text");
             try (AutoClose closeBinding = repository.store(textContract, () -> "x")) {
-                nullCheck(closeBinding, "warning: [try] workaround");
-                
+                final AutoClose ignored = closeBinding;
                 assertTrue(isContractBound(textContract), "Contract should have been bound");
             }
             assertFalse(isContractBound(textContract), "Contract should not be bound");
@@ -80,8 +75,7 @@ public interface RepositoryTests {
         runWithScenario(repository -> {
             final Contract<String> textContract = Contract.create("test text");
             try (AutoClose closeBinding = repository.store(textContract, () -> "x")) {
-                nullCheck(closeBinding, "warning: [try] workaround");
-                
+                final AutoClose ignored = closeBinding;
                 final String text = claimContract(textContract);
                 assertEquals("x", text, "contract deliverable should match");
             }
@@ -94,10 +88,9 @@ public interface RepositoryTests {
             final Contract<String> textContract = Contract.create("test text");
             
             try (AutoClose closeBinding = repository.store(textContract, () -> "x")) {
-                nullCheck(closeBinding, "warning: [try] workaround");
+                final AutoClose ignored = closeBinding;
                 
                 final ContractException thrown = assertThrows(ContractException.class, () -> {
-                    //noinspection resource
                     repository.store(textContract, () -> "y");
                 });
                 assertThrown(thrown);
@@ -119,7 +112,7 @@ public interface RepositoryTests {
             final Promisors promisors = claimContract(Promisors.CONTRACT);
             final Promisor<Repository> promisor = promisors.createLifeCyclePromisor(()->claimContract(Repository.FACTORY).get());
             try (AutoClose closeBinding = bindContract(contract, promisor)) {
-                nullCheck(closeBinding, "warning: [try] workaround");
+                final AutoClose ignored = closeBinding;
                 final Repository repository = claimContract(contract);
                 block.accept(repository);
             }

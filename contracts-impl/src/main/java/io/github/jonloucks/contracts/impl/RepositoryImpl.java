@@ -3,7 +3,6 @@ package io.github.jonloucks.contracts.impl;
 import io.github.jonloucks.contracts.api.*;
 
 import java.util.*;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 import static io.github.jonloucks.contracts.api.Checks.contractCheck;
 import static io.github.jonloucks.contracts.api.Checks.promisorCheck;
@@ -13,7 +12,7 @@ final class RepositoryImpl implements Repository, AutoClose {
     
     @Override
     public AutoClose open() {
-        if (state.compareAndSet(IS_CLOSED, IS_OPEN)) {
+        if (openState.transitionToOpen()) {
             storedContracts.values().forEach(StorageImpl::bind);
             check();
             return this;
@@ -23,7 +22,7 @@ final class RepositoryImpl implements Repository, AutoClose {
     
     @Override
     public void close() {
-        if (state.compareAndSet(IS_OPEN, IS_CLOSED)) {
+        if (openState.transitionToClosed()) {
             storedContracts.values().forEach(StorageImpl::close);
             storedContracts.clear();
         }
@@ -41,7 +40,7 @@ final class RepositoryImpl implements Repository, AutoClose {
         
         storedContracts.put(validContract, storage);
   
-        if (state.get()) {
+        if (openState.isOpen()) {
             storage.bind();
         }
         return () -> {
@@ -71,13 +70,6 @@ final class RepositoryImpl implements Repository, AutoClose {
         this.contracts = contracts;
     }
     
-    private static final boolean IS_CLOSED = false;
-    private static final boolean IS_OPEN = true;
-    
-    private final Contracts contracts;
-    private final AtomicBoolean state = new AtomicBoolean(false);
-    private final Set<Contract<?>> requiredContracts = new HashSet<>();
-    
     /**
      * Using LinkedHashMap to retain insertion order
      */
@@ -104,11 +96,14 @@ final class RepositoryImpl implements Repository, AutoClose {
         
         @Override
         public void close() {
-            if (ofNullable(closeBinding).isPresent() ){
-                final AutoClose closeBinding = this.closeBinding;
+            ofNullable(closeBinding).ifPresent(close -> {
                 this.closeBinding = null;
-                closeBinding.close();
-            }
+                close.close();
+            });
         }
     }
+    
+    private final Contracts contracts;
+    private final IdempotentImpl openState = new IdempotentImpl();
+    private final Set<Contract<?>> requiredContracts = new HashSet<>();
 }

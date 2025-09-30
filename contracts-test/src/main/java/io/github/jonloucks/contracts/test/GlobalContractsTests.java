@@ -61,7 +61,7 @@ public interface GlobalContractsTests {
         final Contract<String> contract = Contract.create("testContract");
         
         try (AutoClose closeBinding = GlobalContracts.bindContract(contract, () -> "abc")){
-            nullCheck(closeBinding, "warning: [try] workaround");
+            final AutoClose ignored = closeBinding;
             assertTrue(GlobalContracts.isContractBound(contract), "Unbound Contract was bound.");
         }
     }
