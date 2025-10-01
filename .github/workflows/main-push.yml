@@ -15,7 +15,13 @@ jobs:
       pages: write
 
     steps:
-      - name: Checkout badges branch dedicated to storing badges only
+      - name: Checkout gh-pages branch
+        uses: actions/checkout@v4
+        with:
+          ref: gh-pages
+          path: gh-pages
+
+      - name: Checkout badges branch
         uses: actions/checkout@v4
         with:
           ref: badges
@@ -49,11 +55,25 @@ jobs:
         env:
           PROJECT_WORKFLOW: 'utility'
 
-      - name: Build with Gradle
+      - name: Build Code Coverage and Source Documentation
         working-directory: main-project
-        run: ./gradlew build jacocoTestReport
+        run: ./gradlew build jacocoTestReport javadoc
         env:
-          PROJECT_WORKFLOW: 'main-push'
+          PROJECT_WORKFLOW: 'main-pull-request'
+
+      - name: Copy Code Coverage and Source Documentation
+        working-directory: gh-pages
+        run: |
+          rm -rf javadoc/ jacoco/ ; mkdir -p javadoc ; mkdir -p jacoco
+          cp -r "${{ github.workspace }}/main-project/build/docs/javadoc/"* javadoc/
+          cp -r "${{ github.workspace }}/main-project/build/reports/jacoco/test/html/"* jacoco/
+
+      - name: Commit and Push gh-pages
+        uses: EndBug/add-and-commit@v9
+        with:
+          default_author: github_actions
+          message: 'Update Source Documentation'
+          cwd: gh-pages
 
       - name: Upload JaCoCo report artifact
         uses: actions/upload-artifact@v4

@@ -16,8 +16,8 @@ Contracts.bindContract(WEATHER, () -> "Raining");
 String weather = Contracts.claimContract(WEATHER);
 ```
 ## Badges
-![Coverage Badge](https://raw.githubusercontent.com/jonloucks/contracts/refs/heads/badges/main-coverage.svg)
-
+[![Coverage Badge](https://raw.githubusercontent.com/jonloucks/contracts/refs/heads/badges/main-coverage.svg)](https://jonloucks.github.io/contracts/jacoco/)
+[![Javadoc Badge](https://raw.githubusercontent.com/jonloucks/contracts/refs/heads/badges/main-javadoc.svg)](https://jonloucks.github.io/contracts/javadoc/)
 
 Goals
 1. Security
