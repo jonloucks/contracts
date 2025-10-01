@@ -8,6 +8,10 @@ import static io.github.jonloucks.contracts.api.Checks.contractCheck;
 import static io.github.jonloucks.contracts.api.Checks.promisorCheck;
 import static java.util.Optional.ofNullable;
 
+/**
+ * Implementation for {@link io.github.jonloucks.contracts.api.Repository}
+ * @see io.github.jonloucks.contracts.api.Repository
+ */
 final class RepositoryImpl implements Repository, AutoClose {
     
     @Override
@@ -76,11 +80,7 @@ final class RepositoryImpl implements Repository, AutoClose {
     private final Map<Contract<?>, StorageImpl<?>> storedContracts = new LinkedHashMap<>();
     
     private static final class StorageImpl<T> implements AutoClose {
-        private final Contract<T> contract;
-        private final Promisor<T> promisor;
-        private final Contracts contracts;
-        private AutoClose closeBinding;
-        
+
         StorageImpl(Contracts contracts, Contract<T> contract, Promisor<T> promisor) {
             this.contracts = contracts;
             this.contract = contract;
@@ -101,6 +101,11 @@ final class RepositoryImpl implements Repository, AutoClose {
                 close.close();
             });
         }
+        
+        private final Contract<T> contract;
+        private final Promisor<T> promisor;
+        private final Contracts contracts;
+        private AutoClose closeBinding;
     }
     
     private final Contracts contracts;

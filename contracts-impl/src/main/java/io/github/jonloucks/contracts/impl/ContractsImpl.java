@@ -11,12 +11,16 @@ import java.util.function.Supplier;
 import static io.github.jonloucks.contracts.api.Checks.*;
 import static java.util.Optional.ofNullable;
 
+/**
+ * Implementation for {@link io.github.jonloucks.contracts.api.Contracts}
+ * @see io.github.jonloucks.contracts.api.Contracts
+ */
 final class ContractsImpl implements Contracts, AutoClose  {
 
     @Override
     public AutoClose open() {
         if (openState.transitionToOpen()) {
-            closeRepository = respository.open();
+            closeRepository = repository.open();
             return this;
         }
         return ()->{};
@@ -69,18 +73,12 @@ final class ContractsImpl implements Contracts, AutoClose  {
         return makeBinding(validContract, validPromisor);
     }
     
-    private final IdempotentImpl openState = new IdempotentImpl();
-    private final ReentrantReadWriteLock mapLock = new ReentrantReadWriteLock();
-    private final LinkedHashMap<Contract<?>, Promisor<?>> promisorMap = new LinkedHashMap<>();
-    private final RepositoryImpl respository = new RepositoryImpl(this);
-    private AutoClose closeRepository;
-    
     ContractsImpl(Contracts.Config config) {
         final Contracts.Config validConfig = nullCheck(config, "config was null");
         
         // keeping the promises open permanently
-        respository.store(Promisors.CONTRACT, PromisorsImpl::new);
-        respository.store(Repository.FACTORY, () -> () -> new RepositoryImpl(this));
+        repository.store(Promisors.CONTRACT, PromisorsImpl::new);
+        repository.store(Repository.FACTORY, () -> () -> new RepositoryImpl(this));
         
         if (validConfig.useShutdownHooks()) {
             Runtime.getRuntime().addShutdownHook(new Thread(this::close));
@@ -193,4 +191,10 @@ final class ContractsImpl implements Contracts, AutoClose  {
     private static <T> ContractException newContractDuplicateBindException(Contract<T> contract) {
         return new ContractException("Contract " + contract + " duplicated bindings not allowed");
     }
+    
+    private final IdempotentImpl openState = new IdempotentImpl();
+    private final ReentrantReadWriteLock mapLock = new ReentrantReadWriteLock();
+    private final LinkedHashMap<Contract<?>, Promisor<?>> promisorMap = new LinkedHashMap<>();
+    private final RepositoryImpl repository = new RepositoryImpl(this);
+    private AutoClose closeRepository;
 }

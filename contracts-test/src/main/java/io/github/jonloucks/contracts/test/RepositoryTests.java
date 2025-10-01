@@ -3,13 +3,11 @@ package io.github.jonloucks.contracts.test;
 import io.github.jonloucks.contracts.api.*;
 import org.junit.jupiter.api.Test;
 
-import java.util.function.Consumer;
+import java.util.function.BiConsumer;
 import java.util.function.Supplier;
 
-import static io.github.jonloucks.contracts.api.GlobalContracts.*;
 import static io.github.jonloucks.contracts.test.RepositoryTests.RepositoryTestsTool.runWithScenario;
-import static io.github.jonloucks.contracts.test.Tools.assertObject;
-import static io.github.jonloucks.contracts.test.Tools.assertThrown;
+import static io.github.jonloucks.contracts.test.Tools.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 @SuppressWarnings({"try", "CodeBlock2Expr"})
@@ -17,28 +15,32 @@ public interface RepositoryTests {
     
     @Test
     default void repository_Factory() {
-        final Supplier<Repository> repositoryFactory = claimContract(Repository.FACTORY);
-        
-        assertObject(repositoryFactory);
+        withContracts(contracts -> {
+            final Supplier<Repository> repositoryFactory = contracts.claim(Repository.FACTORY);
+            
+            assertObject(repositoryFactory);
+        });
     }
     
     @Test
     default void repository_Main_UseCase() {
-        final Contract<Repository> contract = Contract.create("test repository");
-        try (AutoClose ignored = bindContract(contract, () -> claimContract(Repository.FACTORY).get())) {
-            final Repository repository = claimContract(contract);
-            assertObject(repository);
-        }
+        withContracts(contracts -> {
+            final Contract<Repository> contract = Contract.create("test repository");
+            try (AutoClose ignored = contracts.bind(contract, () -> contracts.claim(Repository.FACTORY).get())) {
+                final Repository repository = contracts.claim(contract);
+                assertObject(repository);
+            }
+        });
     }
     
     @Test
     default void repository_check_WithNoRequirements() {
-        runWithScenario(repository -> assertDoesNotThrow(repository::check));
+        runWithScenario( ( contracts,repository) -> assertDoesNotThrow(repository::check));
     }
     
     @Test
     default void repository_check_WithOneRequirement_Throws() {
-        runWithScenario(repository -> {
+        runWithScenario(( contracts,repository) -> {
             final Contract<Integer> contract = Contract.create("a requirement");
             repository.require(contract);
             final ContractException thrown = assertThrows(ContractException.class, repository::check);
@@ -48,10 +50,10 @@ public interface RepositoryTests {
     
     @Test
     default void repository_check_WithFulfilledRequirements() {
-        runWithScenario(repository -> {
+        runWithScenario(( contracts,repository) -> {
             final Contract<Integer> contract = Contract.create("a requirement");
             repository.require(contract);
-            try (AutoClose closeBinding = bindContract(contract, () -> 42)) {
+            try (AutoClose closeBinding = contracts.bind(contract, () -> 42)) {
                 final AutoClose ignored = closeBinding;
                 assertDoesNotThrow(repository::check);
             }
@@ -60,23 +62,23 @@ public interface RepositoryTests {
     
     @Test
     default void repository_store_isBound() {
-        runWithScenario(repository -> {
+        runWithScenario(( contracts,repository) -> {
             final Contract<String> textContract = Contract.create("test text");
             try (AutoClose closeBinding = repository.store(textContract, () -> "x")) {
                 final AutoClose ignored = closeBinding;
-                assertTrue(isContractBound(textContract), "Contract should have been bound");
+                assertTrue(contracts.isBound(textContract), "Contract should have been bound");
             }
-            assertFalse(isContractBound(textContract), "Contract should not be bound");
+            assertFalse(contracts.isBound(textContract), "Contract should not be bound");
         });
     }
     
     @Test
     default void repository_store_Works() {
-        runWithScenario(repository -> {
+        runWithScenario(( contracts,repository) -> {
             final Contract<String> textContract = Contract.create("test text");
             try (AutoClose closeBinding = repository.store(textContract, () -> "x")) {
                 final AutoClose ignored = closeBinding;
-                final String text = claimContract(textContract);
+                final String text = contracts.claim(textContract);
                 assertEquals("x", text, "contract deliverable should match");
             }
         });
@@ -84,7 +86,7 @@ public interface RepositoryTests {
     
     @Test
     default void repository_store_Twice_Throws() {
-        runWithScenario(repository -> {
+        runWithScenario(( contracts,repository) -> {
             final Contract<String> textContract = Contract.create("test text");
             
             try (AutoClose closeBinding = repository.store(textContract, () -> "x")) {
@@ -98,24 +100,30 @@ public interface RepositoryTests {
         });
     }
     
+    @Test
+    default void repository_InternalCoverage() {
+        assertInstantiateThrows(RepositoryTestsTool.class);
+    }
+    
     final class RepositoryTestsTool {
         private RepositoryTestsTool() {
-        
+            throw new AssertionError("Illegal constructor");
         }
-        
-        interface ScenarioConfig extends Consumer<Repository> {
+        interface ScenarioConfig extends BiConsumer<Contracts, Repository> {
         
         }
         
         static void runWithScenario(ScenarioConfig block) {
-            final Contract<Repository> contract = Contract.create("test repository");
-            final Promisors promisors = claimContract(Promisors.CONTRACT);
-            final Promisor<Repository> promisor = promisors.createLifeCyclePromisor(()->claimContract(Repository.FACTORY).get());
-            try (AutoClose closeBinding = bindContract(contract, promisor)) {
-                final AutoClose ignored = closeBinding;
-                final Repository repository = claimContract(contract);
-                block.accept(repository);
-            }
+            withContracts(contracts -> {
+                final Contract<Repository> contract = Contract.create("test repository");
+                final Promisors promisors = contracts.claim(Promisors.CONTRACT);
+                final Promisor<Repository> promisor = promisors.createLifeCyclePromisor(()->contracts.claim(Repository.FACTORY).get());
+                try (AutoClose closeBinding = contracts.bind(contract, promisor)) {
+                    final AutoClose ignored = closeBinding;
+                    final Repository repository = contracts.claim(contract);
+                    block.accept(contracts, repository);
+                }
+            });
         }
     }
 }

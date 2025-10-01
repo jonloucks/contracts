@@ -9,6 +9,7 @@ import java.lang.reflect.Modifier;
 import static io.github.jonloucks.contracts.test.Tools.assertObject;
 import static org.junit.jupiter.api.Assertions.*;
 
+@SuppressWarnings("CodeBlock2Expr")
 public interface BadContractsFactoryTests {
     @Test
     default void badContractsFactory_HasProtectedConstructor() throws Throwable {
@@ -25,7 +26,6 @@ public interface BadContractsFactoryTests {
         final BadContractsFactory badContractsFactory = new BadContractsFactory();
         final Contracts.Config config = new Contracts.Config(){};
         final Exception thrown = assertThrows(Exception.class, () -> {
-            //noinspection resource
             badContractsFactory.create(config);
         });
         

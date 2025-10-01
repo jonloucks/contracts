@@ -11,16 +11,19 @@ import java.util.concurrent.atomic.AtomicReference;
 import static io.github.jonloucks.contracts.api.Checks.*;
 import static java.util.Optional.ofNullable;
 
+/**
+ * Implementation for {@link io.github.jonloucks.contracts.api.Promisors#createLifeCyclePromisor(Promisor)}
+ * @see io.github.jonloucks.contracts.api.Promisors#createLifeCyclePromisor(Promisor)
+ * @param <T> the type of deliverable
+ */
 final class LifeCyclePromisorImpl<T> implements Promisor<T> {
     
     @Override
     public T demand() {
         final AtomicReference<T> currentDeliverable = new AtomicReference<>();
-        
         if (getCurrentDeliverable(currentDeliverable)) {
             return currentDeliverable.get();
         }
-        
         return createDeliverableIfNeeded();
     }
     
@@ -44,14 +47,6 @@ final class LifeCyclePromisorImpl<T> implements Promisor<T> {
         return currentUsage;
     }
     
-    private final AtomicInteger usageCounter = new AtomicInteger();
-    private final Promisor<T> referentPromisor;
-    private final AtomicBoolean isDeliverableAcquired = new AtomicBoolean();
-    private final AtomicReference<T> atomicDeliverable = new AtomicReference<>();
-    private final AtomicReference<Throwable> startupException = new AtomicReference<>();
-    private final AtomicReference<AutoClose> atomicClose = new AtomicReference<>();
-    private final Object simpleLock = new Object();
-    
     LifeCyclePromisorImpl(Promisor<T> referentPromisor) {
         this.referentPromisor = promisorCheck(referentPromisor);
     }
@@ -60,7 +55,7 @@ final class LifeCyclePromisorImpl<T> implements Promisor<T> {
         if (usageCounter.get() == 0) {
             throw new IllegalStateException("Usage count is zero");
         }
-        maybeThrowOpenException();
+        maybeRethrowOpenException();
         synchronized (simpleLock) {
             if (isDeliverableAcquired.get()) {
                 placeholder.set(atomicDeliverable.get());
@@ -70,19 +65,18 @@ final class LifeCyclePromisorImpl<T> implements Promisor<T> {
         }
     }
     
-    private void maybeThrowOpenException() {
-        ofNullable(startupException.get())
-            .ifPresent(this::reThrowOpenException);
+    private void maybeRethrowOpenException() {
+        ofNullable(openException.get())
+            .ifPresent(this::rethrowOpenException);
     }
     
-    private void reThrowOpenException(Throwable thrown) {
+    private void rethrowOpenException(Throwable thrown) {
         if (thrown instanceof Error) {
             throw (Error) thrown;
         }
         if (thrown instanceof RuntimeException) {
             throw (RuntimeException) thrown;
         }
-        throw new IllegalStateException("AutoOpen", thrown);
     }
     
     private T createDeliverableIfNeeded() {
@@ -90,14 +84,18 @@ final class LifeCyclePromisorImpl<T> implements Promisor<T> {
             if (isDeliverableAcquired.get()) {
                 return atomicDeliverable.get();
             } else {
-                startupException.set(null);
-                final T currentDeliverable = referentPromisor.demand();
-                atomicDeliverable.set(currentDeliverable);
-                openDeliverable(currentDeliverable);
-                isDeliverableAcquired.set(true);
-                return currentDeliverable;
+                return createDeliverable();
             }
         }
+    }
+    
+    private T createDeliverable() {
+        openException.set(null);
+        final T currentDeliverable = referentPromisor.demand();
+        atomicDeliverable.set(currentDeliverable);
+        openDeliverable(currentDeliverable);
+        isDeliverableAcquired.set(true);
+        return currentDeliverable;
     }
     
     private void openDeliverable(final T deliverable) {
@@ -107,7 +105,7 @@ final class LifeCyclePromisorImpl<T> implements Promisor<T> {
                     atomicClose.set(((AutoOpen) deliverable).open());
                 } catch (Throwable thrown) {
                     if (atomicDeliverable.compareAndSet(deliverable, null)) {
-                        startupException.set(thrown);
+                        openException.set(thrown);
                         isDeliverableAcquired.set(false);
                     }
                     throw thrown;
@@ -130,4 +128,12 @@ final class LifeCyclePromisorImpl<T> implements Promisor<T> {
             }
         }
     }
+    
+    private final AtomicInteger usageCounter = new AtomicInteger();
+    private final Promisor<T> referentPromisor;
+    private final AtomicBoolean isDeliverableAcquired = new AtomicBoolean();
+    private final AtomicReference<T> atomicDeliverable = new AtomicReference<>();
+    private final AtomicReference<Throwable> openException = new AtomicReference<>();
+    private final AtomicReference<AutoClose> atomicClose = new AtomicReference<>();
+    private final Object simpleLock = new Object();
 }

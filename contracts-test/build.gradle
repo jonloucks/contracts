@@ -21,9 +21,11 @@ dependencies {
 
 publishing {
     publications {
-        withType(MavenPublication) {
-            suppressPomMetadataWarningsFor('apiElements')
-            suppressPomMetadataWarningsFor('runtimeElements')
+        withType(MavenPublication).tap {
+            configureEach {
+                suppressPomMetadataWarningsFor('apiElements')
+                suppressPomMetadataWarningsFor('runtimeElements')
+            }
         }
     }
 }

@@ -16,11 +16,8 @@ import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Supplier;
 
-import static io.github.jonloucks.contracts.api.Checks.nullCheck;
-import static io.github.jonloucks.contracts.api.GlobalContracts.bindContract;
 import static io.github.jonloucks.contracts.test.LifeCyclePromisorTests.ConcurrencyTestsTool.*;
-import static io.github.jonloucks.contracts.test.Tools.assertThrown;
-import static io.github.jonloucks.contracts.test.Tools.sleep;
+import static io.github.jonloucks.contracts.test.Tools.*;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
@@ -29,69 +26,75 @@ import static org.mockito.Mockito.*;
 @MockitoSettings(strictness = Strictness.LENIENT)
 public interface LifeCyclePromisorTests {
     
-
     @Test
-    default void promisors_createLifeCyclePromisor_WithNull_Throws() {
-        final Promisors promisors = GlobalContracts.claimContract(Promisors.CONTRACT);
-        
-        final IllegalArgumentException thrown = assertThrows(IllegalArgumentException.class, () ->
-            promisors.createLifeCyclePromisor(null)
-        );
-        
-        assertThrown(thrown);
-    }
-    
-    @Test
-    default void promisors_LifeCyclePromisor_get_WithUsage_Throws() {
-        final Promisors promisors = GlobalContracts.claimContract(Promisors.CONTRACT);
-        final Promisor<String> promisor = promisors.createLifeCyclePromisor(() -> "abc");
-        
-        final IllegalStateException thrown = assertThrows(IllegalStateException.class, () -> {
-            promisor.demand();
+    default void lifeCyclePromisor_WithNullPromisor_Throws() {
+        withContracts(contracts -> {
+            final Promisors promisors = contracts.claim(Promisors.CONTRACT);
+            
+            final IllegalArgumentException thrown = assertThrows(IllegalArgumentException.class, () ->
+                promisors.createLifeCyclePromisor(null)
+            );
+            
+            assertThrown(thrown);
         });
-        
-        assertThrown(thrown);
     }
     
     @Test
-    default void promisors_createLifeCyclePromisor_WithNullDeliverable_Works() {
-        final Promisors promisors = GlobalContracts.claimContract(Promisors.CONTRACT);
-        final Promisor<String> promisor = promisors.createLifeCyclePromisor(()->null);
-        promisor.incrementUsage();
-        
-        assertNotNull(promisor, "should not return null.");
-        assertNull(promisor.demand());
+    default void lifeCyclePromisor_demand_WithoutUsage_Throws() {
+        withContracts(contracts -> {
+            final Promisors promisors = contracts.claim(Promisors.CONTRACT);
+            final Promisor<String> promisor = promisors.createLifeCyclePromisor(() -> "abc");
+            
+            final IllegalStateException thrown = assertThrows(IllegalStateException.class, () -> {
+                promisor.demand();
+            });
+            
+            assertThrown(thrown);
+        });
     }
     
     @Test
-    default void promisors_createLifeCyclePromisor_Valid_Works(@Mock Promisor<Decoy<Integer>> referent, @Mock Decoy<Integer> deliverable) {
-        final int usages = 5;
-        final Promisors promisors = GlobalContracts.claimContract(Promisors.CONTRACT);
-        when(referent.demand()).thenReturn(deliverable);
-        when(deliverable.open()).thenReturn(deliverable);
-        final Promisor<Decoy<Integer>> promisor = promisors.createLifeCyclePromisor(referent);
-        
-        assertNotNull(promisor, "should not return null.");
-        
-        for (int i = 0; i < usages; i++) {
+    default void lifeCyclePromisor_WithNullDeliverable_IsAllowed() {
+        withContracts(contracts -> {
+            final Promisors promisors = contracts.claim(Promisors.CONTRACT);
+            final Promisor<String> promisor = promisors.createLifeCyclePromisor(()->null);
             promisor.incrementUsage();
-        }
-        @SuppressWarnings("resource") final Decoy<Integer> actual = promisor.demand();
-        for (int i = 0; i < usages; i++) {
-            promisor.decrementUsage();
-        }
-        
-        assertAll(
-            () -> assertSame(deliverable, actual, "deliverables should match."),
-            () -> verify(referent, times(usages)).decrementUsage(),
-            () -> verify(referent, times(usages)).incrementUsage(),
-            () -> verify(deliverable, never()).incrementUsage(),
-            () -> verify(deliverable, never()).decrementUsage(),
-            () -> verify(deliverable, times(1)).open(),
-            () -> verify(deliverable, times(1)).close()
-        );
+            
+            assertNotNull(promisor, "should not return null.");
+            assertNull(promisor.demand());
+        });
     }
     
+    @Test
+    default void lifeCyclePromisor_Valid_Works(@Mock Promisor<Decoy<Integer>> referent, @Mock Decoy<Integer> deliverable) {
+        withContracts(contracts -> {
+            final int usages = 5;
+            final Promisors promisors = contracts.claim(Promisors.CONTRACT);
+            when(referent.demand()).thenReturn(deliverable);
+            when(deliverable.open()).thenReturn(deliverable);
+            final Promisor<Decoy<Integer>> promisor = promisors.createLifeCyclePromisor(referent);
+            
+            assertNotNull(promisor, "should not return null.");
+            
+            for (int i = 0; i < usages; i++) {
+                promisor.incrementUsage();
+            }
+            @SuppressWarnings("resource") final Decoy<Integer> actual = promisor.demand();
+            for (int i = 0; i < usages; i++) {
+                promisor.decrementUsage();
+            }
+            
+            assertAll(
+                () -> assertSame(deliverable, actual, "deliverables should match."),
+                () -> verify(referent, times(usages)).decrementUsage(),
+                () -> verify(referent, times(usages)).incrementUsage(),
+                () -> verify(deliverable, never()).incrementUsage(),
+                () -> verify(deliverable, never()).decrementUsage(),
+                () -> verify(deliverable, times(1)).open(),
+                () -> verify(deliverable, times(1)).close()
+            );
+        });
+    }
     
     @ParameterizedTest(name = "Threads = {0}")
     @ValueSource(ints = { 1, 2, 3, 5, 8, 12, 17, 29 })
@@ -123,7 +126,14 @@ public interface LifeCyclePromisorTests {
             @Override
             public void mockupDeliverable(Decoy<String> mockDeliverable) {
                 overrideOpen(mockDeliverable, Duration.ofMillis(0), () -> {
-                    throw new IllegalStateException("Problem");
+                    switch (threadCount%3) {
+                        case 0:
+                            throw new RuntimeException("RuntimeException");
+                        case 1:
+                            throw new Error("Error");
+                        case 2:
+                            throw new ArithmeticException("Error");
+                    }
                 });
             }
         });
@@ -164,10 +174,16 @@ public interface LifeCyclePromisorTests {
         });
     }
     
+    @Test
+    default void lifecyclePromisor_InternalCoverage() {
+        assertInstantiateThrows(ConcurrencyTestsTool.class);
+    }
+    
     final class ConcurrencyTestsTool {
         private ConcurrencyTestsTool() {
-        
+            throw new AssertionError("Illegal constructor");
         }
+        
         interface ScenarioConfig {
             int threadCount();
             
@@ -181,6 +197,7 @@ public interface LifeCyclePromisorTests {
                 return Duration.ZERO;
             }
             
+            @SuppressWarnings("SameReturnValue")
             default int claimsPerThread() {
                 return 123;
             }
@@ -190,7 +207,7 @@ public interface LifeCyclePromisorTests {
             }
         }
         
-        static void runWithScenario(ScenarioConfig config) throws Throwable {
+        static void runWithScenario(ScenarioConfig config) {
             final int totalClaims = config.threadCount()*config.claimsPerThread();
             final int expectedSuccesses = (int)config.successPercentage()*totalClaims;
             final int expectedFailures = totalClaims-expectedSuccesses;
@@ -199,55 +216,61 @@ public interface LifeCyclePromisorTests {
             final AtomicInteger failedCount = new AtomicInteger(0);
             final AtomicInteger successCount = new AtomicInteger(0);
             final CountDownLatch latch = new CountDownLatch(config.threadCount());
-            final Decoy<String> mockDeliverable = spy();
+            @SuppressWarnings("resource") final Decoy<String> mockDeliverable = spy();
             final Promisor<Decoy<String>> mockPromisor = spy();
             
-            overrideDemand(mockPromisor, config.demandDelay(), () -> mockDeliverable);
-            config.mockupDeliverable(mockDeliverable);
-  
-            final Promisor<Decoy<String>> testSubject = createTestSubject(mockPromisor);
-            
-            try (AutoClose closeBinding = bindContract(contract, testSubject)){
-                final AutoClose ignored = closeBinding;
-                for (int i = 0; i < config.threadCount(); i++) {
-                    claimThreads[i] = new Thread("Claim-" + i) {
-                        @Override
-                        public void run() {
-                            try {
-                                for (int i = 0; i < config.claimsPerThread(); i++) {
-                                    try {
-                                        //noinspection resource
-                                        GlobalContracts.claimContract(contract);
-                                        successCount.incrementAndGet();
-                                    } catch (Throwable thrown) {
-                                        failedCount.incrementAndGet();
+            withContracts( contracts -> {
+                overrideDemand(mockPromisor, config.demandDelay(), () -> mockDeliverable);
+                config.mockupDeliverable(mockDeliverable);
+                
+                final Promisor<Decoy<String>> testSubject = createTestSubject(contracts, mockPromisor);
+                
+                try (AutoClose closeBinding = contracts.bind(contract, testSubject)) {
+                    final AutoClose ignored2 = closeBinding;
+                    for (int i = 0; i < config.threadCount(); i++) {
+                        claimThreads[i] = new Thread("Claim-" + i) {
+                            @Override
+                            public void run() {
+                                try {
+                                    for (int i = 0; i < config.claimsPerThread(); i++) {
+                                        try {
+                                            //noinspection resource
+                                            contracts.claim(contract);
+                                            successCount.incrementAndGet();
+                                        } catch (Throwable thrown) {
+                                            failedCount.incrementAndGet();
+                                        }
                                     }
+                                } finally {
+                                    latch.countDown();
                                 }
-                            } finally {
-                                latch.countDown();
                             }
-                        }
-                    };
+                        };
+                    }
+                    for (int i = 0; i < config.threadCount(); i++) {
+                        claimThreads[i].start();
+                    }
+                    config.beforeWaitForCompletion(testSubject);
+                    try {
+                        assertTrue(latch.await(1, TimeUnit.MINUTES), "Test took too long");
+                    } catch (InterruptedException e) {
+                        fail("Test took too long");
+                    }
                 }
-                for (int i = 0; i < config.threadCount(); i++) {
-                    claimThreads[i].start();
+                
+                assertAll(
+                    () -> assertEquals(expectedSuccesses, successCount.get(), "Success count"),
+                    () -> assertEquals(expectedFailures, failedCount.get(), "Failed count")
+                );
+                if (expectedSuccesses > 0) {
+                    verify(mockDeliverable, times(1)).open();
+                    verify(mockDeliverable, times(1)).close();
                 }
-                config.beforeWaitForCompletion(testSubject);
-                assertTrue(latch.await(1, TimeUnit.MINUTES), "Test took too long");
-            }
-            
-            assertAll(
-                () -> assertEquals(expectedSuccesses, successCount.get(), "Success count"),
-                () -> assertEquals(expectedFailures, failedCount.get(), "Failed count")
-            );
-            if (expectedSuccesses > 0) {
-               verify(mockDeliverable, times(1)).open();
-               verify(mockDeliverable, times(1)).close();
-            }
+            });
         }
         
-        static <T> Promisor<T> createTestSubject(Promisor<T> promisor) {
-            final Promisors promisors = GlobalContracts.claimContract(Promisors.CONTRACT);
+        static <T> Promisor<T> createTestSubject(Contracts contracts, Promisor<T> promisor) {
+            final Promisors promisors = contracts.claim(Promisors.CONTRACT);
             return promisors.createLifeCyclePromisor(promisor);
         }
    

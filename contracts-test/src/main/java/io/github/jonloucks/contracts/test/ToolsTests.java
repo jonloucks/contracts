@@ -89,6 +89,28 @@ public interface ToolsTests {
     }
     
     @Test
+    default void tools_assertThrownThrown_Works() {
+        final String validReason = "reason";
+        final Throwable validCause = new RuntimeException("cause");
+        final Throwable validException = new RuntimeException(validReason);
+        final Throwable exceptionWithNullReason = new RuntimeException((String)null);
+        final Throwable validExceptionWithCause = new RuntimeException(validReason, validCause);
+        final Throwable unknownException = new RuntimeException("unknown");
+        
+        assertAll(
+            () -> assertFails(() -> Tools.assertThrown(null, validCause)),
+            
+            () -> assertFails(() -> Tools.assertThrown(validCause, unknownException)),
+            () -> assertFails(() -> Tools.assertThrown(validCause, validCause)),
+            
+            () -> assertFails(() -> Tools.assertThrown(exceptionWithNullReason, validCause)),
+            () -> assertDoesNotThrow(() -> Tools.assertThrown(validException, (Throwable)null)),
+            () -> assertFails(() -> Tools.assertThrown(validExceptionWithCause, (Throwable)null)),
+            () -> assertDoesNotThrow(() -> Tools.assertThrown(validExceptionWithCause, validCause))
+        );
+    }
+    
+    @Test
     default void tools_assertInstantiateThrows_With() {
         final IllegalArgumentException thrown = assertThrows(IllegalArgumentException.class, ()-> {
             assertInstantiateThrows(null);

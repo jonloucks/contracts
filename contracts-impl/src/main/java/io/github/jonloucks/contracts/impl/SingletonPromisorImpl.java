@@ -7,7 +7,13 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import static io.github.jonloucks.contracts.api.Checks.promisorCheck;
 
+/**
+ * Implementation for {@link io.github.jonloucks.contracts.api.Promisors#createSingletonPromisor(Promisor)}
+ * @see io.github.jonloucks.contracts.api.Promisors#createSingletonPromisor(Promisor)
+ * @param <T> The type of deliverable
+ */
 final class SingletonPromisorImpl<T> implements Promisor<T> {
+    
     @Override
     public T demand() {
         if (firstTime.compareAndSet(true, false)) {
@@ -25,12 +31,12 @@ final class SingletonPromisorImpl<T> implements Promisor<T> {
     public int decrementUsage() {
         return referent.decrementUsage();
     }
+
+    SingletonPromisorImpl(Promisor<T> referent) {
+        this.referent = promisorCheck(referent);
+    }
     
     private final Promisor<T> referent;
     private final AtomicReference<T> singletonRef = new AtomicReference<>();
     private final AtomicBoolean firstTime = new AtomicBoolean(true);
-    
-    SingletonPromisorImpl(Promisor<T> referent) {
-        this.referent = promisorCheck(referent);
-    }
 }

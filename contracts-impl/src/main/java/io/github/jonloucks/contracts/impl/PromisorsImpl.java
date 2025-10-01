@@ -5,6 +5,10 @@ import io.github.jonloucks.contracts.api.Promisor;
 
 import java.util.function.Function;
 
+/**
+ * Implementation for {@link io.github.jonloucks.contracts.api.Promisors}
+ * @see io.github.jonloucks.contracts.api.Promisors
+ */
 final class PromisorsImpl implements Promisors {
     
     @Override

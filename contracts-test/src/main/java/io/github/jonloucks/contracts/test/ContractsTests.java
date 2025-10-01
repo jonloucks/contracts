@@ -11,8 +11,7 @@ import org.mockito.quality.Strictness;
 import java.util.function.BiConsumer;
 
 import static io.github.jonloucks.contracts.test.ContractsTests.ContractsTestsTools.runWithScenario;
-import static io.github.jonloucks.contracts.test.Tools.assertThrown;
-import static io.github.jonloucks.contracts.test.Tools.createReplaceableContract;
+import static io.github.jonloucks.contracts.test.Tools.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 @SuppressWarnings({"CodeBlock2Expr", "Convert2MethodRef"})
@@ -41,7 +40,7 @@ public interface ContractsTests {
             try (AutoClose firstBinding = contracts.bind(contract, ()-> 9)) {
                 try (AutoClose secondBinding = contracts.bind(contract, ()-> 100)) {
                     final AutoClose ignored = secondBinding;
-                    firstBinding.close();
+                    implicitClose(firstBinding);
                     assertEquals(100, contracts.claim(contract));
                 }
             }
@@ -55,8 +54,8 @@ public interface ContractsTests {
             
             try (AutoClose closeBinding = contracts.bind(contract, ()-> 9)) {
                 assertDoesNotThrow(() -> {
-                    closeBinding.close();
-                    closeBinding.close();
+                    implicitClose(closeBinding);
+                    implicitClose(closeBinding);
                 });
             }
         });
@@ -141,7 +140,16 @@ public interface ContractsTests {
         });
     }
     
+    @Test
+    default void contracts_InternalCoverage() {
+        assertInstantiateThrows(ContractsTestsTools.class);
+    }
+
     final class ContractsTestsTools {
+        private ContractsTestsTools() {
+            throw new AssertionError("Illegal constructor");
+        }
+        
         interface ScenarioConfig extends BiConsumer<Contracts, AutoClose> {
         
         }
