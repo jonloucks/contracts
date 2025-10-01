@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Promisors.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">contracts</a> &gt; <a href="index.source.html" class="el_package">io.github.jonloucks.contracts.api</a> &gt; <span class="el_source">Promisors.java</span></div><h1>Promisors.java</h1><pre class="source lang-java linenums">package io.github.jonloucks.contracts.api;
+
+import java.util.function.Function;
+
+/**
+ * Helper methods for creating and chaining Promisors used for {@link GlobalContracts#bindContract(Contract, Promisor)}
+ */
+public interface Promisors {
+    
+    /**
+     * The contract for this interface. Singleton
+     */
+<span class="fc" id="L13">    Contract&lt;Promisors&gt; CONTRACT = Contract.create(&quot;Promisors&quot;);</span>
+    
+    /**
+     * Creates a Promisor that returns the given value every type it is claimed.
+     *
+     * @param deliverable the value to
+     * @return The new Promisor
+     * @param &lt;T&gt; the type of deliverable
+     */
+    &lt;T&gt; Promisor&lt;T&gt; createValuePromisor(T deliverable);
+    
+    /**
+     * Creates a Promisor that only calls the source Promisor once and then always
+     * returns that value.
+     * Note: increment and decrementUsage are relayed to the source promisor.
+     *
+     * @param promisor the source Promisor
+     * @return The new Promisor
+     * @param &lt;T&gt; the type of deliverable
+     */
+    &lt;T&gt; Promisor&lt;T&gt; createSingletonPromisor(Promisor&lt;T&gt; promisor);
+    
+    /**
+     * Reference counted, lazy loaded, with opt-in 'open' and 'close' invoked on deliverable.
+     * Note: increment and decrementUsage are relayed to the source promisor.
+     *
+     * @param promisor the source promisor
+     * @return the new Promisor
+     * @param &lt;T&gt; the type of deliverable
+     */
+    &lt;T&gt; Promisor&lt;T&gt; createLifeCyclePromisor(Promisor&lt;T&gt; promisor);
+    
+    /**
+     * Extract
+     * Note: increment and decrementUsage are relayed to the source promisor.
+     *
+     * @param promisor the source promisor
+     * @param extractor the function that gets an object from the deliverable. For example Person -&gt; Age
+     * @return the new Promisor
+     * @param &lt;T&gt; the type of deliverable
+     * @param &lt;R&gt; the new Promisor deliverable type
+     */
+    &lt;T, R&gt; Promisor&lt;R&gt; createExtractPromisor(Promisor&lt;T&gt; promisor, Function&lt;T, R&gt; extractor);
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>

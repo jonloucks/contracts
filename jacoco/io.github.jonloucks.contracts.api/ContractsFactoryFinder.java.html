@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ContractsFactoryFinder.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">contracts</a> &gt; <a href="index.source.html" class="el_package">io.github.jonloucks.contracts.api</a> &gt; <span class="el_source">ContractsFactoryFinder.java</span></div><h1>ContractsFactoryFinder.java</h1><pre class="source lang-java linenums">package io.github.jonloucks.contracts.api;
+
+import java.lang.reflect.Constructor;
+import java.util.Optional;
+import java.util.ServiceLoader;
+
+import static io.github.jonloucks.contracts.api.Checks.nullCheck;
+
+final class ContractsFactoryFinder {
+    private final Contracts.Config config;
+    
+<span class="fc" id="L12">    ContractsFactoryFinder(Contracts.Config config) {</span>
+<span class="fc" id="L13">        this.config = nullCheck(config, &quot;config was null&quot;);</span>
+<span class="fc" id="L14">    }</span>
+    
+    ContractsFactory find() {
+<span class="fc" id="L17">        return createByReflection()</span>
+<span class="fc" id="L18">            .or(this::createByServiceLoader)</span>
+<span class="fc" id="L19">            .orElseThrow(this::newNotFoundException);</span>
+    }
+
+    private Optional&lt;? extends ContractsFactory&gt; createByServiceLoader() {
+<span class="fc bfc" id="L23" title="All 2 branches covered.">        if (config.useServiceLoader()) {</span>
+            try {
+<span class="fc" id="L25">                final Class&lt;? extends ContractsFactory&gt; factoryClass = nullCheck(config.serviceLoaderClass(), &quot;config.serviceLoaderClass() was null&quot;);</span>
+<span class="fc" id="L26">                final ServiceLoader&lt;? extends ContractsFactory&gt; serviceLoader = ServiceLoader.load(factoryClass);</span>
+<span class="fc" id="L27">                return serviceLoader.findFirst();</span>
+<span class="fc" id="L28">            } catch (Throwable thrown) {</span>
+<span class="fc" id="L29">                return Optional.empty();</span>
+            }
+        }
+<span class="fc" id="L32">        return Optional.empty();</span>
+    }
+    
+    private Optional&lt;ContractsFactory&gt; createByReflection() {
+<span class="fc bfc" id="L36" title="All 2 branches covered.">        if (config.useReflection()) {</span>
+<span class="fc" id="L37">            final String className = nullCheck(config.reflectionClassName(), &quot;config.reflectionClassName() was null&quot;);</span>
+<span class="fc bfc" id="L38" title="All 2 branches covered.">            if (className.isEmpty()) {</span>
+<span class="fc" id="L39">                return Optional.empty();</span>
+            }
+            try {
+<span class="fc" id="L42">                final Class&lt;?&gt; bootstrapClass = Class.forName(className);</span>
+<span class="fc" id="L43">                final Constructor&lt;?&gt; bootstrapConstructor = bootstrapClass.getConstructor();</span>
+<span class="fc" id="L44">                return Optional.of((ContractsFactory) bootstrapConstructor.newInstance());</span>
+<span class="fc" id="L45">            } catch (Throwable thrown) {</span>
+<span class="fc" id="L46">                return Optional.empty();</span>
+            }
+        }
+<span class="fc" id="L49">        return Optional.empty();</span>
+    }
+    
+    private ContractException newNotFoundException() {
+<span class="fc" id="L53">        return new ContractException(&quot;Unable to find GlobalContracts ContractsFactory&quot;);</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>

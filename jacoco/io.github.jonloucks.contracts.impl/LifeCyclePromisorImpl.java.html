@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>LifeCyclePromisorImpl.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">contracts</a> &gt; <a href="index.source.html" class="el_package">io.github.jonloucks.contracts.impl</a> &gt; <span class="el_source">LifeCyclePromisorImpl.java</span></div><h1>LifeCyclePromisorImpl.java</h1><pre class="source lang-java linenums">package io.github.jonloucks.contracts.impl;
+
+import io.github.jonloucks.contracts.api.AutoClose;
+import io.github.jonloucks.contracts.api.AutoOpen;
+import io.github.jonloucks.contracts.api.Promisor;
+
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicReference;
+
+import static io.github.jonloucks.contracts.api.Checks.*;
+import static java.util.Optional.ofNullable;
+
+final class LifeCyclePromisorImpl&lt;T&gt; implements Promisor&lt;T&gt; {
+    
+    @Override
+    public T demand() {
+<span class="fc" id="L18">        final AtomicReference&lt;T&gt; currentDeliverable = new AtomicReference&lt;&gt;();</span>
+        
+<span class="fc bfc" id="L20" title="All 2 branches covered.">        if (getCurrentDeliverable(currentDeliverable)) {</span>
+<span class="fc" id="L21">            return currentDeliverable.get();</span>
+        }
+        
+<span class="fc" id="L24">        return createDeliverableIfNeeded();</span>
+    }
+    
+    @Override
+    public int incrementUsage() {
+<span class="fc" id="L29">        final int currentUsage = usageCounter.incrementAndGet();</span>
+<span class="fc" id="L30">        referentPromisor.incrementUsage();</span>
+<span class="fc" id="L31">        return currentUsage;</span>
+    }
+    
+    @Override
+    public int decrementUsage() {
+<span class="fc" id="L36">        final int currentUsage = usageCounter.decrementAndGet();</span>
+        try {
+<span class="fc bfc" id="L38" title="All 2 branches covered.">            if (currentUsage == 0) {</span>
+<span class="fc" id="L39">                closeDeliverable();</span>
+            }
+        } finally {
+<span class="fc" id="L42">            referentPromisor.decrementUsage();</span>
+        }
+<span class="fc" id="L44">        return currentUsage;</span>
+    }
+    
+<span class="fc" id="L47">    private final AtomicInteger usageCounter = new AtomicInteger();</span>
+    private final Promisor&lt;T&gt; referentPromisor;
+<span class="fc" id="L49">    private final AtomicBoolean isDeliverableAcquired = new AtomicBoolean();</span>
+<span class="fc" id="L50">    private final AtomicReference&lt;T&gt; atomicDeliverable = new AtomicReference&lt;&gt;();</span>
+<span class="fc" id="L51">    private final AtomicReference&lt;Throwable&gt; startupException = new AtomicReference&lt;&gt;();</span>
+<span class="fc" id="L52">    private final AtomicReference&lt;AutoClose&gt; atomicClose = new AtomicReference&lt;&gt;();</span>
+<span class="fc" id="L53">    private final Object simpleLock = new Object();</span>
+    
+<span class="fc" id="L55">    LifeCyclePromisorImpl(Promisor&lt;T&gt; referentPromisor) {</span>
+<span class="fc" id="L56">        this.referentPromisor = promisorCheck(referentPromisor);</span>
+<span class="fc" id="L57">    }</span>
+    
+    private boolean getCurrentDeliverable(AtomicReference&lt;T&gt; placeholder) {
+<span class="fc bfc" id="L60" title="All 2 branches covered.">        if (usageCounter.get() == 0) {</span>
+<span class="fc" id="L61">            throw new IllegalStateException(&quot;Usage count is zero&quot;);</span>
+        }
+<span class="fc" id="L63">        maybeThrowOpenException();</span>
+<span class="fc" id="L64">        synchronized (simpleLock) {</span>
+<span class="fc bfc" id="L65" title="All 2 branches covered.">            if (isDeliverableAcquired.get()) {</span>
+<span class="fc" id="L66">                placeholder.set(atomicDeliverable.get());</span>
+<span class="fc" id="L67">                return true;</span>
+            }
+<span class="fc" id="L69">            return false;</span>
+        }
+    }
+    
+    private void maybeThrowOpenException() {
+<span class="fc" id="L74">        ofNullable(startupException.get())</span>
+<span class="fc" id="L75">            .ifPresent(this::reThrowOpenException);</span>
+<span class="fc" id="L76">    }</span>
+    
+    private void reThrowOpenException(Throwable thrown) {
+<span class="pc bpc" id="L79" title="1 of 2 branches missed.">        if (thrown instanceof Error) {</span>
+<span class="nc" id="L80">            throw (Error) thrown;</span>
+        }
+<span class="pc bpc" id="L82" title="1 of 2 branches missed.">        if (thrown instanceof RuntimeException) {</span>
+<span class="fc" id="L83">            throw (RuntimeException) thrown;</span>
+        }
+<span class="nc" id="L85">        throw new IllegalStateException(&quot;AutoOpen&quot;, thrown);</span>
+    }
+    
+    private T createDeliverableIfNeeded() {
+<span class="fc" id="L89">        synchronized (simpleLock) {</span>
+<span class="pc bpc" id="L90" title="1 of 2 branches missed.">            if (isDeliverableAcquired.get()) {</span>
+<span class="nc" id="L91">                return atomicDeliverable.get();</span>
+            } else {
+<span class="fc" id="L93">                startupException.set(null);</span>
+<span class="fc" id="L94">                final T currentDeliverable = referentPromisor.demand();</span>
+<span class="fc" id="L95">                atomicDeliverable.set(currentDeliverable);</span>
+<span class="fc" id="L96">                openDeliverable(currentDeliverable);</span>
+<span class="fc" id="L97">                isDeliverableAcquired.set(true);</span>
+<span class="fc" id="L98">                return currentDeliverable;</span>
+            }
+        }
+    }
+    
+    private void openDeliverable(final T deliverable) {
+<span class="fc bfc" id="L104" title="All 2 branches covered.">        if (deliverable instanceof AutoOpen) {</span>
+<span class="fc" id="L105">            synchronized (simpleLock) {</span>
+                try {
+<span class="fc" id="L107">                    atomicClose.set(((AutoOpen) deliverable).open());</span>
+<span class="fc" id="L108">                } catch (Throwable thrown) {</span>
+<span class="pc bpc" id="L109" title="1 of 2 branches missed.">                    if (atomicDeliverable.compareAndSet(deliverable, null)) {</span>
+<span class="fc" id="L110">                        startupException.set(thrown);</span>
+<span class="fc" id="L111">                        isDeliverableAcquired.set(false);</span>
+                    }
+<span class="fc" id="L113">                    throw thrown;</span>
+<span class="fc" id="L114">                }</span>
+<span class="fc" id="L115">            }</span>
+        }
+<span class="fc" id="L117">    }</span>
+    
+    private void closeDeliverable() {
+<span class="fc bfc" id="L120" title="All 2 branches covered.">        if (isDeliverableAcquired.get()) {</span>
+<span class="fc" id="L121">            final T deliverable = atomicDeliverable.get();</span>
+            try {
+<span class="fc" id="L123">                ofNullable(atomicClose.get()).ifPresent(close -&gt; {</span>
+<span class="fc" id="L124">                    atomicClose.set(null);</span>
+<span class="fc" id="L125">                    close.close();</span>
+<span class="fc" id="L126">                });</span>
+            } finally {
+<span class="fc" id="L128">                atomicDeliverable.compareAndSet(deliverable, null);</span>
+<span class="fc" id="L129">                isDeliverableAcquired.set(false);</span>
+            }
+        }
+<span class="fc" id="L132">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>

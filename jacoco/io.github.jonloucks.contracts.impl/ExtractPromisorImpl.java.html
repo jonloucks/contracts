@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ExtractPromisorImpl.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">contracts</a> &gt; <a href="index.source.html" class="el_package">io.github.jonloucks.contracts.impl</a> &gt; <span class="el_source">ExtractPromisorImpl.java</span></div><h1>ExtractPromisorImpl.java</h1><pre class="source lang-java linenums">package io.github.jonloucks.contracts.impl;
+
+import io.github.jonloucks.contracts.api.Promisor;
+
+import java.util.function.Function;
+
+import static io.github.jonloucks.contracts.api.Checks.*;
+
+final class ExtractPromisorImpl&lt;T, R&gt; implements Promisor&lt;R&gt; {
+    @Override
+    public R demand() {
+<span class="fc" id="L12">        return transform.apply(referent.demand());</span>
+    }
+    
+    @Override
+    public int incrementUsage() {
+<span class="fc" id="L17">        return referent.incrementUsage();</span>
+    }
+    
+    @Override
+    public int decrementUsage() {
+<span class="fc" id="L22">        return referent.decrementUsage();</span>
+    }
+    
+    private final Promisor&lt;T&gt; referent;
+    private final Function&lt;T, R&gt; transform;
+    
+<span class="fc" id="L28">    ExtractPromisorImpl(Promisor&lt;T&gt; referent, Function&lt;T, R&gt; transform) {</span>
+<span class="fc" id="L29">        this.referent = promisorCheck(referent);</span>
+<span class="fc" id="L30">        this.transform = nullCheck(transform, &quot;transform was null&quot;);</span>
+<span class="fc" id="L31">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>

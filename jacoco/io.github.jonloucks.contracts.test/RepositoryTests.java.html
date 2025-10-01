@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>RepositoryTests.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">contracts</a> &gt; <a href="index.source.html" class="el_package">io.github.jonloucks.contracts.test</a> &gt; <span class="el_source">RepositoryTests.java</span></div><h1>RepositoryTests.java</h1><pre class="source lang-java linenums">package io.github.jonloucks.contracts.test;
+
+import io.github.jonloucks.contracts.api.*;
+import org.junit.jupiter.api.Test;
+
+import java.util.function.Consumer;
+import java.util.function.Supplier;
+
+import static io.github.jonloucks.contracts.api.GlobalContracts.*;
+import static io.github.jonloucks.contracts.test.RepositoryTests.RepositoryTestsTool.runWithScenario;
+import static io.github.jonloucks.contracts.test.Tools.assertObject;
+import static io.github.jonloucks.contracts.test.Tools.assertThrown;
+import static org.junit.jupiter.api.Assertions.*;
+
+@SuppressWarnings({&quot;try&quot;, &quot;CodeBlock2Expr&quot;})
+public interface RepositoryTests {
+    
+    @Test
+    default void repository_Factory() {
+<span class="fc" id="L20">        final Supplier&lt;Repository&gt; repositoryFactory = claimContract(Repository.FACTORY);</span>
+        
+<span class="fc" id="L22">        assertObject(repositoryFactory);</span>
+<span class="fc" id="L23">    }</span>
+    
+    @Test
+    default void repository_Main_UseCase() {
+<span class="fc" id="L27">        final Contract&lt;Repository&gt; contract = Contract.create(&quot;test repository&quot;);</span>
+<span class="fc" id="L28">        try (AutoClose ignored = bindContract(contract, () -&gt; claimContract(Repository.FACTORY).get())) {</span>
+<span class="fc" id="L29">            final Repository repository = claimContract(contract);</span>
+<span class="fc" id="L30">            assertObject(repository);</span>
+        }
+<span class="fc" id="L32">    }</span>
+    
+    @Test
+    default void repository_check_WithNoRequirements() {
+<span class="fc" id="L36">        runWithScenario(repository -&gt; assertDoesNotThrow(repository::check));</span>
+<span class="fc" id="L37">    }</span>
+    
+    @Test
+    default void repository_check_WithOneRequirement_Throws() {
+<span class="fc" id="L41">        runWithScenario(repository -&gt; {</span>
+<span class="fc" id="L42">            final Contract&lt;Integer&gt; contract = Contract.create(&quot;a requirement&quot;);</span>
+<span class="fc" id="L43">            repository.require(contract);</span>
+<span class="fc" id="L44">            final ContractException thrown = assertThrows(ContractException.class, repository::check);</span>
+<span class="fc" id="L45">            assertThrown(thrown);</span>
+<span class="fc" id="L46">        });</span>
+<span class="fc" id="L47">    }</span>
+    
+    @Test
+    default void repository_check_WithFulfilledRequirements() {
+<span class="fc" id="L51">        runWithScenario(repository -&gt; {</span>
+<span class="fc" id="L52">            final Contract&lt;Integer&gt; contract = Contract.create(&quot;a requirement&quot;);</span>
+<span class="fc" id="L53">            repository.require(contract);</span>
+<span class="pc" id="L54">            try (AutoClose closeBinding = bindContract(contract, () -&gt; 42)) {</span>
+<span class="fc" id="L55">                final AutoClose ignored = closeBinding;</span>
+<span class="fc" id="L56">                assertDoesNotThrow(repository::check);</span>
+            }
+<span class="fc" id="L58">        });</span>
+<span class="fc" id="L59">    }</span>
+    
+    @Test
+    default void repository_store_isBound() {
+<span class="fc" id="L63">        runWithScenario(repository -&gt; {</span>
+<span class="fc" id="L64">            final Contract&lt;String&gt; textContract = Contract.create(&quot;test text&quot;);</span>
+<span class="pc" id="L65">            try (AutoClose closeBinding = repository.store(textContract, () -&gt; &quot;x&quot;)) {</span>
+<span class="fc" id="L66">                final AutoClose ignored = closeBinding;</span>
+<span class="fc" id="L67">                assertTrue(isContractBound(textContract), &quot;Contract should have been bound&quot;);</span>
+            }
+<span class="fc" id="L69">            assertFalse(isContractBound(textContract), &quot;Contract should not be bound&quot;);</span>
+<span class="fc" id="L70">        });</span>
+<span class="fc" id="L71">    }</span>
+    
+    @Test
+    default void repository_store_Works() {
+<span class="fc" id="L75">        runWithScenario(repository -&gt; {</span>
+<span class="fc" id="L76">            final Contract&lt;String&gt; textContract = Contract.create(&quot;test text&quot;);</span>
+<span class="fc" id="L77">            try (AutoClose closeBinding = repository.store(textContract, () -&gt; &quot;x&quot;)) {</span>
+<span class="fc" id="L78">                final AutoClose ignored = closeBinding;</span>
+<span class="fc" id="L79">                final String text = claimContract(textContract);</span>
+<span class="fc" id="L80">                assertEquals(&quot;x&quot;, text, &quot;contract deliverable should match&quot;);</span>
+            }
+<span class="fc" id="L82">        });</span>
+<span class="fc" id="L83">    }</span>
+    
+    @Test
+    default void repository_store_Twice_Throws() {
+<span class="fc" id="L87">        runWithScenario(repository -&gt; {</span>
+<span class="fc" id="L88">            final Contract&lt;String&gt; textContract = Contract.create(&quot;test text&quot;);</span>
+            
+<span class="pc" id="L90">            try (AutoClose closeBinding = repository.store(textContract, () -&gt; &quot;x&quot;)) {</span>
+<span class="fc" id="L91">                final AutoClose ignored = closeBinding;</span>
+                
+<span class="fc" id="L93">                final ContractException thrown = assertThrows(ContractException.class, () -&gt; {</span>
+<span class="nc" id="L94">                    repository.store(textContract, () -&gt; &quot;y&quot;);</span>
+<span class="nc" id="L95">                });</span>
+<span class="fc" id="L96">                assertThrown(thrown);</span>
+            }
+<span class="fc" id="L98">        });</span>
+<span class="fc" id="L99">    }</span>
+    
+    final class RepositoryTestsTool {
+        private RepositoryTestsTool() {
+        
+        }
+        
+        interface ScenarioConfig extends Consumer&lt;Repository&gt; {
+        
+        }
+        
+        static void runWithScenario(ScenarioConfig block) {
+<span class="fc" id="L111">            final Contract&lt;Repository&gt; contract = Contract.create(&quot;test repository&quot;);</span>
+<span class="fc" id="L112">            final Promisors promisors = claimContract(Promisors.CONTRACT);</span>
+<span class="fc" id="L113">            final Promisor&lt;Repository&gt; promisor = promisors.createLifeCyclePromisor(()-&gt;claimContract(Repository.FACTORY).get());</span>
+<span class="fc" id="L114">            try (AutoClose closeBinding = bindContract(contract, promisor)) {</span>
+<span class="fc" id="L115">                final AutoClose ignored = closeBinding;</span>
+<span class="fc" id="L116">                final Repository repository = claimContract(contract);</span>
+<span class="fc" id="L117">                block.accept(repository);</span>
+            }
+<span class="fc" id="L119">        }</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>

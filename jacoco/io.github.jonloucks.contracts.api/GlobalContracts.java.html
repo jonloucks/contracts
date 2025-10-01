@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>GlobalContracts.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">contracts</a> &gt; <a href="index.source.html" class="el_package">io.github.jonloucks.contracts.api</a> &gt; <span class="el_source">GlobalContracts.java</span></div><h1>GlobalContracts.java</h1><pre class="source lang-java linenums">package io.github.jonloucks.contracts.api;
+
+import static io.github.jonloucks.contracts.api.Checks.nullCheck;
+import static io.github.jonloucks.contracts.api.Checks.validateContracts;
+
+/**
+ * Provides access to the shared singleton of a Contracts implementation
+ */
+public final class GlobalContracts {
+    
+    /**
+     * Claim the deliverable from a bound contract.
+     *
+     * @param contract the contract to claim
+     * @param &lt;T&gt;      type of value returned
+     * @return the value returned by the bound Promisor. A Promisor can return null
+     * @throws ContractException if Promisor binding does not exist for the contract
+     * @throws SecurityException if permission is denied
+     * 
+     * @see Contracts#claim(Contract)
+     */
+    public static &lt;T&gt; T claimContract(Contract&lt;T&gt; contract) {
+<span class="fc" id="L23">        return INSTANCE.contracts.claim(contract);</span>
+    }
+    
+    /**
+     * Establish a binding between a Contract and a Promisor
+     *
+     * @param contract the contract to bind the Promisor
+     * @param promisor the Promisor for the given contract
+     * @param &lt;T&gt;      The type of the value returned by the promisor
+     * @return Use to release (unbind) this contract
+     * @throws ContractException when contract is already bound and can't be replaced
+     * @throws SecurityException when permission to bind is denied
+     */
+    public static &lt;T&gt; AutoClose bindContract(Contract&lt;T&gt; contract, Promisor&lt;T&gt; promisor) {
+<span class="fc" id="L37">        return INSTANCE.contracts.bind(contract, promisor);</span>
+    }
+    
+    /**
+     * Checks if the contract is bound to a Promisor
+     *
+     * @param contract the contract to check
+     * @param &lt;T&gt;      The type of the value returned by the promisor
+     * @return true iif bound
+     */
+    public static &lt;T&gt; boolean isContractBound(Contract&lt;T&gt; contract) {
+<span class="fc" id="L48">        return INSTANCE.contracts.isBound(contract);</span>
+    }
+    
+    /**
+     * Return the global instance of Contracts
+     * @return the instance
+     */
+    public static Contracts getInstance() {
+<span class="fc" id="L56">        return INSTANCE.contracts;</span>
+    }
+    
+    /**
+     * Create a standalone Contracts service.
+     * Note: Contracts created from this method are destink any that used internally
+     * &lt;p&gt;
+     * Caller is responsible for invoking open() before use and close when no longer needed
+     * &lt;/p&gt;
+     *
+     * @param config the service configuration
+     * @return the new service
+     */
+    public static Contracts createContracts(Contracts.Config config) {
+<span class="fc" id="L70">        final Contracts.Config validConfig = nullCheck(config, &quot;Contracts config was null&quot;);</span>
+        
+<span class="fc" id="L72">        final ContractsFactoryFinder factoryFinder = new ContractsFactoryFinder(config);</span>
+<span class="fc" id="L73">        final ContractsFactory contractsFactory = nullCheck(factoryFinder.find(), &quot;find() was null&quot;);</span>
+<span class="fc" id="L74">        return nullCheck(contractsFactory.create(validConfig), &quot;create() was null&quot;);</span>
+    }
+    
+<span class="fc" id="L77">    private static final GlobalContracts INSTANCE = new GlobalContracts();</span>
+    
+    private final Contracts contracts;
+    @SuppressWarnings({&quot;FieldCanBeLocal&quot;,&quot;unused&quot;})
+    private final AutoClose close;
+    
+<span class="fc" id="L83">    private GlobalContracts() {</span>
+<span class="fc" id="L84">        this.contracts = createContracts(new Contracts.Config() {});</span>
+<span class="fc" id="L85">        this.close = contracts.open();</span>
+<span class="fc" id="L86">        validateContracts(contracts);</span>
+<span class="fc" id="L87">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>

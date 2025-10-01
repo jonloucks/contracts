@@ -1,0 +1,1 @@
+memberSearchIndex = [{"p":"io.github.jonloucks.contracts","c":"Stub","l":"validate()"}];updateSearchResults();

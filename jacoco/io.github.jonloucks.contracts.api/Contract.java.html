@@ -1,0 +1,211 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Contract.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">contracts</a> &gt; <a href="index.source.html" class="el_package">io.github.jonloucks.contracts.api</a> &gt; <span class="el_source">Contract.java</span></div><h1>Contract.java</h1><pre class="source lang-java linenums">package io.github.jonloucks.contracts.api;
+
+import java.util.concurrent.atomic.AtomicInteger;
+
+import static io.github.jonloucks.contracts.api.Checks.nullCheck;
+
+/**
+ * The API agreement for a Contract between the claimee and the claimant.
+ * &lt;p&gt;
+ * Each Contract instance is a unique key for establishing a binding between
+ * an implementation and those that use it.
+ * &lt;/p&gt;
+ * &lt;ul&gt;
+ *     &lt;li&gt;Create by custom config  {@link #create(Config)}&lt;/li&gt;
+ *     &lt;li&gt;Creation by automatic config. {@link #create(String, Object[])}&lt;/li&gt;
+ *     &lt;li&gt;Used by {@link GlobalContracts#claimContract(Contract)}&lt;/li&gt;
+ *     &lt;li&gt;Used by {@link GlobalContracts#bindContract(Contract, Promisor)}&lt;/li&gt;
+ *     &lt;li&gt;Used by {@link Contracts#claim(Contract)}&lt;/li&gt;
+ *     &lt;li&gt;Used by {@link Contracts#bind(Contract, Promisor)}&lt;/li&gt;
+ * &lt;/ul&gt;
+ * &lt;h2&gt;A simple factory&lt;/h2&gt;
+ * Each call to {@link Contracts#claim(Contract)} will return a new instance.
+ * &lt;pre class=&quot;code&quot;&gt;
+ *     &lt;code class=&quot;java&quot;&gt;
+ *  // Save Contract at some agreed upon place
+ *  public static final Contract&amp;lt;Contracts&amp;gt; SERVICE = Contract.create(&quot;You Choose&quot;);
+ *  // The promisor needs to be bound before it is claimed.
+ *  GlobalContracts.bindContract(SERVICE, () -&gt; new ServiceImpl());
+ *  // Ready to be claimed
+ *  Contracts service = GlobalContracts.claimContract(SERVICE);
+ * &lt;/code&gt;&lt;/pre&gt;
+ * If you need a thread specific
+ *
+ * @param &lt;T&gt; The type of deliverable
+ */
+public final class Contract&lt;T&gt; {
+    
+    /**
+     * Create a contract with a given name, the rest is automatic.
+     * For custom configuration see {@link #create(Config)}
+     *
+     * @param name          the name for the contract, null is not allowed
+     * @param reifiedArray null is not allowed
+     * @param &lt;T&gt;           the type of deliverable for this Contract
+     * @return the new Contract
+     */
+    @SafeVarargs // Required to safely determine the checked type of T
+    public static &lt;T&gt; Contract&lt;T&gt; create(String name, T... reifiedArray) {
+<span class="fc" id="L49">        final T[] validInstanceArray = nullCheck(reifiedArray, &quot;reified array was not present&quot;);</span>
+<span class="fc" id="L50">        final String validName = nullCheck(name, &quot;name was not present&quot;);</span>
+<span class="fc" id="L51">        final Class&lt;T&gt; validDeliverableType = detectDeliverableType(validInstanceArray);</span>
+        
+<span class="fc" id="L53">        return createHelper(validDeliverableType, validName);</span>
+    }
+    
+    /**
+     * Create a contract with a given name, the rest is automatic.
+     * For custom configuration see {@link #create(Config)}
+     *
+     * @param type          The deliverable class for the contract
+     * @param &lt;T&gt;           the type of deliverable for this Contract
+     * @return the new Contract
+     */
+    public static &lt;T&gt; Contract&lt;T&gt; create(Class&lt;T&gt; type) {
+<span class="fc" id="L65">        final Class&lt;T&gt; validDeliverableType = nullCheck(type, &quot;type was not present&quot;);</span>
+        
+<span class="fc" id="L67">        return createHelper(validDeliverableType, type.getTypeName());</span>
+    }
+    
+    /**
+     * Create a contract derived from the given configuration
+     *
+     * @param config the name for the contract, null is not allowed
+     * @param &lt;T&gt;    the type of deliverable for this Contract
+     * @return the new Contract
+     */
+    public static &lt;T&gt; Contract&lt;T&gt; create(Config&lt;T&gt; config) {
+<span class="fc" id="L78">        return new Contract&lt;&gt;(config);</span>
+    }
+    
+    /**
+     * Casts the given object to the return type for this Contract
+     * This is used to make sure the value is a checked value and does not sneak passed during erasure
+     *
+     * @param value the value to cast
+     * @return the checked value. Note: null is possible. The Promisor is allowed to return null
+     * @throws ClassCastException iif the value can't be cast to the return type.
+     */
+    public T cast(Object value) {
+<span class="fc" id="L90">        return config.cast(value);</span>
+    }
+    
+    /**
+     * @return the contract name
+     */
+    public String getName() {
+<span class="fc" id="L97">        return config.name();</span>
+    }
+    
+    /**
+     * Note: Do not rely on this being a java class name
+     * Note: The actual class is never exposed and is by design.
+     *
+     * @return the type of deliverable for this contract.
+     */
+    public String getTypeName() {
+<span class="fc" id="L107">        return config.typeName();</span>
+    }
+    
+    /**
+     * When replaceable a new binding can replace in an existing one
+     * The default is false
+     *
+     * @return true if replaceable
+     */
+    public boolean isReplaceable() {
+<span class="fc" id="L117">        return config.isReplaceable();</span>
+    }
+    
+    @Override
+    public String toString() {
+<span class="fc" id="L122">        return &quot;Contract[id=&quot; + id + &quot;, name=&quot; + getName() + &quot;, type=&quot; + getTypeName() + &quot;]&quot;;</span>
+    }
+    
+    /**
+     * The configuration for creating a custom Contract.
+     * The required function is {@link Config#cast(Object)} which is plays
+     * a key role in ensuring unchecked or unsafe instances do not escape
+     *
+     * @param &lt;T&gt; The Contract deliverable type
+     */
+    @FunctionalInterface
+    public interface Config&lt;T&gt; {
+        
+        /**
+         * Ensure an instance is of type T (or descendent)
+         *
+         * @param instance the value to cast to type T
+         * @return the value, null is allowed
+         * @throws ClassCastException when type of instance is not correct
+         */
+        T cast(Object instance);
+        
+        /**
+         * User defined name for this contract.
+         * Note: Do not rely on this being a java class name
+         *
+         * @return the type name
+         */
+        default String name() {
+<span class="fc" id="L151">            return &quot;&quot;;</span>
+        }
+        
+        /**
+         * The type of deliverable for this contract.
+         * Note: Do not rely on this being a java class name
+         *
+         * @return the type name, null is illegal
+         */
+        default String typeName() {
+<span class="fc" id="L161">            return &quot;&quot;;</span>
+        }
+        
+        /**
+         * When replaceable a new binding can replace in an existing one
+         * The default is false
+         *
+         * @return true if replaceable
+         */
+        default boolean isReplaceable() {
+<span class="fc" id="L171">            return false;</span>
+        }
+    }
+    
+<span class="fc" id="L175">    private static final AtomicInteger ID_GENERATOR = new AtomicInteger(1);</span>
+    
+<span class="fc" id="L177">    private final int id = ID_GENERATOR.getAndIncrement();</span>
+    private final Config&lt;T&gt; config;
+    
+<span class="fc" id="L180">    private Contract(Config&lt;T&gt; config) {</span>
+<span class="fc" id="L181">        this.config = nullCheck(config, &quot;config was null&quot;);</span>
+<span class="fc" id="L182">        nullCheck(config.name(), &quot;config name was not present&quot;);</span>
+<span class="fc" id="L183">        nullCheck(config.typeName(), &quot;config type was not present&quot;);</span>
+<span class="fc" id="L184">    }</span>
+    
+    private static &lt;T&gt; Contract&lt;T&gt; createHelper(Class&lt;T&gt; deliverableType, String name) {
+<span class="fc" id="L187">        return Contract.create(new Config&lt;&gt;() {</span>
+            @Override
+            public T cast(Object instance) {
+<span class="fc" id="L190">                return deliverableType.cast(instance);</span>
+            }
+            
+            @Override
+            public String name() {
+<span class="fc" id="L195">                return name;</span>
+            }
+            
+            @Override
+            public String typeName() {
+<span class="fc" id="L200">                return deliverableType.getTypeName();</span>
+            }
+        });
+    }
+    
+    //Since arrays are reified the following is safe and checked
+    @SuppressWarnings(&quot;unchecked&quot;)
+    private static &lt;T&gt; Class&lt;T&gt; detectDeliverableType(T[] validInstanceArray) {
+<span class="fc" id="L208">        return nullCheck((Class&lt;T&gt;) validInstanceArray.getClass().getComponentType(), &quot;unable to capture type&quot;);</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>

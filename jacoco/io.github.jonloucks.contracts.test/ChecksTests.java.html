@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ChecksTests.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">contracts</a> &gt; <a href="index.source.html" class="el_package">io.github.jonloucks.contracts.test</a> &gt; <span class="el_source">ChecksTests.java</span></div><h1>ChecksTests.java</h1><pre class="source lang-java linenums">package io.github.jonloucks.contracts.test;
+
+import io.github.jonloucks.contracts.api.Checks;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
+
+import static io.github.jonloucks.contracts.test.Tools.*;
+import static org.junit.jupiter.api.Assertions.*;
+
+
+@SuppressWarnings({&quot;CodeBlock2Expr&quot;, &quot;DataFlowIssue&quot;})
+@ExtendWith(MockitoExtension.class)
+@MockitoSettings(strictness = Strictness.LENIENT)
+public interface ChecksTests {
+    
+    @Test
+    default void checks_Instantiate_Throws() {
+<span class="fc" id="L21">        assertInstantiateThrows(Checks.class);</span>
+<span class="fc" id="L22">    }</span>
+    
+    @Test
+    default void checks_contractCheck_WhenNullContract_Throws() {
+<span class="fc" id="L26">        final IllegalArgumentException thrown = assertThrows(IllegalArgumentException.class, () -&gt; {</span>
+<span class="nc" id="L27">            Checks.contractCheck(null);</span>
+<span class="nc" id="L28">        });</span>
+        
+<span class="fc" id="L30">        assertThrown(thrown);</span>
+<span class="fc" id="L31">    }</span>
+    
+    @Test
+    default void checks_illegalCheck_WhenFailedIsFalse_Works() {
+<span class="fc" id="L35">        final String actual = Checks.illegalCheck(&quot;abc&quot;, false, &quot;&quot;);</span>
+        
+<span class="fc" id="L37">        assertSame(&quot;abc&quot;, actual);</span>
+<span class="fc" id="L38">    }</span>
+    
+    @Test
+    default void checks_illegalCheck_WhenNullContract_Throws() {
+<span class="fc" id="L42">        final String actual = Checks.illegalCheck(&quot;abc&quot;, false, &quot;&quot;);</span>
+        
+<span class="fc" id="L44">        assertSame(&quot;abc&quot;, actual);</span>
+<span class="fc" id="L45">    }</span>
+    
+    @Test
+    default void checks_illegalCheck_WhenNull_Throws() {
+<span class="fc" id="L49">        final IllegalArgumentException thrown = assertThrows(IllegalArgumentException.class, () -&gt; {</span>
+<span class="nc" id="L50">            Checks.illegalCheck(&quot;abc&quot;, true, &quot;xyz&quot;);</span>
+<span class="nc" id="L51">        });</span>
+        
+<span class="fc" id="L53">        Tools.assertThrown(thrown, &quot;xyz&quot;);</span>
+<span class="fc" id="L54">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>

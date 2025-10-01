@@ -1,0 +1,1 @@
+packageSearchIndex = [{"l":"All Packages","u":"allpackages-index.html"},{"m":"io.github.jonloucks.contracts","l":"io.github.jonloucks.contracts"}];updateSearchResults();

@@ -1,0 +1,152 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>CreateContractsTests.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">contracts</a> &gt; <a href="index.source.html" class="el_package">io.github.jonloucks.contracts.test</a> &gt; <span class="el_source">CreateContractsTests.java</span></div><h1>CreateContractsTests.java</h1><pre class="source lang-java linenums">package io.github.jonloucks.contracts.test;
+
+import io.github.jonloucks.contracts.api.*;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
+
+import java.util.stream.Stream;
+
+import static io.github.jonloucks.contracts.api.Checks.nullCheck;
+import static io.github.jonloucks.contracts.test.Tools.assertThrown;
+import static java.util.Optional.ofNullable;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assumptions.assumeTrue;
+
+@SuppressWarnings({&quot;RedundantMethodOverride&quot;})
+public interface CreateContractsTests {
+    
+    @Test
+    default void createContracts_DefaultConfig() {
+<span class="fc" id="L22">        final Contracts.Config config = new Contracts.Config() {};</span>
+        
+<span class="fc" id="L24">        assertAll(</span>
+<span class="fc" id="L25">            () -&gt; assertTrue(config.useReflection(), &quot;config.useReflection() default.&quot;),</span>
+<span class="fc" id="L26">            () -&gt; assertTrue(config.useServiceLoader(), &quot;config.useServiceLoader() default.&quot;),</span>
+<span class="fc" id="L27">            () -&gt; assertTrue(config.useShutdownHooks(), &quot;config.useShutdownHooks() default.&quot;),</span>
+<span class="fc" id="L28">            () -&gt; assertNotNull(config.reflectionClassName(), &quot;config.reflectionClassName() was null.&quot;)</span>
+        );
+<span class="fc" id="L30">    }</span>
+    
+    @ParameterizedTest
+    @MethodSource(&quot;io.github.jonloucks.contracts.test.CreateContractsTests$CreateContractsTestsTools#validConfigs&quot;)
+    default void createContracts_HappyPath(Contracts.Config contractsConfig) {
+<span class="fc" id="L35">        final Contract&lt;String&gt; contract = Contract.create(&quot;string contract&quot;);</span>
+<span class="fc" id="L36">        final Contract&lt;String&gt; unboundContract = Contract.create(&quot;unbound string contract&quot;);</span>
+        
+<span class="fc" id="L38">        final Contracts contracts = GlobalContracts.createContracts(contractsConfig);</span>
+        
+<span class="fc" id="L40">        assumeTrue(ofNullable(contracts).isPresent(), &quot;createContracts failed&quot;);</span>
+        
+<span class="fc" id="L42">        try (AutoClose closeContracts = contracts.open()) {</span>
+<span class="fc" id="L43">            final AutoClose ignored = closeContracts;</span>
+            
+<span class="fc" id="L45">            contracts.bind(contract, () -&gt; &quot;hello&quot;);</span>
+            
+<span class="fc" id="L47">            assertFalse(contracts.isBound(unboundContract), &quot;Contract should be bound.&quot;);</span>
+<span class="fc" id="L48">            assertTrue(contracts.isBound(contract), &quot;Contract should be bound.&quot;);</span>
+<span class="fc" id="L49">            assertEquals(&quot;hello&quot;, contracts.claim(contract), &quot;Claimed value should match.&quot;);</span>
+        }
+<span class="fc" id="L51">    }</span>
+    
+    @ParameterizedTest
+    @MethodSource(&quot;io.github.jonloucks.contracts.test.CreateContractsTests$CreateContractsTestsTools#invalidConfigs&quot;)
+    default void createContracts_SadPath(Contracts.Config contractsConfig) {
+<span class="fc" id="L56">        final ContractException thrown = assertThrows(ContractException.class, () -&gt; {</span>
+            //noinspection resource
+<span class="nc" id="L58">            GlobalContracts.createContracts(contractsConfig);</span>
+<span class="nc" id="L59">        });</span>
+        
+<span class="fc" id="L61">        assertThrown(thrown);</span>
+<span class="fc" id="L62">    }</span>
+    
+    final class CreateContractsTestsTools {
+        private CreateContractsTestsTools() {
+        
+        }
+        static Stream&lt;Arguments&gt; validConfigs() {
+<span class="fc" id="L69">            return Stream.of(</span>
+<span class="fc" id="L70">                Arguments.of(new Contracts.Config() {}),</span>
+<span class="fc" id="L71">                Arguments.of(new Contracts.Config() {</span>
+                    @Override
+                    public boolean useServiceLoader() {
+<span class="nc" id="L74">                        return false;</span>
+                    }
+                    @Override
+                    public boolean useReflection() {
+<span class="fc" id="L78">                        return true;</span>
+                    }
+                }),
+<span class="fc" id="L81">                Arguments.of(new Contracts.Config() {</span>
+                    @Override
+                    public boolean useServiceLoader() {
+<span class="fc" id="L84">                        return true;</span>
+                    }
+                    @Override
+                    public boolean useReflection() {
+<span class="fc" id="L88">                        return false;</span>
+                    }
+                })
+            );
+        }
+        
+        static Stream&lt;Arguments&gt; invalidConfigs() {
+<span class="fc" id="L95">            return Stream.of(</span>
+<span class="fc" id="L96">                Arguments.of(new Contracts.Config() {</span>
+                    @Override
+                    public boolean useServiceLoader() {
+<span class="fc" id="L99">                        return false;</span>
+                    }
+                    @Override
+                    public boolean useReflection() {
+<span class="fc" id="L103">                        return false;</span>
+                    }
+                }),
+<span class="fc" id="L106">                Arguments.of(new Contracts.Config() {</span>
+                    @Override
+                    public boolean useServiceLoader() {
+<span class="fc" id="L109">                        return true;</span>
+                    }
+                    @Override
+                    public boolean useReflection() {
+<span class="fc" id="L113">                        return false;</span>
+                    }
+                    @Override
+                    public Class&lt;? extends ContractsFactory&gt; serviceLoaderClass() {
+<span class="fc" id="L117">                        return BadContractsFactory.class;</span>
+                    }
+                }),
+<span class="fc" id="L120">                Arguments.of(new Contracts.Config() {</span>
+                    @Override
+                    public boolean useServiceLoader() {
+<span class="fc" id="L123">                        return false;</span>
+                    }
+                    @Override
+                    public boolean useReflection() {
+<span class="fc" id="L127">                        return true;</span>
+                    }
+                    @Override
+                    public String reflectionClassName() {
+<span class="fc" id="L131">                        return BadContractsFactory.class.getName();</span>
+                    }
+                }),
+<span class="fc" id="L134">                Arguments.of(new Contracts.Config() {</span>
+                    @Override
+                    public boolean useServiceLoader() {
+<span class="fc" id="L137">                        return false;</span>
+                    }
+                    @Override
+                    public boolean useReflection() {
+<span class="fc" id="L141">                        return true;</span>
+                    }
+                    @Override
+                    public String reflectionClassName() {
+<span class="fc" id="L145">                        return &quot;&quot;;</span>
+                    }
+                })
+            );
+        }
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>
