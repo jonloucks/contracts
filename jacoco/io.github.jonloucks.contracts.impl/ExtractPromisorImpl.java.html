@@ -6,28 +6,34 @@ import java.util.function.Function;
 
 import static io.github.jonloucks.contracts.api.Checks.*;
 
+/**
+ * Implementation for {@link io.github.jonloucks.contracts.api.Promisors#createExtractPromisor(Promisor, Function)}
+ * @see io.github.jonloucks.contracts.api.Promisors#createExtractPromisor(Promisor, Function)
+ * @param &lt;T&gt; the input deliverable type
+ * @param &lt;R&gt; the output deliverable type
+ */
 final class ExtractPromisorImpl&lt;T, R&gt; implements Promisor&lt;R&gt; {
     @Override
     public R demand() {
-<span class="fc" id="L12">        return transform.apply(referent.demand());</span>
+<span class="fc" id="L18">        return transform.apply(referent.demand());</span>
     }
     
     @Override
     public int incrementUsage() {
-<span class="fc" id="L17">        return referent.incrementUsage();</span>
+<span class="fc" id="L23">        return referent.incrementUsage();</span>
     }
     
     @Override
     public int decrementUsage() {
-<span class="fc" id="L22">        return referent.decrementUsage();</span>
+<span class="fc" id="L28">        return referent.decrementUsage();</span>
     }
+   
+<span class="fc" id="L31">    ExtractPromisorImpl(Promisor&lt;T&gt; referent, Function&lt;T, R&gt; transform) {</span>
+<span class="fc" id="L32">        this.referent = promisorCheck(referent);</span>
+<span class="fc" id="L33">        this.transform = nullCheck(transform, &quot;transform was null&quot;);</span>
+<span class="fc" id="L34">    }</span>
     
     private final Promisor&lt;T&gt; referent;
     private final Function&lt;T, R&gt; transform;
-    
-<span class="fc" id="L28">    ExtractPromisorImpl(Promisor&lt;T&gt; referent, Function&lt;T, R&gt; transform) {</span>
-<span class="fc" id="L29">        this.referent = promisorCheck(referent);</span>
-<span class="fc" id="L30">        this.transform = nullCheck(transform, &quot;transform was null&quot;);</span>
-<span class="fc" id="L31">    }</span>
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>

@@ -89,101 +89,123 @@ public interface ToolsTests {
 <span class="fc" id="L89">    }</span>
     
     @Test
+    default void tools_assertThrownThrown_Works() {
+<span class="fc" id="L93">        final String validReason = &quot;reason&quot;;</span>
+<span class="fc" id="L94">        final Throwable validCause = new RuntimeException(&quot;cause&quot;);</span>
+<span class="fc" id="L95">        final Throwable validException = new RuntimeException(validReason);</span>
+<span class="fc" id="L96">        final Throwable exceptionWithNullReason = new RuntimeException((String)null);</span>
+<span class="fc" id="L97">        final Throwable validExceptionWithCause = new RuntimeException(validReason, validCause);</span>
+<span class="fc" id="L98">        final Throwable unknownException = new RuntimeException(&quot;unknown&quot;);</span>
+        
+<span class="fc" id="L100">        assertAll(</span>
+<span class="pc" id="L101">            () -&gt; assertFails(() -&gt; Tools.assertThrown(null, validCause)),</span>
+            
+<span class="pc" id="L103">            () -&gt; assertFails(() -&gt; Tools.assertThrown(validCause, unknownException)),</span>
+<span class="pc" id="L104">            () -&gt; assertFails(() -&gt; Tools.assertThrown(validCause, validCause)),</span>
+            
+<span class="pc" id="L106">            () -&gt; assertFails(() -&gt; Tools.assertThrown(exceptionWithNullReason, validCause)),</span>
+<span class="fc" id="L107">            () -&gt; assertDoesNotThrow(() -&gt; Tools.assertThrown(validException, (Throwable)null)),</span>
+<span class="pc" id="L108">            () -&gt; assertFails(() -&gt; Tools.assertThrown(validExceptionWithCause, (Throwable)null)),</span>
+<span class="fc" id="L109">            () -&gt; assertDoesNotThrow(() -&gt; Tools.assertThrown(validExceptionWithCause, validCause))</span>
+        );
+<span class="fc" id="L111">    }</span>
+    
+    @Test
     default void tools_assertInstantiateThrows_With() {
-<span class="fc" id="L93">        final IllegalArgumentException thrown = assertThrows(IllegalArgumentException.class, ()-&gt; {</span>
-<span class="nc" id="L94">            assertInstantiateThrows(null);</span>
-<span class="nc" id="L95">        });</span>
-<span class="fc" id="L96">        assertThrown(thrown);</span>
-<span class="fc" id="L97">    }</span>
+<span class="fc" id="L115">        final IllegalArgumentException thrown = assertThrows(IllegalArgumentException.class, ()-&gt; {</span>
+<span class="nc" id="L116">            assertInstantiateThrows(null);</span>
+<span class="nc" id="L117">        });</span>
+<span class="fc" id="L118">        assertThrown(thrown);</span>
+<span class="fc" id="L119">    }</span>
     
     @Test
     default void tools_assertInstantiate_WithPublic_Fails() {
-<span class="pc" id="L101">        assertFails(() -&gt; assertInstantiateThrows(String.class));</span>
-<span class="fc" id="L102">    }</span>
+<span class="pc" id="L123">        assertFails(() -&gt; assertInstantiateThrows(String.class));</span>
+<span class="fc" id="L124">    }</span>
     
     @Test
     default void tools_assertObject_WithNull_Fails() {
-<span class="pc" id="L106">        assertFails(()-&gt;assertObject(null));</span>
-<span class="fc" id="L107">    }</span>
+<span class="pc" id="L128">        assertFails(()-&gt;assertObject(null));</span>
+<span class="fc" id="L129">    }</span>
     
     @Test
     default void tools_assertObject_WithBadHashCode_Fails() {
-<span class="fc" id="L111">        final Object object = new Object() {</span>
-<span class="fc" id="L112">            private final AtomicInteger counter = new AtomicInteger();</span>
+<span class="fc" id="L133">        final Object object = new Object() {</span>
+<span class="fc" id="L134">            private final AtomicInteger counter = new AtomicInteger();</span>
             @Override
             public int hashCode() {
-<span class="fc" id="L115">                return counter.incrementAndGet();</span>
+<span class="fc" id="L137">                return counter.incrementAndGet();</span>
             }
         };
         
-<span class="pc" id="L119">        assertFails(()-&gt;assertObject(object));</span>
-<span class="fc" id="L120">    }</span>
+<span class="pc" id="L141">        assertFails(()-&gt;assertObject(object));</span>
+<span class="fc" id="L142">    }</span>
     
     @Test
     default void tools_assertObject_WithNullToString_Fails() {
-<span class="fc" id="L124">        final Object object = new Object() {</span>
+<span class="fc" id="L146">        final Object object = new Object() {</span>
             @Override
             public String toString() {
-<span class="fc" id="L127">                return null;</span>
+<span class="fc" id="L149">                return null;</span>
             }
         };
-<span class="pc" id="L130">        assertFails(()-&gt;assertObject(object));</span>
-<span class="fc" id="L131">    }</span>
+<span class="pc" id="L152">        assertFails(()-&gt;assertObject(object));</span>
+<span class="fc" id="L153">    }</span>
     
     @Test
     default void tools_assertObject_BadEquals_Fails() {
-<span class="fc" id="L135">        final Object object = new Object() {</span>
+<span class="fc" id="L157">        final Object object = new Object() {</span>
             @SuppressWarnings(&quot;EqualsDoesntCheckParameterClass&quot;)
             @Override
             public boolean equals(Object that) {
-<span class="fc bfc" id="L139" title="All 2 branches covered.">                return null == that;</span>
+<span class="fc bfc" id="L161" title="All 2 branches covered.">                return null == that;</span>
             }
             @Override
             public int hashCode() {
-<span class="fc" id="L143">                return 1;</span>
+<span class="fc" id="L165">                return 1;</span>
             }
         };
-<span class="pc" id="L146">        assertFails(()-&gt;assertObject(object));</span>
-<span class="fc" id="L147">    }</span>
+<span class="pc" id="L168">        assertFails(()-&gt;assertObject(object));</span>
+<span class="fc" id="L169">    }</span>
     
     @Test
     default void tools_assertObject_WithString_Passes() {
-<span class="fc" id="L151">        assertDoesNotThrow(() -&gt; {</span>
-<span class="fc" id="L152">            assertObject(&quot;abc&quot;);</span>
-<span class="fc" id="L153">        });</span>
-<span class="fc" id="L154">    }</span>
+<span class="fc" id="L173">        assertDoesNotThrow(() -&gt; {</span>
+<span class="fc" id="L174">            assertObject(&quot;abc&quot;);</span>
+<span class="fc" id="L175">        });</span>
+<span class="fc" id="L176">    }</span>
     
     @Test
     default void tools_sleep_WithNullDuration_Throws() {
-<span class="fc" id="L158">        final IllegalArgumentException thrown = assertThrows(IllegalArgumentException.class, ()-&gt; {</span>
-<span class="nc" id="L159">            Tools.sleep(null);</span>
-<span class="nc" id="L160">        });</span>
-<span class="fc" id="L161">        assertThrown(thrown);</span>
-<span class="fc" id="L162">    }</span>
+<span class="fc" id="L180">        final IllegalArgumentException thrown = assertThrows(IllegalArgumentException.class, ()-&gt; {</span>
+<span class="nc" id="L181">            Tools.sleep(null);</span>
+<span class="nc" id="L182">        });</span>
+<span class="fc" id="L183">        assertThrown(thrown);</span>
+<span class="fc" id="L184">    }</span>
     
     @ParameterizedTest(name = &quot;Duration {0} milliseconds&quot;)
     @ValueSource(ints = {0, 5, 10, 100, 200})
     default void tools_sleep_WithDuration(long milliseconds) {
-<span class="fc" id="L167">        final Duration expectedDuration = Duration.ofMillis(milliseconds);</span>
-<span class="fc" id="L168">        final Duration allowedDifference = Duration.ofMillis(10);</span>
-<span class="fc" id="L169">        final Instant start = Instant.now();</span>
+<span class="fc" id="L189">        final Duration expectedDuration = Duration.ofMillis(milliseconds);</span>
+<span class="fc" id="L190">        final Duration allowedDifference = Duration.ofMillis(10);</span>
+<span class="fc" id="L191">        final Instant start = Instant.now();</span>
         
-<span class="fc" id="L171">        Tools.sleep(expectedDuration);</span>
+<span class="fc" id="L193">        Tools.sleep(expectedDuration);</span>
         
-<span class="fc" id="L173">        final Duration actualDuration = Duration.between(start, Instant.now());</span>
+<span class="fc" id="L195">        final Duration actualDuration = Duration.between(start, Instant.now());</span>
         
-<span class="pc bpc" id="L175" title="1 of 2 branches missed.">        assertTrue(actualDuration.compareTo(expectedDuration) &gt;= 0);</span>
-<span class="pc bpc" id="L176" title="1 of 2 branches missed.">        assertTrue(actualDuration.minus(expectedDuration).compareTo(allowedDifference) &lt;= 0);</span>
-<span class="fc" id="L177">    }</span>
+<span class="pc bpc" id="L197" title="1 of 2 branches missed.">        assertTrue(actualDuration.compareTo(expectedDuration) &gt;= 0);</span>
+<span class="pc bpc" id="L198" title="1 of 2 branches missed.">        assertTrue(actualDuration.minus(expectedDuration).compareTo(allowedDifference) &lt;= 0);</span>
+<span class="fc" id="L199">    }</span>
     
     @ParameterizedTest(name = &quot;Duration {0} milliseconds&quot;)
     @ValueSource(ints = {-1, -2 })
     default void tools_sleep_WithInvalidDuration(long milliseconds) {
-<span class="fc" id="L182">        final Duration expectedDuration = Duration.ofMillis(milliseconds);</span>
-<span class="fc" id="L183">        final IllegalArgumentException thrown = assertThrows(IllegalArgumentException.class, () -&gt; {</span>
-<span class="nc" id="L184">            Tools.sleep(expectedDuration);</span>
-<span class="nc" id="L185">        });</span>
-<span class="fc" id="L186">        assertThrown(thrown);</span>
-<span class="fc" id="L187">    }</span>
+<span class="fc" id="L204">        final Duration expectedDuration = Duration.ofMillis(milliseconds);</span>
+<span class="fc" id="L205">        final IllegalArgumentException thrown = assertThrows(IllegalArgumentException.class, () -&gt; {</span>
+<span class="nc" id="L206">            Tools.sleep(expectedDuration);</span>
+<span class="nc" id="L207">        });</span>
+<span class="fc" id="L208">        assertThrown(thrown);</span>
+<span class="fc" id="L209">    }</span>
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>

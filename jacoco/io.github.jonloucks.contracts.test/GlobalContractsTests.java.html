@@ -2,68 +2,212 @@
 
 import io.github.jonloucks.contracts.api.*;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 
-import static io.github.jonloucks.contracts.api.Checks.nullCheck;
+import java.util.stream.Stream;
+
 import static io.github.jonloucks.contracts.test.Tools.*;
+import static java.util.Optional.ofNullable;
 import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
 @SuppressWarnings(&quot;CodeBlock2Expr&quot;)
 public interface GlobalContractsTests {
 
     @Test
-    default void contracts_Instantiate_Throws() {
-<span class="fc" id="L15">        assertInstantiateThrows(GlobalContracts.class);</span>
-<span class="fc" id="L16">    }</span>
+    default void globalContracts_Instantiate_Throws() {
+<span class="fc" id="L21">        assertInstantiateThrows(GlobalContracts.class);</span>
+<span class="fc" id="L22">    }</span>
     
     @Test
-    default void contracts_getInstance_Works() {
-<span class="fc" id="L20">        assertObject(GlobalContracts.getInstance());</span>
-<span class="fc" id="L21">    }</span>
+    default void globalContracts_getInstance_Works() {
+<span class="fc" id="L26">        assertObject(GlobalContracts.getInstance());</span>
+<span class="fc" id="L27">    }</span>
     
     @Test
-    default void contracts_claimContract_WithNullContract_Throws() {
-<span class="fc" id="L25">        final IllegalArgumentException thrown = assertThrows(IllegalArgumentException.class, () -&gt;  {</span>
-<span class="nc" id="L26">            GlobalContracts.claimContract(null);</span>
-<span class="nc" id="L27">        });</span>
+    default void globalContracts_claimContract_WithNullContract_Throws() {
+<span class="fc" id="L31">        final IllegalArgumentException thrown = assertThrows(IllegalArgumentException.class, () -&gt;  {</span>
+<span class="nc" id="L32">            GlobalContracts.claimContract(null);</span>
+<span class="nc" id="L33">        });</span>
 
-<span class="fc" id="L29">        assertThrown(thrown);</span>
-<span class="fc" id="L30">    }</span>
+<span class="fc" id="L35">        assertThrown(thrown);</span>
+<span class="fc" id="L36">    }</span>
     
     @Test
-    default void contracts_claimContract_WithUnknownContract_Throws() {
-<span class="fc" id="L34">        final Contract&lt;String&gt; contract = Contract.create(&quot;testContract&quot;);</span>
-<span class="fc" id="L35">        final ContractException thrown = assertThrows(ContractException.class, () -&gt;  {</span>
-<span class="nc" id="L36">            GlobalContracts.claimContract(contract);</span>
-<span class="nc" id="L37">        });</span>
+    default void globalContracts_claimContract_WithUnknownContract_Throws() {
+<span class="fc" id="L40">        final Contract&lt;String&gt; contract = Contract.create(&quot;testContract&quot;);</span>
+<span class="fc" id="L41">        final ContractException thrown = assertThrows(ContractException.class, () -&gt;  {</span>
+<span class="nc" id="L42">            GlobalContracts.claimContract(contract);</span>
+<span class="nc" id="L43">        });</span>
         
-<span class="fc" id="L39">        assertThrown(thrown);</span>
-<span class="fc" id="L40">    }</span>
+<span class="fc" id="L45">        assertThrown(thrown);</span>
+<span class="fc" id="L46">    }</span>
     
     @Test
-    default void contracts_claimContract_WithPromisedContract_Works() {
-<span class="fc" id="L44">        final Contract&lt;String&gt; contract = Contract.create(&quot;testContract&quot;);</span>
-<span class="fc" id="L45">        try (AutoClose releaseBinding = GlobalContracts.bindContract(contract, () -&gt; &quot;abc&quot;)){</span>
-<span class="fc" id="L46">            assertAll(</span>
-<span class="fc" id="L47">                () -&gt; assertNotNull(releaseBinding),</span>
-<span class="fc" id="L48">                () -&gt; assertSame(&quot;abc&quot;, GlobalContracts.claimContract(contract)));</span>
+    default void globalContracts_claimContract_WithPromisedContract_Works() {
+<span class="fc" id="L50">        final Contract&lt;String&gt; contract = Contract.create(&quot;testContract&quot;);</span>
+<span class="fc" id="L51">        try (AutoClose releaseBinding = GlobalContracts.bindContract(contract, () -&gt; &quot;abc&quot;)){</span>
+<span class="fc" id="L52">            assertAll(</span>
+<span class="fc" id="L53">                () -&gt; assertNotNull(releaseBinding),</span>
+<span class="fc" id="L54">                () -&gt; assertSame(&quot;abc&quot;, GlobalContracts.claimContract(contract)));</span>
         }
-<span class="fc" id="L50">    }</span>
+<span class="fc" id="L56">    }</span>
     
     @Test
-    default void contracts_isContractBound_WithUnboundContract_Works() {
-<span class="fc" id="L54">        final Contract&lt;String&gt; contract = Contract.create(&quot;testContract&quot;);</span>
+    default void globalContracts_isContractBound_WithUnboundContract_Works() {
+<span class="fc" id="L60">        final Contract&lt;String&gt; contract = Contract.create(&quot;testContract&quot;);</span>
         
-<span class="fc" id="L56">        assertFalse(GlobalContracts.isContractBound(contract), &quot;Unbound Contract was bound.&quot;);</span>
-<span class="fc" id="L57">    }</span>
+<span class="fc" id="L62">        assertFalse(GlobalContracts.isContractBound(contract), &quot;Unbound Contract was bound.&quot;);</span>
+<span class="fc" id="L63">    }</span>
     
     @Test
-    default void contracts_isContractBound_WithBoundContract_Works() {
-<span class="fc" id="L61">        final Contract&lt;String&gt; contract = Contract.create(&quot;testContract&quot;);</span>
+    default void globalContracts_isContractBound_WithBoundContract_Works() {
+<span class="fc" id="L67">        final Contract&lt;String&gt; contract = Contract.create(&quot;testContract&quot;);</span>
         
-<span class="pc" id="L63">        try (AutoClose closeBinding = GlobalContracts.bindContract(contract, () -&gt; &quot;abc&quot;)){</span>
-<span class="fc" id="L64">            final AutoClose ignored = closeBinding;</span>
-<span class="fc" id="L65">            assertTrue(GlobalContracts.isContractBound(contract), &quot;Unbound Contract was bound.&quot;);</span>
+<span class="pc" id="L69">        try (AutoClose closeBinding = GlobalContracts.bindContract(contract, () -&gt; &quot;abc&quot;)){</span>
+<span class="fc" id="L70">            final AutoClose ignored = closeBinding;</span>
+<span class="fc" id="L71">            assertTrue(GlobalContracts.isContractBound(contract), &quot;Unbound Contract was bound.&quot;);</span>
         }
-<span class="fc" id="L67">    }</span>
+<span class="fc" id="L73">    }</span>
+    
+    
+    @Test
+    default void globalContracts_DefaultConfig() {
+<span class="fc" id="L78">        final Contracts.Config config = new Contracts.Config() {};</span>
+        
+<span class="fc" id="L80">        assertAll(</span>
+<span class="fc" id="L81">            () -&gt; assertTrue(config.useReflection(), &quot;config.useReflection() default.&quot;),</span>
+<span class="fc" id="L82">            () -&gt; assertTrue(config.useServiceLoader(), &quot;config.useServiceLoader() default.&quot;),</span>
+<span class="fc" id="L83">            () -&gt; assertTrue(config.useShutdownHooks(), &quot;config.useShutdownHooks() default.&quot;),</span>
+<span class="fc" id="L84">            () -&gt; assertNotNull(config.reflectionClassName(), &quot;config.reflectionClassName() was null.&quot;)</span>
+        );
+<span class="fc" id="L86">    }</span>
+    
+    @ParameterizedTest
+    @MethodSource(&quot;io.github.jonloucks.contracts.test.GlobalContractsTests$GlobalContractsTestsTools#validConfigs&quot;)
+    default void globalContracts_HappyPath(Contracts.Config contractsConfig) {
+<span class="fc" id="L91">        final Contract&lt;String&gt; contract = Contract.create(&quot;string contract&quot;);</span>
+<span class="fc" id="L92">        final Contract&lt;String&gt; unboundContract = Contract.create(&quot;unbound string contract&quot;);</span>
+<span class="fc" id="L93">        final Contracts contracts = GlobalContracts.createContracts(contractsConfig);</span>
+        
+<span class="fc" id="L95">        assumeTrue(ofNullable(contracts).isPresent(), &quot;createContracts failed&quot;);</span>
+        
+<span class="fc" id="L97">        try (AutoClose closeContracts = contracts.open()) {</span>
+<span class="fc" id="L98">            final AutoClose ignored = closeContracts;</span>
+            
+<span class="fc" id="L100">            try (AutoClose closeBinding = contracts.bind(contract, () -&gt; &quot;hello&quot;)) {</span>
+<span class="fc" id="L101">                final AutoClose ignoredBinding = closeBinding;</span>
+<span class="fc" id="L102">                assertFalse(contracts.isBound(unboundContract), &quot;Contract should be bound.&quot;);</span>
+<span class="fc" id="L103">                assertTrue(contracts.isBound(contract), &quot;Contract should be bound.&quot;);</span>
+<span class="fc" id="L104">                assertEquals(&quot;hello&quot;, contracts.claim(contract), &quot;Claimed value should match.&quot;);</span>
+            }
+        }
+<span class="fc" id="L107">    }</span>
+    
+    @ParameterizedTest
+    @MethodSource(&quot;io.github.jonloucks.contracts.test.GlobalContractsTests$GlobalContractsTestsTools#invalidConfigs&quot;)
+    default void globalContracts_SadPath(Contracts.Config contractsConfig) {
+<span class="fc" id="L112">        final ContractException thrown = assertThrows(ContractException.class, () -&gt; {</span>
+<span class="nc" id="L113">            GlobalContracts.createContracts(contractsConfig);</span>
+<span class="nc" id="L114">        });</span>
+        
+<span class="fc" id="L116">        assertThrown(thrown);</span>
+<span class="fc" id="L117">    }</span>
+    
+    @Test
+    default void globalContracts_InternalCoverage() {
+<span class="fc" id="L121">        assertInstantiateThrows(GlobalContractsTestsTools.class);</span>
+<span class="fc" id="L122">    }</span>
+    
+    @SuppressWarnings(&quot;RedundantMethodOverride&quot;)
+    final class GlobalContractsTestsTools {
+<span class="fc" id="L126">        private GlobalContractsTestsTools() {</span>
+<span class="fc" id="L127">            throw new AssertionError(&quot;Illegal constructor&quot;);</span>
+        }
+        static Stream&lt;Arguments&gt; validConfigs() {
+<span class="fc" id="L130">            return Stream.of(</span>
+<span class="fc" id="L131">                Arguments.of(new Contracts.Config() {}),</span>
+<span class="fc" id="L132">                Arguments.of(new Contracts.Config() {</span>
+                    @Override
+                    public boolean useServiceLoader() {
+<span class="nc" id="L135">                        return false;</span>
+                    }
+                    @Override
+                    public boolean useReflection() {
+<span class="fc" id="L139">                        return true;</span>
+                    }
+                }),
+<span class="fc" id="L142">                Arguments.of(new Contracts.Config() {</span>
+                    @Override
+                    public boolean useServiceLoader() {
+<span class="fc" id="L145">                        return true;</span>
+                    }
+                    @Override
+                    public boolean useReflection() {
+<span class="fc" id="L149">                        return false;</span>
+                    }
+                })
+            );
+        }
+        
+        static Stream&lt;Arguments&gt; invalidConfigs() {
+<span class="fc" id="L156">            return Stream.of(</span>
+<span class="fc" id="L157">                Arguments.of(new Contracts.Config() {</span>
+                    @Override
+                    public boolean useServiceLoader() {
+<span class="fc" id="L160">                        return false;</span>
+                    }
+                    @Override
+                    public boolean useReflection() {
+<span class="fc" id="L164">                        return false;</span>
+                    }
+                }),
+<span class="fc" id="L167">                Arguments.of(new Contracts.Config() {</span>
+                    @Override
+                    public boolean useServiceLoader() {
+<span class="fc" id="L170">                        return true;</span>
+                    }
+                    @Override
+                    public boolean useReflection() {
+<span class="fc" id="L174">                        return false;</span>
+                    }
+                    @Override
+                    public Class&lt;? extends ContractsFactory&gt; serviceLoaderClass() {
+<span class="fc" id="L178">                        return BadContractsFactory.class;</span>
+                    }
+                }),
+<span class="fc" id="L181">                Arguments.of(new Contracts.Config() {</span>
+                    @Override
+                    public boolean useServiceLoader() {
+<span class="fc" id="L184">                        return false;</span>
+                    }
+                    @Override
+                    public boolean useReflection() {
+<span class="fc" id="L188">                        return true;</span>
+                    }
+                    @Override
+                    public String reflectionClassName() {
+<span class="fc" id="L192">                        return BadContractsFactory.class.getName();</span>
+                    }
+                }),
+<span class="fc" id="L195">                Arguments.of(new Contracts.Config() {</span>
+                    @Override
+                    public boolean useServiceLoader() {
+<span class="fc" id="L198">                        return false;</span>
+                    }
+                    @Override
+                    public boolean useReflection() {
+<span class="fc" id="L202">                        return true;</span>
+                    }
+                    @Override
+                    public String reflectionClassName() {
+<span class="fc" id="L206">                        return &quot;&quot;;</span>
+                    }
+                })
+            );
+        }
+    }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>

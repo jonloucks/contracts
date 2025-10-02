@@ -11,112 +11,110 @@ import java.util.function.Supplier;
 import static io.github.jonloucks.contracts.api.Checks.*;
 import static java.util.Optional.ofNullable;
 
+/**
+ * Implementation for {@link io.github.jonloucks.contracts.api.Contracts}
+ * @see io.github.jonloucks.contracts.api.Contracts
+ */
 final class ContractsImpl implements Contracts, AutoClose  {
 
     @Override
     public AutoClose open() {
-<span class="fc bfc" id="L18" title="All 2 branches covered.">        if (openState.transitionToOpen()) {</span>
-<span class="fc" id="L19">            closeRepository = respository.open();</span>
-<span class="fc" id="L20">            return this;</span>
+<span class="fc bfc" id="L22" title="All 2 branches covered.">        if (openState.transitionToOpen()) {</span>
+<span class="fc" id="L23">            closeRepository = repository.open();</span>
+<span class="fc" id="L24">            return this;</span>
         }
-<span class="fc" id="L22">        return ()-&gt;{};</span>
+<span class="fc" id="L26">        return ()-&gt;{};</span>
     }
     
     @Override
     public void close() {
-<span class="fc bfc" id="L27" title="All 2 branches covered.">        if (openState.transitionToClosed()) {</span>
+<span class="fc bfc" id="L31" title="All 2 branches covered.">        if (openState.transitionToClosed()) {</span>
             try {
-<span class="fc bfc" id="L29" title="All 2 branches covered.">                for (int attempts = 1, broken = breakAllBindings(); broken &gt; 0; broken = breakAllBindings(), attempts++) {</span>
-<span class="fc bfc" id="L30" title="All 2 branches covered.">                    if (attempts &gt; 5) {</span>
-<span class="fc" id="L31">                        throw newCloseDidNotCompleteException();</span>
+<span class="fc bfc" id="L33" title="All 2 branches covered.">                for (int attempts = 1, broken = breakAllBindings(); broken &gt; 0; broken = breakAllBindings(), attempts++) {</span>
+<span class="fc bfc" id="L34" title="All 2 branches covered.">                    if (attempts &gt; 5) {</span>
+<span class="fc" id="L35">                        throw newCloseDidNotCompleteException();</span>
                     }
                 }
             } finally {
-<span class="fc" id="L35">                ofNullable(closeRepository).ifPresent( close -&gt; {</span>
-<span class="fc" id="L36">                    closeRepository = null;</span>
-<span class="fc" id="L37">                    close.close();</span>
-<span class="fc" id="L38">                });</span>
+<span class="fc" id="L39">                ofNullable(closeRepository).ifPresent( close -&gt; {</span>
+<span class="fc" id="L40">                    closeRepository = null;</span>
+<span class="fc" id="L41">                    close.close();</span>
+<span class="fc" id="L42">                });</span>
 
             }
         }
-<span class="fc" id="L42">    }</span>
+<span class="fc" id="L46">    }</span>
 
     @Override
     public &lt;T&gt; T claim(Contract&lt;T&gt; contract) {
-<span class="fc" id="L46">        final Contract&lt;T&gt; validContract = contractCheck(contract);</span>
+<span class="fc" id="L50">        final Contract&lt;T&gt; validContract = contractCheck(contract);</span>
         
-<span class="fc" id="L48">        final Object deliverable = getFromPromisorMap(validContract)</span>
-<span class="fc" id="L49">            .orElseThrow(() -&gt; newContractNotPromisedException(validContract))</span>
-<span class="fc" id="L50">            .demand();</span>
+<span class="fc" id="L52">        final Object deliverable = getFromPromisorMap(validContract)</span>
+<span class="fc" id="L53">            .orElseThrow(() -&gt; newContractNotPromisedException(validContract))</span>
+<span class="fc" id="L54">            .demand();</span>
         
-<span class="fc" id="L52">        return validContract.cast(deliverable);</span>
+<span class="fc" id="L56">        return validContract.cast(deliverable);</span>
     }
     
     @Override
     public &lt;T&gt; boolean isBound(Contract&lt;T&gt; contract) {
-<span class="fc" id="L57">        final Contract&lt;?&gt; validContract = contractCheck(contract);</span>
+<span class="fc" id="L61">        final Contract&lt;?&gt; validContract = contractCheck(contract);</span>
         
-<span class="fc" id="L59">        return getFromPromisorMap(validContract).isPresent();</span>
+<span class="fc" id="L63">        return getFromPromisorMap(validContract).isPresent();</span>
     }
     
     @Override
     public &lt;T&gt; AutoClose bind(Contract&lt;T&gt; contract, Promisor&lt;T&gt; promisor) {
-<span class="fc" id="L64">        final Contract&lt;T&gt; validContract = contractCheck(contract);</span>
-<span class="fc" id="L65">        final Promisor&lt;T&gt; validPromisor = promisorCheck(promisor);</span>
+<span class="fc" id="L68">        final Contract&lt;T&gt; validContract = contractCheck(contract);</span>
+<span class="fc" id="L69">        final Promisor&lt;T&gt; validPromisor = promisorCheck(promisor);</span>
         
-<span class="fc" id="L67">        checkNewBinding(validContract, validPromisor);</span>
+<span class="fc" id="L71">        checkNewBinding(validContract, validPromisor);</span>
         
-<span class="fc" id="L69">        return makeBinding(validContract, validPromisor);</span>
+<span class="fc" id="L73">        return makeBinding(validContract, validPromisor);</span>
     }
     
-<span class="fc" id="L72">    private final IdempotentImpl openState = new IdempotentImpl();</span>
-<span class="fc" id="L73">    private final ReentrantReadWriteLock mapLock = new ReentrantReadWriteLock();</span>
-<span class="fc" id="L74">    private final LinkedHashMap&lt;Contract&lt;?&gt;, Promisor&lt;?&gt;&gt; promisorMap = new LinkedHashMap&lt;&gt;();</span>
-<span class="fc" id="L75">    private final RepositoryImpl respository = new RepositoryImpl(this);</span>
-    private AutoClose closeRepository;
-    
-<span class="fc" id="L78">    ContractsImpl(Contracts.Config config) {</span>
-<span class="fc" id="L79">        final Contracts.Config validConfig = nullCheck(config, &quot;config was null&quot;);</span>
+<span class="fc" id="L76">    ContractsImpl(Contracts.Config config) {</span>
+<span class="fc" id="L77">        final Contracts.Config validConfig = nullCheck(config, &quot;config was null&quot;);</span>
         
         // keeping the promises open permanently
-<span class="fc" id="L82">        respository.store(Promisors.CONTRACT, PromisorsImpl::new);</span>
-<span class="fc" id="L83">        respository.store(Repository.FACTORY, () -&gt; () -&gt; new RepositoryImpl(this));</span>
+<span class="fc" id="L80">        repository.store(Promisors.CONTRACT, PromisorsImpl::new);</span>
+<span class="fc" id="L81">        repository.store(Repository.FACTORY, () -&gt; () -&gt; new RepositoryImpl(this));</span>
         
-<span class="pc bpc" id="L85" title="1 of 2 branches missed.">        if (validConfig.useShutdownHooks()) {</span>
-<span class="fc" id="L86">            Runtime.getRuntime().addShutdownHook(new Thread(this::close));</span>
+<span class="fc bfc" id="L83" title="All 2 branches covered.">        if (validConfig.useShutdownHooks()) {</span>
+<span class="fc" id="L84">            Runtime.getRuntime().addShutdownHook(new Thread(this::close));</span>
         }
-<span class="fc" id="L88">    }</span>
+<span class="fc" id="L86">    }</span>
     
     private void checkNewBinding(Contract&lt;?&gt; contract, Promisor&lt;?&gt; promisor) {
-<span class="fc" id="L91">        getFromPromisorMap(contract).ifPresent(currentPromisor -&gt; {</span>
+<span class="fc" id="L89">        getFromPromisorMap(contract).ifPresent(currentPromisor -&gt; {</span>
             // This check is required.
             // It prohibits the redundant caller from being able to release
             // the previous binding.
             // It is not benign and could create unexpected behaviours.
-<span class="fc bfc" id="L96" title="All 2 branches covered.">            if (currentPromisor == promisor) {</span>
-<span class="fc" id="L97">                throw newContractDuplicateBindException(contract);</span>
+<span class="fc bfc" id="L94" title="All 2 branches covered.">            if (currentPromisor == promisor) {</span>
+<span class="fc" id="L95">                throw newContractDuplicateBindException(contract);</span>
             }
-<span class="fc bfc" id="L99" title="All 2 branches covered.">            if (!contract.isReplaceable()) {</span>
-<span class="fc" id="L100">                throw newContractNotReplaceableException(contract);</span>
+<span class="fc bfc" id="L97" title="All 2 branches covered.">            if (!contract.isReplaceable()) {</span>
+<span class="fc" id="L98">                throw newContractNotReplaceableException(contract);</span>
             }
-<span class="fc" id="L102">        });</span>
-<span class="fc" id="L103">    }</span>
+<span class="fc" id="L100">        });</span>
+<span class="fc" id="L101">    }</span>
     
     private &lt;T&gt; AutoClose makeBinding(Contract&lt;T&gt; contract, Promisor&lt;T&gt; promisor) {
         // Since ReentrantReadWriteLock does not support lock upgrade, there are opportunities
         // for changes by other threads between the reads and writes.
         // This is mitigated by always incrementing the new value and decrementing the old value.
-<span class="fc" id="L109">        promisor.incrementUsage();</span>
-<span class="fc" id="L110">        return applyWithLock(mapLock.writeLock(), () -&gt; {</span>
-<span class="fc" id="L111">            ofNullable(promisorMap.put(contract, promisor)).ifPresent(Promisor::decrementUsage);</span>
+<span class="fc" id="L107">        promisor.incrementUsage();</span>
+<span class="fc" id="L108">        return applyWithLock(mapLock.writeLock(), () -&gt; {</span>
+<span class="fc" id="L109">            ofNullable(promisorMap.put(contract, promisor)).ifPresent(Promisor::decrementUsage);</span>
             
-<span class="fc" id="L113">            final IdempotentImpl breakBindingOnce = new IdempotentImpl();</span>
-<span class="fc" id="L114">            breakBindingOnce.transitionToOpen();</span>
-<span class="fc" id="L115">            return () -&gt; {</span>
-<span class="fc bfc" id="L116" title="All 2 branches covered.">              if (breakBindingOnce.transitionToClosed()) {</span>
-<span class="fc" id="L117">                  breakBinding(contract, promisor);</span>
+<span class="fc" id="L111">            final IdempotentImpl breakBindingOnce = new IdempotentImpl();</span>
+<span class="fc" id="L112">            breakBindingOnce.transitionToOpen();</span>
+<span class="fc" id="L113">            return () -&gt; {</span>
+<span class="fc bfc" id="L114" title="All 2 branches covered.">              if (breakBindingOnce.transitionToClosed()) {</span>
+<span class="fc" id="L115">                  breakBinding(contract, promisor);</span>
               }
-<span class="fc" id="L119">            };</span>
+<span class="fc" id="L117">            };</span>
         });
     }
     
@@ -127,30 +125,30 @@ final class ContractsImpl implements Contracts, AutoClose  {
         //   2. Not calling decrementUsage enough times
         // decrementing usage too many times.
         try {
-<span class="fc" id="L130">            removeFromPromisorMap(contract, promisor);</span>
+<span class="fc" id="L128">            removeFromPromisorMap(contract, promisor);</span>
         } finally {
-<span class="fc" id="L132">            promisor.decrementUsage();</span>
+<span class="fc" id="L130">            promisor.decrementUsage();</span>
         }
-<span class="fc" id="L134">    }</span>
+<span class="fc" id="L132">    }</span>
     
     private void removeFromPromisorMap(Contract&lt;?&gt; contract, Promisor&lt;?&gt; promisor) {
-<span class="fc" id="L137">        applyWithLock(mapLock.writeLock(), () -&gt; promisorMap.remove(contract, promisor));</span>
-<span class="fc" id="L138">    }</span>
+<span class="fc" id="L135">        applyWithLock(mapLock.writeLock(), () -&gt; promisorMap.remove(contract, promisor));</span>
+<span class="fc" id="L136">    }</span>
     
     private &lt;T&gt; Optional&lt;Promisor&lt;?&gt;&gt; getFromPromisorMap(Contract&lt;T&gt; validContract) {
-<span class="fc" id="L141">        return ofNullable(applyWithLock(mapLock.readLock(), () -&gt; promisorMap.get(validContract)));</span>
+<span class="fc" id="L139">        return ofNullable(applyWithLock(mapLock.readLock(), () -&gt; promisorMap.get(validContract)));</span>
     }
     
     private int breakAllBindings() {
-<span class="fc" id="L145">        final Stack&lt;Contract&lt;?&gt;&gt; contracts = new Stack&lt;&gt;();</span>
-<span class="fc" id="L146">        final Stack&lt;Promisor&lt;?&gt;&gt; promisors = new Stack&lt;&gt;();</span>
+<span class="fc" id="L143">        final Stack&lt;Contract&lt;?&gt;&gt; contracts = new Stack&lt;&gt;();</span>
+<span class="fc" id="L144">        final Stack&lt;Promisor&lt;?&gt;&gt; promisors = new Stack&lt;&gt;();</span>
         
-<span class="fc" id="L148">        final int contractCount = copyBindings(contracts, promisors);</span>
+<span class="fc" id="L146">        final int contractCount = copyBindings(contracts, promisors);</span>
         
-<span class="fc bfc" id="L150" title="All 2 branches covered.">        while (!contracts.isEmpty()) {</span>
-<span class="fc" id="L151">            breakBinding(contracts.pop(), promisors.pop());</span>
+<span class="fc bfc" id="L148" title="All 2 branches covered.">        while (!contracts.isEmpty()) {</span>
+<span class="fc" id="L149">            breakBinding(contracts.pop(), promisors.pop());</span>
         }
-<span class="fc" id="L153">        return contractCount;</span>
+<span class="fc" id="L151">        return contractCount;</span>
     }
     
     private int copyBindings(Stack&lt;Contract&lt;?&gt;&gt; contracts, Stack&lt;Promisor&lt;?&gt;&gt; promisors) {
@@ -158,40 +156,46 @@ final class ContractsImpl implements Contracts, AutoClose  {
         // The following attains the write lock to attain all the current keys and values
         // in the reverse order from insertion.
         // The last to be inserted is the first to be removed.
-<span class="fc" id="L161">        final AtomicInteger contractCount = new AtomicInteger();</span>
-<span class="fc" id="L162">        return applyWithLock(mapLock.writeLock(), () -&gt; {</span>
-<span class="fc" id="L163">            promisorMap.forEach((contract, promisor) -&gt; {</span>
-<span class="fc" id="L164">                contracts.push(contract);</span>
-<span class="fc" id="L165">                promisors.push(promisor);</span>
-<span class="fc" id="L166">                contractCount.incrementAndGet();</span>
-<span class="fc" id="L167">            });</span>
-<span class="fc" id="L168">            return contractCount.get();</span>
+<span class="fc" id="L159">        final AtomicInteger contractCount = new AtomicInteger();</span>
+<span class="fc" id="L160">        return applyWithLock(mapLock.writeLock(), () -&gt; {</span>
+<span class="fc" id="L161">            promisorMap.forEach((contract, promisor) -&gt; {</span>
+<span class="fc" id="L162">                contracts.push(contract);</span>
+<span class="fc" id="L163">                promisors.push(promisor);</span>
+<span class="fc" id="L164">                contractCount.incrementAndGet();</span>
+<span class="fc" id="L165">            });</span>
+<span class="fc" id="L166">            return contractCount.get();</span>
         });
     }
     
     private &lt;T&gt; T applyWithLock(Lock requestedLock, Supplier&lt;T&gt; block) {
-<span class="fc" id="L173">        requestedLock.lock();</span>
+<span class="fc" id="L171">        requestedLock.lock();</span>
         try {
-<span class="fc" id="L175">            return block.get();</span>
+<span class="fc" id="L173">            return block.get();</span>
         } finally {
-<span class="fc" id="L177">            requestedLock.unlock();</span>
+<span class="fc" id="L175">            requestedLock.unlock();</span>
         }
     }
     
     private static ContractException newCloseDidNotCompleteException() {
-<span class="fc" id="L182">        return new ContractException(&quot;Contracts failed to close after trying multiple times&quot;);</span>
+<span class="fc" id="L180">        return new ContractException(&quot;Contracts failed to close after trying multiple times&quot;);</span>
     }
     
     private static &lt;T&gt; ContractException newContractNotPromisedException(Contract&lt;T&gt; contract) {
-<span class="fc" id="L186">        return new ContractException(&quot;Contract &quot; + contract + &quot; was not promised&quot;);</span>
+<span class="fc" id="L184">        return new ContractException(&quot;Contract &quot; + contract + &quot; was not promised&quot;);</span>
     }
     
     private static &lt;T&gt; ContractException newContractNotReplaceableException(Contract&lt;T&gt; contract) {
-<span class="fc" id="L190">        return new ContractException(&quot;Contract &quot; + contract + &quot; is not replaceable&quot;);</span>
+<span class="fc" id="L188">        return new ContractException(&quot;Contract &quot; + contract + &quot; is not replaceable&quot;);</span>
     }
     
     private static &lt;T&gt; ContractException newContractDuplicateBindException(Contract&lt;T&gt; contract) {
-<span class="fc" id="L194">        return new ContractException(&quot;Contract &quot; + contract + &quot; duplicated bindings not allowed&quot;);</span>
+<span class="fc" id="L192">        return new ContractException(&quot;Contract &quot; + contract + &quot; duplicated bindings not allowed&quot;);</span>
     }
+    
+<span class="fc" id="L195">    private final IdempotentImpl openState = new IdempotentImpl();</span>
+<span class="fc" id="L196">    private final ReentrantReadWriteLock mapLock = new ReentrantReadWriteLock();</span>
+<span class="fc" id="L197">    private final LinkedHashMap&lt;Contract&lt;?&gt;, Promisor&lt;?&gt;&gt; promisorMap = new LinkedHashMap&lt;&gt;();</span>
+<span class="fc" id="L198">    private final RepositoryImpl repository = new RepositoryImpl(this);</span>
+    private AutoClose closeRepository;
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>

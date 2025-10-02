@@ -3,6 +3,7 @@
 import io.github.jonloucks.contracts.api.ContractException;
 import org.junit.jupiter.api.Test;
 
+import static io.github.jonloucks.contracts.test.Tools.assertIsSerializable;
 import static io.github.jonloucks.contracts.test.Tools.assertThrown;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -11,26 +12,31 @@ public interface ExceptionTests {
     
     @Test
     default void exception_ContractException_WithNullMessage_Throws() {
-<span class="fc" id="L14">        final IllegalArgumentException thrown = assertThrows(IllegalArgumentException.class, () -&gt; {</span>
-<span class="nc" id="L15">            new ContractException(null);</span>
-<span class="nc" id="L16">        });</span>
+<span class="fc" id="L15">        final IllegalArgumentException thrown = assertThrows(IllegalArgumentException.class, () -&gt; {</span>
+<span class="nc" id="L16">            new ContractException(null);</span>
+<span class="nc" id="L17">        });</span>
         
-<span class="fc" id="L18">        assertThrown(thrown);</span>
-<span class="fc" id="L19">    }</span>
+<span class="fc" id="L19">        assertThrown(thrown);</span>
+<span class="fc" id="L20">    }</span>
+    
+    @Test
+    default void exception_ContractException_IsSerializable() {
+<span class="fc" id="L24">        assertIsSerializable(ContractException.class);</span>
+<span class="fc" id="L25">    }</span>
     
     @Test
     default void exception_ContractException_WithValid_Works() {
-<span class="fc" id="L23">        final ContractException exception = new ContractException(&quot;abc&quot;);</span>
+<span class="fc" id="L29">        final ContractException exception = new ContractException(&quot;abc&quot;);</span>
         
-<span class="fc" id="L25">        Tools.assertThrown(exception, &quot;abc&quot;);</span>
-<span class="fc" id="L26">    }</span>
+<span class="fc" id="L31">        assertThrown(exception, &quot;abc&quot;);</span>
+<span class="fc" id="L32">    }</span>
     
     @Test
     default void exception_ContractException_WithCause_Works() {
-<span class="fc" id="L30">        final OutOfMemoryError cause = new OutOfMemoryError(&quot;memory&quot;);</span>
-<span class="fc" id="L31">        final ContractException exception = new ContractException(&quot;abc&quot;, cause);</span>
+<span class="fc" id="L36">        final OutOfMemoryError cause = new OutOfMemoryError(&quot;memory&quot;);</span>
+<span class="fc" id="L37">        final ContractException exception = new ContractException(&quot;abc&quot;, cause);</span>
         
-<span class="fc" id="L33">        assertThrown(exception, cause, &quot;abc&quot;);</span>
-<span class="fc" id="L34">    }</span>
+<span class="fc" id="L39">        assertThrown(exception, cause, &quot;abc&quot;);</span>
+<span class="fc" id="L40">    }</span>
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>

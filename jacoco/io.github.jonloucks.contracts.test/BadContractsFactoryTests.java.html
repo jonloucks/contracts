@@ -9,23 +9,23 @@ import java.lang.reflect.Modifier;
 import static io.github.jonloucks.contracts.test.Tools.assertObject;
 import static org.junit.jupiter.api.Assertions.*;
 
+@SuppressWarnings(&quot;CodeBlock2Expr&quot;)
 public interface BadContractsFactoryTests {
     @Test
     default void badContractsFactory_HasProtectedConstructor() throws Throwable {
-<span class="fc" id="L15">        final Class&lt;?&gt; klass = Class.forName(BadContractsFactory.class.getCanonicalName());</span>
-<span class="fc" id="L16">        final Constructor&lt;?&gt; constructor = klass.getDeclaredConstructor();</span>
-<span class="fc" id="L17">        constructor.setAccessible(true);</span>
-<span class="fc" id="L18">        final int modifiers = constructor.getModifiers();</span>
+<span class="fc" id="L16">        final Class&lt;?&gt; klass = Class.forName(BadContractsFactory.class.getCanonicalName());</span>
+<span class="fc" id="L17">        final Constructor&lt;?&gt; constructor = klass.getDeclaredConstructor();</span>
+<span class="fc" id="L18">        constructor.setAccessible(true);</span>
+<span class="fc" id="L19">        final int modifiers = constructor.getModifiers();</span>
         
-<span class="fc" id="L20">        assertFalse(Modifier.isPublic(modifiers), &quot;constructor should not be public.&quot;);</span>
-<span class="fc" id="L21">    }</span>
+<span class="fc" id="L21">        assertFalse(Modifier.isPublic(modifiers), &quot;constructor should not be public.&quot;);</span>
+<span class="fc" id="L22">    }</span>
     
     @Test
     default void badContractsFactory_HasPrivateConstructor() throws Throwable {
-<span class="fc" id="L25">        final BadContractsFactory badContractsFactory = new BadContractsFactory();</span>
-<span class="fc" id="L26">        final Contracts.Config config = new Contracts.Config(){};</span>
-<span class="fc" id="L27">        final Exception thrown = assertThrows(Exception.class, () -&gt; {</span>
-            //noinspection resource
+<span class="fc" id="L26">        final BadContractsFactory badContractsFactory = new BadContractsFactory();</span>
+<span class="fc" id="L27">        final Contracts.Config config = new Contracts.Config(){};</span>
+<span class="fc" id="L28">        final Exception thrown = assertThrows(Exception.class, () -&gt; {</span>
 <span class="nc" id="L29">            badContractsFactory.create(config);</span>
 <span class="nc" id="L30">        });</span>
         

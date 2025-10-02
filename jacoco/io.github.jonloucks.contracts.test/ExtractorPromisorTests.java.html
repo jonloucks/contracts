@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ExtractorPromisorTests.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">contracts</a> &gt; <a href="index.source.html" class="el_package">io.github.jonloucks.contracts.test</a> &gt; <span class="el_source">ExtractorPromisorTests.java</span></div><h1>ExtractorPromisorTests.java</h1><pre class="source lang-java linenums">package io.github.jonloucks.contracts.test;
 
-import io.github.jonloucks.contracts.api.GlobalContracts;
 import io.github.jonloucks.contracts.api.Promisor;
 import io.github.jonloucks.contracts.api.Promisors;
 import org.junit.jupiter.api.Test;
@@ -11,6 +10,7 @@ import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
 
 import static io.github.jonloucks.contracts.test.Tools.assertThrown;
+import static io.github.jonloucks.contracts.test.Tools.withContracts;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
@@ -20,51 +20,57 @@ public interface ExtractorPromisorTests {
     
     @Test
     default void extractPromisor_NullReferent_Throws() {
-<span class="fc" id="L23">        final Promisors promisors = GlobalContracts.claimContract(Promisors.CONTRACT);</span>
-        
-<span class="fc" id="L25">        final IllegalArgumentException thrown = assertThrows(IllegalArgumentException.class, () -&gt;</span>
-<span class="nc" id="L26">            promisors.createExtractPromisor(null, t -&gt; &quot;xyz&quot;)</span>
-        );
-        
-<span class="fc" id="L29">        assertThrown(thrown);</span>
-<span class="fc" id="L30">    }</span>
+<span class="fc" id="L23">        withContracts(contracts -&gt; {</span>
+<span class="fc" id="L24">            final Promisors promisors = contracts.claim(Promisors.CONTRACT);</span>
+            
+<span class="fc" id="L26">            final IllegalArgumentException thrown = assertThrows(IllegalArgumentException.class, () -&gt;</span>
+<span class="nc" id="L27">                promisors.createExtractPromisor(null, t -&gt; &quot;xyz&quot;)</span>
+            );
+            
+<span class="fc" id="L30">            assertThrown(thrown);</span>
+<span class="fc" id="L31">        });</span>
+<span class="fc" id="L32">    }</span>
     
     @Test
     default void extractPromisor_NullRecast_Throws() {
-<span class="fc" id="L34">        final Promisors promisors = GlobalContracts.claimContract(Promisors.CONTRACT);</span>
-        
-<span class="fc" id="L36">        final IllegalArgumentException thrown = assertThrows(IllegalArgumentException.class, () -&gt;</span>
-<span class="nc" id="L37">            promisors.createExtractPromisor(() -&gt; &quot;abc&quot;, null)</span>
-        );
-        
-<span class="fc" id="L40">        assertThrown(thrown);</span>
-<span class="fc" id="L41">    }</span>
+<span class="fc" id="L36">        withContracts(contracts -&gt; {</span>
+<span class="fc" id="L37">            final Promisors promisors = contracts.claim(Promisors.CONTRACT);</span>
+            
+<span class="fc" id="L39">            final IllegalArgumentException thrown = assertThrows(IllegalArgumentException.class, () -&gt;</span>
+<span class="nc" id="L40">                promisors.createExtractPromisor(() -&gt; &quot;abc&quot;, null)</span>
+            );
+            
+<span class="fc" id="L43">            assertThrown(thrown);</span>
+<span class="fc" id="L44">        });</span>
+<span class="fc" id="L45">    }</span>
     
     @Test
     default void extractPromisor_Valid_Works(@Mock Promisor&lt;Decoy&lt;Integer&gt;&gt; referent, @Mock Decoy&lt;Integer&gt; deliverable) {
-<span class="fc" id="L45">        final int usages = 5;</span>
-<span class="fc" id="L46">        final Promisors promisors = GlobalContracts.claimContract(Promisors.CONTRACT);</span>
-<span class="fc" id="L47">        when(referent.demand()).thenReturn(deliverable);</span>
-<span class="fc" id="L48">        final Promisor&lt;String&gt; promisor = promisors.createExtractPromisor(referent, c -&gt; &quot;abc&quot;);</span>
-        
-<span class="fc" id="L50">        assertNotNull(promisor, &quot;should not return null.&quot;);</span>
-        
-<span class="fc bfc" id="L52" title="All 2 branches covered.">        for (int i = 0; i &lt; usages; i++) {</span>
-<span class="fc" id="L53">            promisor.incrementUsage();</span>
-        }
-<span class="fc bfc" id="L55" title="All 2 branches covered.">        for (int i = 0; i &lt; usages; i++) {</span>
-<span class="fc" id="L56">            promisor.decrementUsage();</span>
-        }
-        
-<span class="fc" id="L59">        assertAll(</span>
-<span class="fc" id="L60">            () -&gt; assertSame(&quot;abc&quot;, promisor.demand(), &quot;deliverables should match.&quot;),</span>
-<span class="fc" id="L61">            () -&gt; verify(referent, times(usages)).decrementUsage(),</span>
-<span class="fc" id="L62">            () -&gt; verify(referent, times(usages)).incrementUsage(),</span>
-<span class="fc" id="L63">            () -&gt; verify(deliverable, never()).incrementUsage(),</span>
-<span class="fc" id="L64">            () -&gt; verify(deliverable, never()).decrementUsage(),</span>
-<span class="fc" id="L65">            () -&gt; verify(deliverable, never()).open(),</span>
-<span class="fc" id="L66">            () -&gt; verify(deliverable, never()).close()</span>
-        );
-<span class="fc" id="L68">    }</span>
+<span class="fc" id="L49">        withContracts(contracts -&gt; {</span>
+<span class="fc" id="L50">            final int usages = 5;</span>
+<span class="fc" id="L51">            final Promisors promisors = contracts.claim(Promisors.CONTRACT);</span>
+<span class="fc" id="L52">            when(referent.demand()).thenReturn(deliverable);</span>
+<span class="fc" id="L53">            final Promisor&lt;String&gt; promisor = promisors.createExtractPromisor(referent, c -&gt; &quot;abc&quot;);</span>
+            
+<span class="fc" id="L55">            assertNotNull(promisor, &quot;should not return null.&quot;);</span>
+            
+<span class="fc bfc" id="L57" title="All 2 branches covered.">            for (int i = 0; i &lt; usages; i++) {</span>
+<span class="fc" id="L58">                promisor.incrementUsage();</span>
+            }
+<span class="fc bfc" id="L60" title="All 2 branches covered.">            for (int i = 0; i &lt; usages; i++) {</span>
+<span class="fc" id="L61">                promisor.decrementUsage();</span>
+            }
+            
+<span class="fc" id="L64">            assertAll(</span>
+<span class="fc" id="L65">                () -&gt; assertSame(&quot;abc&quot;, promisor.demand(), &quot;deliverables should match.&quot;),</span>
+<span class="fc" id="L66">                () -&gt; verify(referent, times(usages)).decrementUsage(),</span>
+<span class="fc" id="L67">                () -&gt; verify(referent, times(usages)).incrementUsage(),</span>
+<span class="fc" id="L68">                () -&gt; verify(deliverable, never()).incrementUsage(),</span>
+<span class="fc" id="L69">                () -&gt; verify(deliverable, never()).decrementUsage(),</span>
+<span class="fc" id="L70">                () -&gt; verify(deliverable, never()).open(),</span>
+<span class="fc" id="L71">                () -&gt; verify(deliverable, never()).close()</span>
+            );
+<span class="fc" id="L73">        });</span>
+<span class="fc" id="L74">    }</span>
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>

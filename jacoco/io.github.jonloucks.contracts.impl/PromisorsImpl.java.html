@@ -5,30 +5,34 @@ import io.github.jonloucks.contracts.api.Promisor;
 
 import java.util.function.Function;
 
+/**
+ * Implementation for {@link io.github.jonloucks.contracts.api.Promisors}
+ * @see io.github.jonloucks.contracts.api.Promisors
+ */
 final class PromisorsImpl implements Promisors {
     
     @Override
     public &lt;T&gt; Promisor&lt;T&gt; createValuePromisor(T deliverable) {
-<span class="fc" id="L12">        return () -&gt; deliverable;</span>
+<span class="fc" id="L16">        return () -&gt; deliverable;</span>
     }
     
     @Override
     public &lt;T&gt; Promisor&lt;T&gt; createSingletonPromisor(Promisor&lt;T&gt; promisor) {
-<span class="fc" id="L17">        return new SingletonPromisorImpl&lt;&gt;(promisor);</span>
+<span class="fc" id="L21">        return new SingletonPromisorImpl&lt;&gt;(promisor);</span>
     }
     
     @Override
     public &lt;T&gt; Promisor&lt;T&gt; createLifeCyclePromisor(Promisor&lt;T&gt; promisor) {
-<span class="fc" id="L22">        return new LifeCyclePromisorImpl&lt;&gt;(promisor);</span>
+<span class="fc" id="L26">        return new LifeCyclePromisorImpl&lt;&gt;(promisor);</span>
     }
     
     @Override
     public &lt;T, R&gt; Promisor&lt;R&gt; createExtractPromisor(Promisor&lt;T&gt; promisor, Function&lt;T, R&gt; extractor) {
-<span class="fc" id="L27">        return new ExtractPromisorImpl&lt;&gt;(promisor, extractor);</span>
+<span class="fc" id="L31">        return new ExtractPromisorImpl&lt;&gt;(promisor, extractor);</span>
     }
     
-<span class="fc" id="L30">    PromisorsImpl() {</span>
+<span class="fc" id="L34">    PromisorsImpl() {</span>
     
-<span class="fc" id="L32">    }</span>
+<span class="fc" id="L36">    }</span>
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>

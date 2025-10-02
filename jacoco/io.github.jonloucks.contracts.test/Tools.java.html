@@ -1,17 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Tools.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">contracts</a> &gt; <a href="index.source.html" class="el_package">io.github.jonloucks.contracts.test</a> &gt; <span class="el_source">Tools.java</span></div><h1>Tools.java</h1><pre class="source lang-java linenums">package io.github.jonloucks.contracts.test;
 
-import io.github.jonloucks.contracts.api.Contract;
-import io.github.jonloucks.contracts.api.Contracts;
-import io.github.jonloucks.contracts.api.ContractsFactory;
+import io.github.jonloucks.contracts.api.*;
 import org.junit.jupiter.api.function.Executable;
 
-import java.lang.reflect.Constructor;
-import java.lang.reflect.InaccessibleObjectException;
-import java.lang.reflect.InvocationTargetException;
+import java.io.Serializable;
+import java.lang.reflect.*;
 import java.time.Duration;
 import java.util.ServiceLoader;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Consumer;
 
 import static io.github.jonloucks.contracts.api.Checks.illegalCheck;
 import static io.github.jonloucks.contracts.api.Checks.nullCheck;
@@ -21,35 +19,35 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * Contracts testing tools
  */
+@SuppressWarnings(&quot;DataFlowIssue&quot;)
 public final class Tools {
-<span class="fc" id="L25">    private Tools() {</span>
-<span class="fc" id="L26">        throw new AssertionError(&quot;Illegal constructor&quot;);</span>
+<span class="fc" id="L24">    private Tools() {</span>
+<span class="fc" id="L25">        throw new AssertionError(&quot;Illegal constructor&quot;);</span>
     }
     
     public static void assertFails(Executable executable) {
-<span class="fc" id="L30">        final Executable validExecutable = nullCheck(executable, &quot;executable was null&quot;);</span>
-<span class="fc" id="L31">        final AssertionError thrown = assertThrows(AssertionError.class, validExecutable);</span>
-<span class="fc" id="L32">        assertThrown(thrown);</span>
-<span class="fc" id="L33">    }</span>
+<span class="fc" id="L29">        final Executable validExecutable = nullCheck(executable, &quot;executable was null&quot;);</span>
+<span class="fc" id="L30">        final AssertionError thrown = assertThrows(AssertionError.class, validExecutable);</span>
+<span class="fc" id="L31">        assertThrown(thrown);</span>
+<span class="fc" id="L32">    }</span>
     /**
      * Assert that an object complies with basic expectations
      * @param object the object to check
      */
-    @SuppressWarnings(&quot;DataFlowIssue&quot;)
     public static void assertObject(Object object) {
-<span class="fc" id="L40">        final class Unknown {}</span>
-<span class="fc" id="L41">        final Unknown unknown = new Unknown();</span>
+<span class="fc" id="L38">        final class Unknown {}</span>
+<span class="fc" id="L39">        final Unknown unknown = new Unknown();</span>
         
-<span class="fc" id="L43">        assertNotNull(object, &quot;object was null.&quot;);</span>
+<span class="fc" id="L41">        assertNotNull(object, &quot;object was null.&quot;);</span>
         
         //noinspection SimplifiableAssertion,ConstantValue
-<span class="fc" id="L46">        assertAll(</span>
-<span class="fc" id="L47">            () -&gt; assertEquals(object.hashCode(), object.hashCode(), &quot;hash codes should not change.&quot;),</span>
-<span class="fc" id="L48">            () -&gt; assertNotNull(object.toString(), &quot;object toString() was null.&quot;),</span>
-<span class="fc" id="L49">            () -&gt; assertFalse(object.equals(null), &quot;Object.equals(null) should be false.&quot;),</span>
-<span class="fc" id="L50">            () -&gt; assertFalse(object.equals(unknown), &quot;Object.equals(unknown) should be false.&quot;)</span>
+<span class="fc" id="L44">        assertAll(</span>
+<span class="fc" id="L45">            () -&gt; assertEquals(object.hashCode(), object.hashCode(), &quot;hash codes should not change.&quot;),</span>
+<span class="fc" id="L46">            () -&gt; assertNotNull(object.toString(), &quot;object toString() was null.&quot;),</span>
+<span class="fc" id="L47">            () -&gt; assertFalse(object.equals(null), &quot;Object.equals(null) should be false.&quot;),</span>
+<span class="fc" id="L48">            () -&gt; assertFalse(object.equals(unknown), &quot;Object.equals(unknown) should be false.&quot;)</span>
         );
-<span class="fc" id="L52">    }</span>
+<span class="fc" id="L50">    }</span>
     
     /**
      * Asserts that a class can NOT be instantiated
@@ -57,49 +55,48 @@ public final class Tools {
      * @param theClass the class to check
      */
     public static void assertInstantiateThrows(Class&lt;?&gt; theClass) {
-<span class="fc" id="L60">        final Class&lt;?&gt; validClass = nullCheck(theClass, &quot;class was null&quot;);</span>
-<span class="fc" id="L61">        final Throwable thrown = assertThrows(Throwable.class, () -&gt; {</span>
-<span class="fc" id="L62">            final Constructor&lt;?&gt; constructor = validClass.getDeclaredConstructor();</span>
-<span class="fc" id="L63">            constructor.setAccessible(true);</span>
-<span class="fc" id="L64">            constructor.newInstance();</span>
-<span class="fc" id="L65">        });</span>
+<span class="fc" id="L58">        final Class&lt;?&gt; validClass = nullCheck(theClass, &quot;class was null&quot;);</span>
+<span class="fc" id="L59">        final Throwable thrown = assertThrows(Throwable.class, () -&gt; {</span>
+<span class="fc" id="L60">            final Constructor&lt;?&gt; constructor = validClass.getDeclaredConstructor();</span>
+<span class="fc" id="L61">            constructor.setAccessible(true);</span>
+<span class="fc" id="L62">            constructor.newInstance();</span>
+<span class="fc" id="L63">        });</span>
     
-<span class="pc bpc" id="L67" title="4 of 10 branches missed.">        assertTrue(thrown instanceof IllegalAccessException ||</span>
+<span class="pc bpc" id="L65" title="4 of 10 branches missed.">        assertTrue(thrown instanceof IllegalAccessException ||</span>
             thrown instanceof InaccessibleObjectException ||
             thrown instanceof InvocationTargetException ||
             thrown instanceof NoSuchMethodException ||
             thrown instanceof AssertionError
-<span class="fc" id="L72">            , &quot;Exception thrown not expected &quot; + thrown.getClass().getName());</span>
-<span class="fc" id="L73">    }</span>
+<span class="fc" id="L70">            , &quot;Exception thrown not expected &quot; + thrown.getClass().getName());</span>
+<span class="fc" id="L71">    }</span>
     
-    @SuppressWarnings(&quot;DataFlowIssue&quot;)
     public static void assertThrown(Throwable thrown, Throwable cause, String reason) {
-<span class="fc" id="L77">        assertObject(thrown);</span>
+<span class="fc" id="L74">        assertObject(thrown);</span>
         
-<span class="fc" id="L79">        assertAll(</span>
-<span class="fc" id="L80">            () -&gt; assertEquals(cause, thrown.getCause(), &quot;The cause should match.&quot;),</span>
-<span class="fc" id="L81">            () -&gt; assertEquals(reason, thrown.getMessage(), &quot;The reason should match.&quot;),</span>
-<span class="fc" id="L82">            () -&gt; assertNotNull(thrown.toString(), &quot;The string should not be null.&quot;)</span>
+<span class="fc" id="L76">        assertAll(</span>
+<span class="fc" id="L77">            () -&gt; assertEquals(cause, thrown.getCause(), &quot;The cause should match.&quot;),</span>
+<span class="fc" id="L78">            () -&gt; assertEquals(reason, thrown.getMessage(), &quot;The reason should match.&quot;),</span>
+<span class="fc" id="L79">            () -&gt; assertNotNull(thrown.toString(), &quot;The string should not be null.&quot;)</span>
         );
-<span class="fc" id="L84">    }</span>
+<span class="fc" id="L81">    }</span>
     
     public static void assertThrown(Throwable thrown) {
-<span class="fc" id="L87">        assertNotNull(thrown, &quot;thrown was null.&quot;);</span>
+<span class="fc" id="L84">        assertNotNull(thrown, &quot;thrown was null.&quot;);</span>
         
-<span class="fc" id="L89">        assertThrown(thrown, thrown.getCause(), thrown.getMessage());</span>
-<span class="fc" id="L90">    }</span>
+<span class="fc" id="L86">        assertThrown(thrown, thrown.getCause(), thrown.getMessage());</span>
+<span class="fc" id="L87">    }</span>
     
     public static void assertThrown(Throwable thrown, Throwable cause) {
-<span class="nc" id="L93">        assertNotNull(thrown, &quot;thrown was null.&quot;);</span>
+<span class="fc" id="L90">        assertNotNull(thrown, &quot;thrown was null.&quot;);</span>
         
-<span class="nc" id="L95">        assertThrown(thrown, cause, thrown.getMessage());</span>
-<span class="nc" id="L96">    }</span>
+<span class="fc" id="L92">        assertThrown(thrown, cause, thrown.getMessage());</span>
+<span class="fc" id="L93">    }</span>
     
     public static void assertThrown(Throwable thrown, String reason) {
-<span class="fc" id="L99">        assertNotNull(thrown, &quot;thrown was null.&quot;);</span>
+<span class="fc" id="L96">        assertNotNull(thrown, &quot;thrown was null.&quot;);</span>
         
-<span class="fc" id="L101">        assertThrown(thrown, thrown.getCause(), reason);</span>
-<span class="fc" id="L102">    }</span>
+<span class="fc" id="L98">        assertThrown(thrown, thrown.getCause(), reason);</span>
+<span class="fc" id="L99">    }</span>
   
     /**
      * Assert a Contract is valid
@@ -108,20 +105,19 @@ public final class Tools {
      * @param valid  a valid value
      * @param &lt;T&gt; the type of deliverable
      */
-    @SuppressWarnings(&quot;DataFlowIssue&quot;)
     public static &lt;T&gt; void assertContract(Contract&lt;T&gt; contract, Contract.Config&lt;T&gt; config, T valid) {
-<span class="fc" id="L113">        assertNotNull(contract, &quot;Contract must not be null.&quot;);</span>
+<span class="fc" id="L109">        assertNotNull(contract, &quot;Contract must not be null.&quot;);</span>
 
-<span class="fc" id="L115">        assertAll(</span>
-<span class="fc" id="L116">            () -&gt; assertObject(contract),</span>
-<span class="fc" id="L117">            () -&gt; assertSame(config.cast(valid),contract.cast(valid), &quot;cast valid value.&quot;),</span>
-<span class="fc" id="L118">            () -&gt; assertNull(contract.cast(null), &quot;Cast null should return null.&quot;),</span>
-<span class="pc" id="L119">            () -&gt; assertThrows(ClassCastException.class, () -&gt; contract.cast(System.class), &quot;Invalid cast should thrown.&quot;),</span>
-<span class="fc" id="L120">            () -&gt; assertSame(config.typeName(), contract.getTypeName(), &quot;Contract type mismatch.&quot;),</span>
-<span class="fc" id="L121">            () -&gt; assertSame(config.name(), contract.getName(), &quot;Contract name mismatch.&quot;),</span>
-<span class="fc" id="L122">            () -&gt; assertSame(config.isReplaceable(), contract.isReplaceable(), &quot;Contract replacement mismatch.&quot;)</span>
+<span class="fc" id="L111">        assertAll(</span>
+<span class="fc" id="L112">            () -&gt; assertObject(contract),</span>
+<span class="fc" id="L113">            () -&gt; assertSame(config.cast(valid),contract.cast(valid), &quot;cast valid value.&quot;),</span>
+<span class="fc" id="L114">            () -&gt; assertNull(contract.cast(null), &quot;Cast null should return null.&quot;),</span>
+<span class="pc" id="L115">            () -&gt; assertThrows(ClassCastException.class, () -&gt; contract.cast(System.class), &quot;Invalid cast should thrown.&quot;),</span>
+<span class="fc" id="L116">            () -&gt; assertSame(config.typeName(), contract.getTypeName(), &quot;Contract type mismatch.&quot;),</span>
+<span class="fc" id="L117">            () -&gt; assertSame(config.name(), contract.getName(), &quot;Contract name mismatch.&quot;),</span>
+<span class="fc" id="L118">            () -&gt; assertSame(config.isReplaceable(), contract.isReplaceable(), &quot;Contract replacement mismatch.&quot;)</span>
         );
-<span class="fc" id="L124">    }</span>
+<span class="fc" id="L120">    }</span>
     
     /**
      * When cleaning before and after tests.
@@ -129,59 +125,97 @@ public final class Tools {
      * @param sanitizers the things to sanitize
      */
     public static void sanitize(Executable... sanitizers) {
-<span class="fc bfc" id="L132" title="All 2 branches covered.">        if(ofNullable(sanitizers).isPresent()) {</span>
-<span class="fc bfc" id="L133" title="All 2 branches covered.">            for (Executable sanitizer : sanitizers) {</span>
-<span class="fc bfc" id="L134" title="All 2 branches covered.">                if (ofNullable(sanitizer).isPresent()) {</span>
+<span class="fc bfc" id="L128" title="All 2 branches covered.">        if(ofNullable(sanitizers).isPresent()) {</span>
+<span class="fc bfc" id="L129" title="All 2 branches covered.">            for (Executable sanitizer : sanitizers) {</span>
+<span class="fc bfc" id="L130" title="All 2 branches covered.">                if (ofNullable(sanitizer).isPresent()) {</span>
                     try {
-<span class="fc" id="L136">                        sanitizer.execute();</span>
-<span class="fc" id="L137">                    } catch (Throwable ignored) {</span>
-<span class="fc" id="L138">                    }</span>
+<span class="fc" id="L132">                        sanitizer.execute();</span>
+<span class="fc" id="L133">                    } catch (Throwable ignored) {</span>
+<span class="fc" id="L134">                    }</span>
                 }
             }
         }
-<span class="fc" id="L142">    }</span>
+<span class="fc" id="L138">    }</span>
     
     /**
      * Clean state from the testing context.
      */
     public static void clean() {
-<span class="fc" id="L148">        sanitize(()-&gt; {</span>
-<span class="fc" id="L149">            final Contracts.Config config = new Contracts.Config() {};</span>
-<span class="nc" id="L150">            final ServiceLoader&lt;? extends ContractsFactory&gt; loader = ServiceLoader.load(config.serviceLoaderClass());</span>
-<span class="nc" id="L151">            loader.reload();</span>
-<span class="nc" id="L152">        });</span>
-<span class="fc" id="L153">    }</span>
+<span class="fc" id="L144">        sanitize(()-&gt; {</span>
+<span class="fc" id="L145">            final Contracts.Config config = new Contracts.Config() {};</span>
+<span class="nc" id="L146">            final ServiceLoader&lt;? extends ContractsFactory&gt; loader = ServiceLoader.load(config.serviceLoaderClass());</span>
+<span class="nc" id="L147">            loader.reload();</span>
+<span class="nc" id="L148">        });</span>
+<span class="fc" id="L149">    }</span>
     
     /**
      * Do nothing for a period of time (Non-busy-wait)
      * @param duration how long to sleep
      */
     public static void sleep(Duration duration) {
-<span class="fc" id="L160">        final Duration validDuration = nullCheck(duration, &quot;Duration must not be null&quot;);</span>
-<span class="fc" id="L161">        final CountDownLatch latch = new CountDownLatch(1);</span>
+<span class="fc" id="L156">        final Duration validDuration = nullCheck(duration, &quot;Duration must not be null&quot;);</span>
+<span class="fc" id="L157">        final CountDownLatch latch = new CountDownLatch(1);</span>
         
-<span class="fc" id="L163">        illegalCheck(validDuration, validDuration.isNegative(), &quot;Duration must not be negative&quot;);</span>
-<span class="fc bfc" id="L164" title="All 2 branches covered.">        if (validDuration.isZero()) {</span>
-<span class="fc" id="L165">            return;</span>
+<span class="fc" id="L159">        illegalCheck(validDuration, validDuration.isNegative(), &quot;Duration must not be negative&quot;);</span>
+<span class="fc bfc" id="L160" title="All 2 branches covered.">        if (validDuration.isZero()) {</span>
+<span class="fc" id="L161">            return;</span>
         }
         
         try {
-<span class="fc" id="L169">            assertFalse(latch.await(validDuration.toMillis(), TimeUnit.MILLISECONDS));</span>
-<span class="nc" id="L170">        } catch (InterruptedException ignored) {</span>
-<span class="fc" id="L171">        }</span>
-<span class="fc" id="L172">    }</span>
+<span class="fc" id="L165">            assertFalse(latch.await(validDuration.toMillis(), TimeUnit.MILLISECONDS));</span>
+<span class="nc" id="L166">        } catch (InterruptedException ignored) {</span>
+<span class="fc" id="L167">        }</span>
+<span class="fc" id="L168">    }</span>
     
     public static &lt;T&gt; Contract&lt;T&gt; createReplaceableContract(Class&lt;T&gt; type) {
-<span class="fc" id="L175">        return Contract.create(new Contract.Config&lt;T&gt;() {</span>
+<span class="fc" id="L171">        return Contract.create(new Contract.Config&lt;&gt;() {</span>
             @Override
             public T cast(Object instance) {
-<span class="fc" id="L178">                return type.cast(instance);</span>
+<span class="fc" id="L174">                return type.cast(instance);</span>
             }
             @Override
             public boolean isReplaceable() {
-<span class="fc" id="L182">                return true;</span>
+<span class="fc" id="L178">                return true;</span>
             }
         });
     }
+
+    public static void assertIsSerializable(Class&lt;?&gt; clazz) {
+<span class="fc" id="L184">        assertTrue(Serializable.class.isAssignableFrom(clazz), &quot;Class must implement Serializable&quot;);</span>
+        try {
+<span class="fc" id="L186">            final Field serialVersionUIDField = clazz.getDeclaredField(&quot;serialVersionUID&quot;);</span>
+<span class="fc" id="L187">            assertNotNull(serialVersionUIDField, &quot;serialVersionUID field must exist&quot;);</span>
+<span class="fc" id="L188">            assertTrue(Modifier.isStatic(serialVersionUIDField.getModifiers()), &quot;serialVersionUID must be static&quot;);</span>
+<span class="fc" id="L189">            assertTrue(Modifier.isFinal(serialVersionUIDField.getModifiers()), &quot;serialVersionUID must be final&quot;);</span>
+<span class="fc" id="L190">            assertEquals(long.class, serialVersionUIDField.getType(), &quot;serialVersionUID must be of type long&quot;);</span>
+<span class="nc" id="L191">        }  catch (NoSuchFieldException ignored) {</span>
+<span class="nc" id="L192">            fail(&quot;Unable to find serialVersionUID field in class &quot; + clazz.getName());</span>
+<span class="fc" id="L193">        }</span>
+<span class="fc" id="L194">    }</span>
+    
+    public static void withContracts(Consumer&lt;Contracts&gt; block) {
+<span class="fc" id="L197">        final Contracts.Config config = new Contracts.Config() {</span>
+            @Override
+            public boolean useShutdownHooks() {
+<span class="fc" id="L200">                return false;</span>
+            }
+        };
+<span class="fc" id="L203">        withContracts(config, block);</span>
+<span class="fc" id="L204">    }</span>
+    
+    public static void withContracts(Contracts.Config config, Consumer&lt;Contracts&gt; block) {
+<span class="fc" id="L207">        final Contracts.Config validConfig = nullCheck(config, &quot;config was null&quot;);</span>
+<span class="fc" id="L208">        final Consumer&lt;Contracts&gt; validBlock = nullCheck(block, &quot;block was null&quot;);</span>
+<span class="fc" id="L209">        final Contracts contracts = GlobalContracts.createContracts(validConfig);</span>
+        
+<span class="fc" id="L211">        try (AutoClose closeContracts = contracts.open()) {</span>
+<span class="fc" id="L212">            final AutoClose ignored = closeContracts;</span>
+<span class="fc" id="L213">            validBlock.accept(contracts);</span>
+        }
+<span class="fc" id="L215">    }</span>
+    
+    public static void implicitClose(AutoClose close) {
+<span class="fc" id="L218">        close.close();</span>
+<span class="fc" id="L219">    }</span>
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>

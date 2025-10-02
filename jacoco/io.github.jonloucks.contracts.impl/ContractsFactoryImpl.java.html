@@ -5,15 +5,16 @@ import io.github.jonloucks.contracts.api.*;
 import static io.github.jonloucks.contracts.api.Checks.nullCheck;
 
 /**
- * Bootstrap the Contracts library
+ * Implementation for {@link io.github.jonloucks.contracts.api.ContractsFactory}
+ * @see io.github.jonloucks.contracts.api.ContractsFactory
  */
-<span class="fc" id="L10">public final class ContractsFactoryImpl implements ContractsFactory {</span>
+<span class="fc" id="L11">public final class ContractsFactoryImpl implements ContractsFactory {</span>
     
     @Override
     public Contracts create(Contracts.Config config) {
-<span class="fc" id="L14">        final Contracts.Config validConfig = nullCheck(config, &quot;config&quot;);</span>
+<span class="fc" id="L15">        final Contracts.Config validConfig = nullCheck(config, &quot;config&quot;);</span>
         
-<span class="fc" id="L16">        return new ContractsImpl(validConfig);</span>
+<span class="fc" id="L17">        return new ContractsImpl(validConfig);</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>

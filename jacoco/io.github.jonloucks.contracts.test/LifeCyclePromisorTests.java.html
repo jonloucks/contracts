@@ -16,11 +16,8 @@ import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Supplier;
 
-import static io.github.jonloucks.contracts.api.Checks.nullCheck;
-import static io.github.jonloucks.contracts.api.GlobalContracts.bindContract;
 import static io.github.jonloucks.contracts.test.LifeCyclePromisorTests.ConcurrencyTestsTool.*;
-import static io.github.jonloucks.contracts.test.Tools.assertThrown;
-import static io.github.jonloucks.contracts.test.Tools.sleep;
+import static io.github.jonloucks.contracts.test.Tools.*;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
@@ -29,250 +26,276 @@ import static org.mockito.Mockito.*;
 @MockitoSettings(strictness = Strictness.LENIENT)
 public interface LifeCyclePromisorTests {
     
-
     @Test
-    default void promisors_createLifeCyclePromisor_WithNull_Throws() {
-<span class="fc" id="L35">        final Promisors promisors = GlobalContracts.claimContract(Promisors.CONTRACT);</span>
-        
-<span class="fc" id="L37">        final IllegalArgumentException thrown = assertThrows(IllegalArgumentException.class, () -&gt;</span>
-<span class="nc" id="L38">            promisors.createLifeCyclePromisor(null)</span>
-        );
-        
-<span class="fc" id="L41">        assertThrown(thrown);</span>
-<span class="fc" id="L42">    }</span>
+    default void lifeCyclePromisor_WithNullPromisor_Throws() {
+<span class="fc" id="L31">        withContracts(contracts -&gt; {</span>
+<span class="fc" id="L32">            final Promisors promisors = contracts.claim(Promisors.CONTRACT);</span>
+            
+<span class="fc" id="L34">            final IllegalArgumentException thrown = assertThrows(IllegalArgumentException.class, () -&gt;</span>
+<span class="nc" id="L35">                promisors.createLifeCyclePromisor(null)</span>
+            );
+            
+<span class="fc" id="L38">            assertThrown(thrown);</span>
+<span class="fc" id="L39">        });</span>
+<span class="fc" id="L40">    }</span>
     
     @Test
-    default void promisors_LifeCyclePromisor_get_WithUsage_Throws() {
-<span class="fc" id="L46">        final Promisors promisors = GlobalContracts.claimContract(Promisors.CONTRACT);</span>
-<span class="pc" id="L47">        final Promisor&lt;String&gt; promisor = promisors.createLifeCyclePromisor(() -&gt; &quot;abc&quot;);</span>
-        
-<span class="fc" id="L49">        final IllegalStateException thrown = assertThrows(IllegalStateException.class, () -&gt; {</span>
-<span class="nc" id="L50">            promisor.demand();</span>
-<span class="nc" id="L51">        });</span>
-        
-<span class="fc" id="L53">        assertThrown(thrown);</span>
+    default void lifeCyclePromisor_demand_WithoutUsage_Throws() {
+<span class="fc" id="L44">        withContracts(contracts -&gt; {</span>
+<span class="fc" id="L45">            final Promisors promisors = contracts.claim(Promisors.CONTRACT);</span>
+<span class="pc" id="L46">            final Promisor&lt;String&gt; promisor = promisors.createLifeCyclePromisor(() -&gt; &quot;abc&quot;);</span>
+            
+<span class="fc" id="L48">            final IllegalStateException thrown = assertThrows(IllegalStateException.class, () -&gt; {</span>
+<span class="nc" id="L49">                promisor.demand();</span>
+<span class="nc" id="L50">            });</span>
+            
+<span class="fc" id="L52">            assertThrown(thrown);</span>
+<span class="fc" id="L53">        });</span>
 <span class="fc" id="L54">    }</span>
     
     @Test
-    default void promisors_createLifeCyclePromisor_WithNullDeliverable_Works() {
-<span class="fc" id="L58">        final Promisors promisors = GlobalContracts.claimContract(Promisors.CONTRACT);</span>
-<span class="fc" id="L59">        final Promisor&lt;String&gt; promisor = promisors.createLifeCyclePromisor(()-&gt;null);</span>
-<span class="fc" id="L60">        promisor.incrementUsage();</span>
-        
-<span class="fc" id="L62">        assertNotNull(promisor, &quot;should not return null.&quot;);</span>
-<span class="fc" id="L63">        assertNull(promisor.demand());</span>
-<span class="fc" id="L64">    }</span>
+    default void lifeCyclePromisor_WithNullDeliverable_IsAllowed() {
+<span class="fc" id="L58">        withContracts(contracts -&gt; {</span>
+<span class="fc" id="L59">            final Promisors promisors = contracts.claim(Promisors.CONTRACT);</span>
+<span class="fc" id="L60">            final Promisor&lt;String&gt; promisor = promisors.createLifeCyclePromisor(()-&gt;null);</span>
+<span class="fc" id="L61">            promisor.incrementUsage();</span>
+            
+<span class="fc" id="L63">            assertNotNull(promisor, &quot;should not return null.&quot;);</span>
+<span class="fc" id="L64">            assertNull(promisor.demand());</span>
+<span class="fc" id="L65">        });</span>
+<span class="fc" id="L66">    }</span>
     
     @Test
-    default void promisors_createLifeCyclePromisor_Valid_Works(@Mock Promisor&lt;Decoy&lt;Integer&gt;&gt; referent, @Mock Decoy&lt;Integer&gt; deliverable) {
-<span class="fc" id="L68">        final int usages = 5;</span>
-<span class="fc" id="L69">        final Promisors promisors = GlobalContracts.claimContract(Promisors.CONTRACT);</span>
-<span class="fc" id="L70">        when(referent.demand()).thenReturn(deliverable);</span>
-<span class="fc" id="L71">        when(deliverable.open()).thenReturn(deliverable);</span>
-<span class="fc" id="L72">        final Promisor&lt;Decoy&lt;Integer&gt;&gt; promisor = promisors.createLifeCyclePromisor(referent);</span>
-        
-<span class="fc" id="L74">        assertNotNull(promisor, &quot;should not return null.&quot;);</span>
-        
-<span class="fc bfc" id="L76" title="All 2 branches covered.">        for (int i = 0; i &lt; usages; i++) {</span>
-<span class="fc" id="L77">            promisor.incrementUsage();</span>
-        }
-<span class="fc" id="L79">        @SuppressWarnings(&quot;resource&quot;) final Decoy&lt;Integer&gt; actual = promisor.demand();</span>
-<span class="fc bfc" id="L80" title="All 2 branches covered.">        for (int i = 0; i &lt; usages; i++) {</span>
-<span class="fc" id="L81">            promisor.decrementUsage();</span>
-        }
-        
-<span class="fc" id="L84">        assertAll(</span>
-<span class="fc" id="L85">            () -&gt; assertSame(deliverable, actual, &quot;deliverables should match.&quot;),</span>
-<span class="fc" id="L86">            () -&gt; verify(referent, times(usages)).decrementUsage(),</span>
-<span class="fc" id="L87">            () -&gt; verify(referent, times(usages)).incrementUsage(),</span>
-<span class="fc" id="L88">            () -&gt; verify(deliverable, never()).incrementUsage(),</span>
-<span class="fc" id="L89">            () -&gt; verify(deliverable, never()).decrementUsage(),</span>
-<span class="fc" id="L90">            () -&gt; verify(deliverable, times(1)).open(),</span>
-<span class="fc" id="L91">            () -&gt; verify(deliverable, times(1)).close()</span>
-        );
-<span class="fc" id="L93">    }</span>
-    
+    default void lifeCyclePromisor_Valid_Works(@Mock Promisor&lt;Decoy&lt;Integer&gt;&gt; referent, @Mock Decoy&lt;Integer&gt; deliverable) {
+<span class="fc" id="L70">        withContracts(contracts -&gt; {</span>
+<span class="fc" id="L71">            final int usages = 5;</span>
+<span class="fc" id="L72">            final Promisors promisors = contracts.claim(Promisors.CONTRACT);</span>
+<span class="fc" id="L73">            when(referent.demand()).thenReturn(deliverable);</span>
+<span class="fc" id="L74">            when(deliverable.open()).thenReturn(deliverable);</span>
+<span class="fc" id="L75">            final Promisor&lt;Decoy&lt;Integer&gt;&gt; promisor = promisors.createLifeCyclePromisor(referent);</span>
+            
+<span class="fc" id="L77">            assertNotNull(promisor, &quot;should not return null.&quot;);</span>
+            
+<span class="fc bfc" id="L79" title="All 2 branches covered.">            for (int i = 0; i &lt; usages; i++) {</span>
+<span class="fc" id="L80">                promisor.incrementUsage();</span>
+            }
+<span class="fc" id="L82">            @SuppressWarnings(&quot;resource&quot;) final Decoy&lt;Integer&gt; actual = promisor.demand();</span>
+<span class="fc bfc" id="L83" title="All 2 branches covered.">            for (int i = 0; i &lt; usages; i++) {</span>
+<span class="fc" id="L84">                promisor.decrementUsage();</span>
+            }
+            
+<span class="fc" id="L87">            assertAll(</span>
+<span class="fc" id="L88">                () -&gt; assertSame(deliverable, actual, &quot;deliverables should match.&quot;),</span>
+<span class="fc" id="L89">                () -&gt; verify(referent, times(usages)).decrementUsage(),</span>
+<span class="fc" id="L90">                () -&gt; verify(referent, times(usages)).incrementUsage(),</span>
+<span class="fc" id="L91">                () -&gt; verify(deliverable, never()).incrementUsage(),</span>
+<span class="fc" id="L92">                () -&gt; verify(deliverable, never()).decrementUsage(),</span>
+<span class="fc" id="L93">                () -&gt; verify(deliverable, times(1)).open(),</span>
+<span class="fc" id="L94">                () -&gt; verify(deliverable, times(1)).close()</span>
+            );
+<span class="fc" id="L96">        });</span>
+<span class="fc" id="L97">    }</span>
     
     @ParameterizedTest(name = &quot;Threads = {0}&quot;)
     @ValueSource(ints = { 1, 2, 3, 5, 8, 12, 17, 29 })
     default void lifeCyclePromisor_ClaimsDuringOpen(int threadCount) throws Throwable {
-<span class="fc" id="L99">        runWithScenario(new ScenarioConfig() {</span>
+<span class="fc" id="L102">        runWithScenario(new ScenarioConfig() {</span>
             @Override
             public int threadCount() {
-<span class="fc" id="L102">                return threadCount;</span>
+<span class="fc" id="L105">                return threadCount;</span>
             }
             @Override
             public void mockupDeliverable(Decoy&lt;String&gt; mockDeliverable) {
-<span class="fc" id="L106">                overrideOpen(mockDeliverable, Duration.ofMillis(200), () -&gt; {});</span>
-<span class="fc" id="L107">            }</span>
+<span class="fc" id="L109">                overrideOpen(mockDeliverable, Duration.ofMillis(200), () -&gt; {});</span>
+<span class="fc" id="L110">            }</span>
         });
-<span class="fc" id="L109">    }</span>
+<span class="fc" id="L112">    }</span>
     
     @ParameterizedTest(name = &quot;Threads = {0}&quot;)
     @ValueSource(ints = { 1, 2, 3, 5, 8, 12, 17, 29 })
     default void lifeCyclePromisor_ThrowingOpen(int threadCount) throws Throwable {
-<span class="fc" id="L114">        runWithScenario(new ScenarioConfig() {</span>
+<span class="fc" id="L117">        runWithScenario(new ScenarioConfig() {</span>
             @Override
             public int threadCount() {
-<span class="fc" id="L117">                return threadCount;</span>
+<span class="fc" id="L120">                return threadCount;</span>
             }
             @Override
             public float successPercentage() {
-<span class="fc" id="L121">                return 0.f;</span>
+<span class="fc" id="L124">                return 0.f;</span>
             }
             @Override
             public void mockupDeliverable(Decoy&lt;String&gt; mockDeliverable) {
-<span class="fc" id="L125">                overrideOpen(mockDeliverable, Duration.ofMillis(0), () -&gt; {</span>
-<span class="fc" id="L126">                    throw new IllegalStateException(&quot;Problem&quot;);</span>
-                });
-<span class="fc" id="L128">            }</span>
+<span class="fc" id="L128">                overrideOpen(mockDeliverable, Duration.ofMillis(0), () -&gt; {</span>
+<span class="pc bpc" id="L129" title="1 of 4 branches missed.">                    switch (threadCount%3) {</span>
+                        case 0:
+<span class="fc" id="L131">                            throw new RuntimeException(&quot;RuntimeException&quot;);</span>
+                        case 1:
+<span class="fc" id="L133">                            throw new Error(&quot;Error&quot;);</span>
+                        case 2:
+<span class="fc" id="L135">                            throw new ArithmeticException(&quot;Error&quot;);</span>
+                    }
+<span class="nc" id="L137">                });</span>
+<span class="fc" id="L138">            }</span>
         });
-<span class="fc" id="L130">    }</span>
+<span class="fc" id="L140">    }</span>
     
     @ParameterizedTest(name = &quot;Threads = {0}&quot;)
     @ValueSource(ints = { 1, 2, 3, 5, 8, 12, 17, 29 })
     default void lifeCyclePromisor_ClaimsDuringClose(int threadCount) throws Throwable  {
-<span class="fc" id="L135">        runWithScenario(new ScenarioConfig() {</span>
+<span class="fc" id="L145">        runWithScenario(new ScenarioConfig() {</span>
             @Override
             public int threadCount() {
-<span class="fc" id="L138">                return threadCount;</span>
+<span class="fc" id="L148">                return threadCount;</span>
             }
             @Override
             public void mockupDeliverable(Decoy&lt;String&gt; mockDeliverable) {
-<span class="fc" id="L142">                overrideClose(mockDeliverable, Duration.ofMillis(100), () -&gt; {});</span>
-<span class="fc" id="L143">            }</span>
+<span class="fc" id="L152">                overrideClose(mockDeliverable, Duration.ofMillis(100), () -&gt; {});</span>
+<span class="fc" id="L153">            }</span>
             @Override
             public void beforeWaitForCompletion(Promisor&lt;Decoy&lt;String&gt;&gt; testSubject) {
-<span class="fc" id="L146">                sleep(Duration.ofMillis(100));</span>
-<span class="fc" id="L147">                testSubject.decrementUsage();</span>
-<span class="fc" id="L148">            }</span>
+<span class="fc" id="L156">                sleep(Duration.ofMillis(100));</span>
+<span class="fc" id="L157">                testSubject.decrementUsage();</span>
+<span class="fc" id="L158">            }</span>
         });
-<span class="fc" id="L150">    }</span>
+<span class="fc" id="L160">    }</span>
     
     @ParameterizedTest(name = &quot;Threads = {0}&quot;)
     @ValueSource(ints = { 1, 2, 3, 5, 8, 12, 17, 29 })
     default void lifeCyclePromisor_ClaimsDuringDemand(int threadCount) throws Throwable {
-<span class="fc" id="L155">        runWithScenario(new ScenarioConfig() {</span>
+<span class="fc" id="L165">        runWithScenario(new ScenarioConfig() {</span>
             @Override
             public int threadCount() {
-<span class="fc" id="L158">                return threadCount;</span>
+<span class="fc" id="L168">                return threadCount;</span>
             }
             @Override
             public Duration demandDelay() {
-<span class="fc" id="L162">                return Duration.ofMillis(100);</span>
+<span class="fc" id="L172">                return Duration.ofMillis(100);</span>
             }
         });
-<span class="fc" id="L165">    }</span>
+<span class="fc" id="L175">    }</span>
+    
+    @Test
+    default void lifecyclePromisor_InternalCoverage() {
+<span class="fc" id="L179">        assertInstantiateThrows(ConcurrencyTestsTool.class);</span>
+<span class="fc" id="L180">    }</span>
     
     final class ConcurrencyTestsTool {
-        private ConcurrencyTestsTool() {
-        
+<span class="fc" id="L183">        private ConcurrencyTestsTool() {</span>
+<span class="fc" id="L184">            throw new AssertionError(&quot;Illegal constructor&quot;);</span>
         }
+        
         interface ScenarioConfig {
             int threadCount();
             
             default void mockupDeliverable(Decoy&lt;String&gt; mockDeliverable) {
-<span class="fc" id="L175">            }</span>
+<span class="fc" id="L191">            }</span>
             
             default void beforeWaitForCompletion(Promisor&lt;Decoy&lt;String&gt;&gt; testSubject) {
-<span class="fc" id="L178">            }</span>
+<span class="fc" id="L194">            }</span>
             
             default Duration demandDelay() {
-<span class="fc" id="L181">                return Duration.ZERO;</span>
+<span class="fc" id="L197">                return Duration.ZERO;</span>
             }
             
+            @SuppressWarnings(&quot;SameReturnValue&quot;)
             default int claimsPerThread() {
-<span class="fc" id="L185">                return 123;</span>
+<span class="fc" id="L202">                return 123;</span>
             }
             
             default float successPercentage() {
-<span class="fc" id="L189">                return 1.0f;</span>
+<span class="fc" id="L206">                return 1.0f;</span>
             }
         }
         
-        static void runWithScenario(ScenarioConfig config) throws Throwable {
-<span class="fc" id="L194">            final int totalClaims = config.threadCount()*config.claimsPerThread();</span>
-<span class="fc" id="L195">            final int expectedSuccesses = (int)config.successPercentage()*totalClaims;</span>
-<span class="fc" id="L196">            final int expectedFailures = totalClaims-expectedSuccesses;</span>
-<span class="fc" id="L197">            final Contract&lt;Decoy&lt;String&gt;&gt; contract = Contract.create(&quot;Contract&quot;);</span>
-<span class="fc" id="L198">            final Thread[] claimThreads = new Thread[config.threadCount()];</span>
-<span class="fc" id="L199">            final AtomicInteger failedCount = new AtomicInteger(0);</span>
-<span class="fc" id="L200">            final AtomicInteger successCount = new AtomicInteger(0);</span>
-<span class="fc" id="L201">            final CountDownLatch latch = new CountDownLatch(config.threadCount());</span>
-<span class="fc" id="L202">            final Decoy&lt;String&gt; mockDeliverable = spy();</span>
-<span class="fc" id="L203">            final Promisor&lt;Decoy&lt;String&gt;&gt; mockPromisor = spy();</span>
+        static void runWithScenario(ScenarioConfig config) {
+<span class="fc" id="L211">            final int totalClaims = config.threadCount()*config.claimsPerThread();</span>
+<span class="fc" id="L212">            final int expectedSuccesses = (int)config.successPercentage()*totalClaims;</span>
+<span class="fc" id="L213">            final int expectedFailures = totalClaims-expectedSuccesses;</span>
+<span class="fc" id="L214">            final Contract&lt;Decoy&lt;String&gt;&gt; contract = Contract.create(&quot;Contract&quot;);</span>
+<span class="fc" id="L215">            final Thread[] claimThreads = new Thread[config.threadCount()];</span>
+<span class="fc" id="L216">            final AtomicInteger failedCount = new AtomicInteger(0);</span>
+<span class="fc" id="L217">            final AtomicInteger successCount = new AtomicInteger(0);</span>
+<span class="fc" id="L218">            final CountDownLatch latch = new CountDownLatch(config.threadCount());</span>
+<span class="fc" id="L219">            @SuppressWarnings(&quot;resource&quot;) final Decoy&lt;String&gt; mockDeliverable = spy();</span>
+<span class="fc" id="L220">            final Promisor&lt;Decoy&lt;String&gt;&gt; mockPromisor = spy();</span>
             
-<span class="fc" id="L205">            overrideDemand(mockPromisor, config.demandDelay(), () -&gt; mockDeliverable);</span>
-<span class="fc" id="L206">            config.mockupDeliverable(mockDeliverable);</span>
-  
-<span class="fc" id="L208">            final Promisor&lt;Decoy&lt;String&gt;&gt; testSubject = createTestSubject(mockPromisor);</span>
-            
-<span class="fc" id="L210">            try (AutoClose closeBinding = bindContract(contract, testSubject)){</span>
-<span class="fc" id="L211">                final AutoClose ignored = closeBinding;</span>
-<span class="fc bfc" id="L212" title="All 2 branches covered.">                for (int i = 0; i &lt; config.threadCount(); i++) {</span>
-<span class="fc" id="L213">                    claimThreads[i] = new Thread(&quot;Claim-&quot; + i) {</span>
-                        @Override
-                        public void run() {
-                            try {
-<span class="fc bfc" id="L217" title="All 2 branches covered.">                                for (int i = 0; i &lt; config.claimsPerThread(); i++) {</span>
-                                    try {
-                                        //noinspection resource
-<span class="fc" id="L220">                                        GlobalContracts.claimContract(contract);</span>
-<span class="fc" id="L221">                                        successCount.incrementAndGet();</span>
-<span class="fc" id="L222">                                    } catch (Throwable thrown) {</span>
-<span class="fc" id="L223">                                        failedCount.incrementAndGet();</span>
-<span class="fc" id="L224">                                    }</span>
+<span class="fc" id="L222">            withContracts( contracts -&gt; {</span>
+<span class="fc" id="L223">                overrideDemand(mockPromisor, config.demandDelay(), () -&gt; mockDeliverable);</span>
+<span class="fc" id="L224">                config.mockupDeliverable(mockDeliverable);</span>
+                
+<span class="fc" id="L226">                final Promisor&lt;Decoy&lt;String&gt;&gt; testSubject = createTestSubject(contracts, mockPromisor);</span>
+                
+<span class="fc" id="L228">                try (AutoClose closeBinding = contracts.bind(contract, testSubject)) {</span>
+<span class="fc" id="L229">                    final AutoClose ignored2 = closeBinding;</span>
+<span class="fc bfc" id="L230" title="All 2 branches covered.">                    for (int i = 0; i &lt; config.threadCount(); i++) {</span>
+<span class="fc" id="L231">                        claimThreads[i] = new Thread(&quot;Claim-&quot; + i) {</span>
+                            @Override
+                            public void run() {
+                                try {
+<span class="fc bfc" id="L235" title="All 2 branches covered.">                                    for (int i = 0; i &lt; config.claimsPerThread(); i++) {</span>
+                                        try {
+                                            //noinspection resource
+<span class="fc" id="L238">                                            contracts.claim(contract);</span>
+<span class="fc" id="L239">                                            successCount.incrementAndGet();</span>
+<span class="fc" id="L240">                                        } catch (Throwable thrown) {</span>
+<span class="fc" id="L241">                                            failedCount.incrementAndGet();</span>
+<span class="fc" id="L242">                                        }</span>
+                                    }
+                                } finally {
+<span class="fc" id="L245">                                    latch.countDown();</span>
                                 }
-                            } finally {
-<span class="fc" id="L227">                                latch.countDown();</span>
-                            }
-<span class="fc" id="L229">                        }</span>
-                    };
+<span class="fc" id="L247">                            }</span>
+                        };
+                    }
+<span class="fc bfc" id="L250" title="All 2 branches covered.">                    for (int i = 0; i &lt; config.threadCount(); i++) {</span>
+<span class="fc" id="L251">                        claimThreads[i].start();</span>
+                    }
+<span class="fc" id="L253">                    config.beforeWaitForCompletion(testSubject);</span>
+                    try {
+<span class="fc" id="L255">                        assertTrue(latch.await(1, TimeUnit.MINUTES), &quot;Test took too long&quot;);</span>
+<span class="nc" id="L256">                    } catch (InterruptedException e) {</span>
+<span class="nc" id="L257">                        fail(&quot;Test took too long&quot;);</span>
+<span class="fc" id="L258">                    }</span>
                 }
-<span class="fc bfc" id="L232" title="All 2 branches covered.">                for (int i = 0; i &lt; config.threadCount(); i++) {</span>
-<span class="fc" id="L233">                    claimThreads[i].start();</span>
+                
+<span class="fc" id="L261">                assertAll(</span>
+<span class="fc" id="L262">                    () -&gt; assertEquals(expectedSuccesses, successCount.get(), &quot;Success count&quot;),</span>
+<span class="fc" id="L263">                    () -&gt; assertEquals(expectedFailures, failedCount.get(), &quot;Failed count&quot;)</span>
+                );
+<span class="fc bfc" id="L265" title="All 2 branches covered.">                if (expectedSuccesses &gt; 0) {</span>
+<span class="fc" id="L266">                    verify(mockDeliverable, times(1)).open();</span>
+<span class="fc" id="L267">                    verify(mockDeliverable, times(1)).close();</span>
                 }
-<span class="fc" id="L235">                config.beforeWaitForCompletion(testSubject);</span>
-<span class="fc" id="L236">                assertTrue(latch.await(1, TimeUnit.MINUTES), &quot;Test took too long&quot;);</span>
-            }
-            
-<span class="fc" id="L239">            assertAll(</span>
-<span class="fc" id="L240">                () -&gt; assertEquals(expectedSuccesses, successCount.get(), &quot;Success count&quot;),</span>
-<span class="fc" id="L241">                () -&gt; assertEquals(expectedFailures, failedCount.get(), &quot;Failed count&quot;)</span>
-            );
-<span class="fc bfc" id="L243" title="All 2 branches covered.">            if (expectedSuccesses &gt; 0) {</span>
-<span class="fc" id="L244">               verify(mockDeliverable, times(1)).open();</span>
-<span class="fc" id="L245">               verify(mockDeliverable, times(1)).close();</span>
-            }
-<span class="fc" id="L247">        }</span>
+<span class="fc" id="L269">            });</span>
+<span class="fc" id="L270">        }</span>
         
-        static &lt;T&gt; Promisor&lt;T&gt; createTestSubject(Promisor&lt;T&gt; promisor) {
-<span class="fc" id="L250">            final Promisors promisors = GlobalContracts.claimContract(Promisors.CONTRACT);</span>
-<span class="fc" id="L251">            return promisors.createLifeCyclePromisor(promisor);</span>
+        static &lt;T&gt; Promisor&lt;T&gt; createTestSubject(Contracts contracts, Promisor&lt;T&gt; promisor) {
+<span class="fc" id="L273">            final Promisors promisors = contracts.claim(Promisors.CONTRACT);</span>
+<span class="fc" id="L274">            return promisors.createLifeCyclePromisor(promisor);</span>
         }
    
         static &lt;T&gt; void overrideOpen(Decoy&lt;T&gt; decoy, Duration duration, Runnable block) {
-<span class="fc" id="L255">            doAnswer((Answer&lt;AutoClose&gt;) invocation -&gt; {</span>
-<span class="fc" id="L256">                sleep(duration);</span>
-<span class="fc" id="L257">                block.run();</span>
-<span class="fc" id="L258">                return decoy;</span>
-<span class="fc" id="L259">            }).when(decoy).open();</span>
-<span class="fc" id="L260">        }</span>
+<span class="fc" id="L278">            doAnswer((Answer&lt;AutoClose&gt;) invocation -&gt; {</span>
+<span class="fc" id="L279">                sleep(duration);</span>
+<span class="fc" id="L280">                block.run();</span>
+<span class="fc" id="L281">                return decoy;</span>
+<span class="fc" id="L282">            }).when(decoy).open();</span>
+<span class="fc" id="L283">        }</span>
         
         static &lt;T&gt; void overrideClose(Decoy&lt;T&gt; decoy, Duration duration, Runnable block) {
-<span class="fc" id="L263">            doAnswer((Answer&lt;Void&gt;) invocation -&gt; {</span>
-<span class="fc" id="L264">                sleep(duration);</span>
-<span class="fc" id="L265">                block.run();</span>
-<span class="fc" id="L266">                return null; // Void methods return null in doAnswer</span>
-<span class="fc" id="L267">            }).when(decoy).close();</span>
-<span class="fc" id="L268">        }</span>
+<span class="fc" id="L286">            doAnswer((Answer&lt;Void&gt;) invocation -&gt; {</span>
+<span class="fc" id="L287">                sleep(duration);</span>
+<span class="fc" id="L288">                block.run();</span>
+<span class="fc" id="L289">                return null; // Void methods return null in doAnswer</span>
+<span class="fc" id="L290">            }).when(decoy).close();</span>
+<span class="fc" id="L291">        }</span>
         
         static &lt;T&gt; void overrideDemand(Promisor&lt;T&gt; promisor, Duration duration, Supplier&lt;T&gt; block) {
-<span class="fc" id="L271">            when(promisor.demand()).thenAnswer((Answer&lt;T&gt;) invocation -&gt; {</span>
-<span class="fc" id="L272">                sleep(duration);</span>
-<span class="fc" id="L273">                return block.get();</span>
+<span class="fc" id="L294">            when(promisor.demand()).thenAnswer((Answer&lt;T&gt;) invocation -&gt; {</span>
+<span class="fc" id="L295">                sleep(duration);</span>
+<span class="fc" id="L296">                return block.get();</span>
             });
-<span class="fc" id="L275">        }</span>
+<span class="fc" id="L298">        }</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>
