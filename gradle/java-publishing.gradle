@@ -39,13 +39,8 @@ boolean doingSigning() {
     doingRelease()
 }
 
-println "Project workflow: " + getWorkflowName()
-
 if (doingSigning()) {
-    println "Doing signing"
     apply plugin: 'signing-kit'
-} else {
-    println "No signing"
 }
 
 publishing {

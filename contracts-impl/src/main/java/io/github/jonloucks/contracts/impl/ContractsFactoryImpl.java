@@ -5,7 +5,8 @@ import io.github.jonloucks.contracts.api.*;
 import static io.github.jonloucks.contracts.api.Checks.nullCheck;
 
 /**
- * Bootstrap the Contracts library
+ * Implementation for {@link io.github.jonloucks.contracts.api.ContractsFactory}
+ * @see io.github.jonloucks.contracts.api.ContractsFactory
  */
 public final class ContractsFactoryImpl implements ContractsFactory {
     

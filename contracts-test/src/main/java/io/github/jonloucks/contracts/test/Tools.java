@@ -1,17 +1,15 @@
 package io.github.jonloucks.contracts.test;
 
-import io.github.jonloucks.contracts.api.Contract;
-import io.github.jonloucks.contracts.api.Contracts;
-import io.github.jonloucks.contracts.api.ContractsFactory;
+import io.github.jonloucks.contracts.api.*;
 import org.junit.jupiter.api.function.Executable;
 
-import java.lang.reflect.Constructor;
-import java.lang.reflect.InaccessibleObjectException;
-import java.lang.reflect.InvocationTargetException;
+import java.io.Serializable;
+import java.lang.reflect.*;
 import java.time.Duration;
 import java.util.ServiceLoader;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Consumer;
 
 import static io.github.jonloucks.contracts.api.Checks.illegalCheck;
 import static io.github.jonloucks.contracts.api.Checks.nullCheck;
@@ -21,6 +19,7 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * Contracts testing tools
  */
+@SuppressWarnings("DataFlowIssue")
 public final class Tools {
     private Tools() {
         throw new AssertionError("Illegal constructor");
@@ -35,7 +34,6 @@ public final class Tools {
      * Assert that an object complies with basic expectations
      * @param object the object to check
      */
-    @SuppressWarnings("DataFlowIssue")
     public static void assertObject(Object object) {
         final class Unknown {}
         final Unknown unknown = new Unknown();
@@ -72,7 +70,6 @@ public final class Tools {
             , "Exception thrown not expected " + thrown.getClass().getName());
     }
     
-    @SuppressWarnings("DataFlowIssue")
     public static void assertThrown(Throwable thrown, Throwable cause, String reason) {
         assertObject(thrown);
         
@@ -108,7 +105,6 @@ public final class Tools {
      * @param valid  a valid value
      * @param <T> the type of deliverable
      */
-    @SuppressWarnings("DataFlowIssue")
     public static <T> void assertContract(Contract<T> contract, Contract.Config<T> config, T valid) {
         assertNotNull(contract, "Contract must not be null.");
 
@@ -172,7 +168,7 @@ public final class Tools {
     }
     
     public static <T> Contract<T> createReplaceableContract(Class<T> type) {
-        return Contract.create(new Contract.Config<T>() {
+        return Contract.create(new Contract.Config<>() {
             @Override
             public T cast(Object instance) {
                 return type.cast(instance);
@@ -182,5 +178,43 @@ public final class Tools {
                 return true;
             }
         });
+    }
+
+    public static void assertIsSerializable(Class<?> clazz) {
+        assertTrue(Serializable.class.isAssignableFrom(clazz), "Class must implement Serializable");
+        try {
+            final Field serialVersionUIDField = clazz.getDeclaredField("serialVersionUID");
+            assertNotNull(serialVersionUIDField, "serialVersionUID field must exist");
+            assertTrue(Modifier.isStatic(serialVersionUIDField.getModifiers()), "serialVersionUID must be static");
+            assertTrue(Modifier.isFinal(serialVersionUIDField.getModifiers()), "serialVersionUID must be final");
+            assertEquals(long.class, serialVersionUIDField.getType(), "serialVersionUID must be of type long");
+        }  catch (NoSuchFieldException ignored) {
+            fail("Unable to find serialVersionUID field in class " + clazz.getName());
+        }
+    }
+    
+    public static void withContracts(Consumer<Contracts> block) {
+        final Contracts.Config config = new Contracts.Config() {
+            @Override
+            public boolean useShutdownHooks() {
+                return false;
+            }
+        };
+        withContracts(config, block);
+    }
+    
+    public static void withContracts(Contracts.Config config, Consumer<Contracts> block) {
+        final Contracts.Config validConfig = nullCheck(config, "config was null");
+        final Consumer<Contracts> validBlock = nullCheck(block, "block was null");
+        final Contracts contracts = GlobalContracts.createContracts(validConfig);
+        
+        try (AutoClose closeContracts = contracts.open()) {
+            final AutoClose ignored = closeContracts;
+            validBlock.accept(contracts);
+        }
+    }
+    
+    public static void implicitClose(AutoClose close) {
+        close.close();
     }
 }

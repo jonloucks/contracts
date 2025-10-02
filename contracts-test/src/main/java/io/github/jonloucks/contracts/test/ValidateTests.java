@@ -4,7 +4,6 @@ import io.github.jonloucks.contracts.api.*;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.invocation.InvocationOnMock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
@@ -15,9 +14,9 @@ import java.util.concurrent.atomic.AtomicReference;
 import static io.github.jonloucks.contracts.test.Tools.assertThrown;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
+@SuppressWarnings("CodeBlock2Expr")
 @ExtendWith(MockitoExtension.class)
 @MockitoSettings(strictness = Strictness.LENIENT)
 public interface ValidateTests {
@@ -92,13 +91,10 @@ public interface ValidateTests {
             return null;
         }).when(closeBinding).close();
  
-        when(contracts.bind(any(), any())).thenAnswer(new Answer<AutoClose>() {
-            @Override
-            public AutoClose answer(InvocationOnMock invocationOnMock) throws Throwable {
-                promisor.set(invocationOnMock.getArgument(1));
-                when(contracts.isBound(any())).thenReturn(true);
-                return closeBinding;
-            }
+        when(contracts.bind(any(), any())).thenAnswer((Answer<AutoClose>) onMock -> {
+            promisor.set(onMock.getArgument(1));
+            when(contracts.isBound(any())).thenReturn(true);
+            return closeBinding;
         });
         when(contracts.claim(any())).thenAnswer((Answer<?>) invocationOnMock -> {
             return promisor.get().demand();

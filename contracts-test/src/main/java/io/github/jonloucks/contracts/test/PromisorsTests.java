@@ -4,6 +4,7 @@ import io.github.jonloucks.contracts.api.*;
 import org.junit.jupiter.api.Test;
 
 import static io.github.jonloucks.contracts.test.Tools.assertObject;
+import static io.github.jonloucks.contracts.test.Tools.withContracts;
 import static org.junit.jupiter.api.Assertions.*;
 
 public interface PromisorsTests extends
@@ -14,9 +15,11 @@ public interface PromisorsTests extends
  
     @Test
     default void promisors_getContractDeliverable() {
-        final Promisors promisors = GlobalContracts.claimContract(Promisors.CONTRACT);
-        
-        assertNotNull(promisors);
-        assertObject(promisors);
+        withContracts(contracts -> {
+            final Promisors promisors = contracts.claim(Promisors.CONTRACT);
+            
+            assertNotNull(promisors);
+            assertObject(promisors);
+        });
     }
 }

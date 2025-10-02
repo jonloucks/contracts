@@ -3,6 +3,7 @@ package io.github.jonloucks.contracts.test;
 import io.github.jonloucks.contracts.api.ContractException;
 import org.junit.jupiter.api.Test;
 
+import static io.github.jonloucks.contracts.test.Tools.assertIsSerializable;
 import static io.github.jonloucks.contracts.test.Tools.assertThrown;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -19,10 +20,15 @@ public interface ExceptionTests {
     }
     
     @Test
+    default void exception_ContractException_IsSerializable() {
+        assertIsSerializable(ContractException.class);
+    }
+    
+    @Test
     default void exception_ContractException_WithValid_Works() {
         final ContractException exception = new ContractException("abc");
         
-        Tools.assertThrown(exception, "abc");
+        assertThrown(exception, "abc");
     }
     
     @Test
