@@ -11,8 +11,7 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 
-import static io.github.jonloucks.contracts.api.Checks.illegalCheck;
-import static io.github.jonloucks.contracts.api.Checks.nullCheck;
+import static io.github.jonloucks.contracts.api.Checks.*;
 import static java.util.Optional.ofNullable;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -55,7 +54,7 @@ public final class Tools {
      * @param theClass the class to check
      */
     public static void assertInstantiateThrows(Class<?> theClass) {
-        final Class<?> validClass = nullCheck(theClass, "class was null");
+        final Class<?> validClass = typeCheck(theClass);
         final Throwable thrown = assertThrows(Throwable.class, () -> {
             final Constructor<?> constructor = validClass.getDeclaredConstructor();
             constructor.setAccessible(true);
@@ -204,7 +203,7 @@ public final class Tools {
     }
     
     public static void withContracts(Contracts.Config config, Consumer<Contracts> block) {
-        final Contracts.Config validConfig = nullCheck(config, "config was null");
+        final Contracts.Config validConfig = configCheck(config);
         final Consumer<Contracts> validBlock = nullCheck(block, "block was null");
         final Contracts contracts = GlobalContracts.createContracts(validConfig);
         

@@ -85,6 +85,31 @@ public interface RepositoryTests {
     }
     
     @Test
+    default void repository_closeTwice_DoesNothing() {
+        runWithScenario(( contracts,repository) -> {
+            final Contract<String> textContract = Contract.create("test text");
+            try (AutoClose closeBinding = repository.store(textContract, () -> "x")) {
+                assertDoesNotThrow(closeBinding::close);
+                assertDoesNotThrow(closeBinding::close);
+            }
+        });
+    }
+    
+    @Test
+    default void repository_openTwice_DoesNothing() {
+        runWithScenario(( contracts,repository) -> {
+            final Contract<String> textContract = Contract.create("test text");
+            try (AutoClose closeBinding = repository.store(textContract, () -> "y")) {
+                final AutoClose ignored = closeBinding;
+                try (AutoClose closeRepository = repository.open()) {
+                    final AutoClose ignored2 = closeRepository;
+                }
+                assertEquals("y", contracts.claim(textContract), "contract deliverable replace should match");
+            }
+        });
+    }
+    
+    @Test
     default void repository_store_Twice_Throws() {
         runWithScenario(( contracts,repository) -> {
             final Contract<String> textContract = Contract.create("test text");
@@ -96,6 +121,21 @@ public interface RepositoryTests {
                     repository.store(textContract, () -> "y");
                 });
                 assertThrown(thrown);
+            }
+        });
+    }
+    
+    @Test
+    default void repository_store_Replace_Works() {
+        runWithScenario(( contracts,repository) -> {
+            final Contract<String> textContract = Contract.create(String.class, b -> b.replaceable(true));
+            try (AutoClose closeFirstBinding = contracts.bind(textContract, () -> "x") ) {
+                final AutoClose ignoredFirstBinding = closeFirstBinding;
+                try (AutoClose closeBinding = repository.store(textContract, () -> "y")) {
+                    final AutoClose ignored = closeBinding;
+                    final String text = contracts.claim(textContract);
+                    assertEquals("y", text, "contract deliverable replace should match");
+                }
             }
         });
     }

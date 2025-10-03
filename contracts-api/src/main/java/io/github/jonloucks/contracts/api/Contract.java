@@ -1,8 +1,9 @@
 package io.github.jonloucks.contracts.api;
 
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Consumer;
 
-import static io.github.jonloucks.contracts.api.Checks.nullCheck;
+import static io.github.jonloucks.contracts.api.Checks.*;
 
 /**
  * The API agreement for a Contract between the claimee and the claimant.
@@ -46,25 +47,19 @@ public final class Contract<T> {
      */
     @SafeVarargs // Required to safely determine the checked type of T
     public static <T> Contract<T> create(String name, T... reifiedArray) {
-        final T[] validInstanceArray = nullCheck(reifiedArray, "reified array was not present");
-        final String validName = nullCheck(name, "name was not present");
-        final Class<T> validDeliverableType = detectDeliverableType(validInstanceArray);
-        
-        return createHelper(validDeliverableType, validName);
+        return create(detectDeliverableType(reifiedArray), b -> b.name(name));
     }
     
     /**
      * Create a contract with a given name, the rest is automatic.
      * For custom configuration see {@link #create(Config)}
      *
-     * @param type          The deliverable class for the contract
+     * @param type          the deliverable class for the Contract
      * @param <T>           the type of deliverable for this Contract
      * @return the new Contract
      */
     public static <T> Contract<T> create(Class<T> type) {
-        final Class<T> validDeliverableType = nullCheck(type, "type was not present");
-        
-        return createHelper(validDeliverableType, type.getTypeName());
+        return create(type, b -> {});
     }
     
     /**
@@ -76,6 +71,19 @@ public final class Contract<T> {
      */
     public static <T> Contract<T> create(Config<T> config) {
         return new Contract<>(config);
+    }
+    
+    /**
+     * Create a contract from a class type and an optional builder callback
+     * @param type the type of deliverable for this Contract
+     * @param builderConsumer the builder callback
+     * @return the new Contract
+     * @param <T> the type of deliverable for this Contract
+     */
+    public static <T> Contract<T> create(Class<T> type, Consumer<Config.Builder<T>> builderConsumer) {
+        final ContractBuilderImpl<T> builder = new ContractBuilderImpl<>(typeCheck(type));
+        builderConsumerCheck(builderConsumer).accept(builder);
+        return create(builder);
     }
     
     /**
@@ -170,6 +178,33 @@ public final class Contract<T> {
         default boolean isReplaceable() {
             return false;
         }
+        
+        /**
+         * Partial builder to streamline custom contracts
+         * @param <T> The Contract deliverable type
+         */
+        interface Builder<T> extends Config<T> {
+            /**
+             * Set the Contract name
+             * @param name the new name
+             * @return this builder
+             */
+            Builder<T> name(String name);
+            
+            /**
+             * Set the Contract typeName
+             * @param typeName the new type name
+             * @return this builder
+             */
+            Builder<T> typeName(String typeName);
+            
+            /**
+             * Set if the Contract binding can be replaced
+             * @param replaceable true allows a Contract binding to be replaced
+             * @return this builder
+             */
+            Builder<T> replaceable(boolean replaceable);
+        }
     }
     
     private static final AtomicInteger ID_GENERATOR = new AtomicInteger(1);
@@ -178,33 +213,15 @@ public final class Contract<T> {
     private final Config<T> config;
     
     private Contract(Config<T> config) {
-        this.config = nullCheck(config, "config was null");
-        nullCheck(config.name(), "config name was not present");
+        this.config = configCheck(config);
+        nameCheck(config.name());
         nullCheck(config.typeName(), "config type was not present");
-    }
-    
-    private static <T> Contract<T> createHelper(Class<T> deliverableType, String name) {
-        return Contract.create(new Config<>() {
-            @Override
-            public T cast(Object instance) {
-                return deliverableType.cast(instance);
-            }
-            
-            @Override
-            public String name() {
-                return name;
-            }
-            
-            @Override
-            public String typeName() {
-                return deliverableType.getTypeName();
-            }
-        });
     }
     
     //Since arrays are reified the following is safe and checked
     @SuppressWarnings("unchecked")
-    private static <T> Class<T> detectDeliverableType(T[] validInstanceArray) {
-        return nullCheck((Class<T>) validInstanceArray.getClass().getComponentType(), "unable to capture type");
+    private static <T> Class<T> detectDeliverableType(T ... reifiedArray) {
+        final T[] validReifiedArray = nullCheck(reifiedArray, "reified array was not present");
+        return (Class<T>) validReifiedArray.getClass().getComponentType();
     }
 }

@@ -3,13 +3,14 @@ package io.github.jonloucks.contracts.test;
 import io.github.jonloucks.contracts.api.Contract;
 import org.junit.jupiter.api.Test;
 
-import static io.github.jonloucks.contracts.test.Tools.assertContract;
-import static io.github.jonloucks.contracts.test.Tools.assertInstantiateThrows;
+import java.util.function.Consumer;
+
+import static io.github.jonloucks.contracts.test.Tools.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 @SuppressWarnings("CodeBlock2Expr")
 public interface ContractTests {
-    
+
     @Test
     default void contract_Instantiate_Throws() {
         assertInstantiateThrows(Contract.class);
@@ -21,7 +22,7 @@ public interface ContractTests {
             Contract.create("test", (String[]) null);
         });
         
-        assertNotNull(thrown.getMessage());
+        assertThrown(thrown);
     }
     
     @Test
@@ -30,7 +31,7 @@ public interface ContractTests {
             Contract.create((Contract.Config<?>)null);
         });
         
-        assertNotNull(thrown.getMessage());
+        assertThrown(thrown);
     }
     
     @Test
@@ -39,7 +40,41 @@ public interface ContractTests {
             Contract.create((Class<?>)null);
         });
         
-        assertNotNull(thrown.getMessage());
+        assertThrown(thrown);
+    }
+    
+    @Test
+    default void contract_create_withNullClassAndBuilder_Throws() {
+        final Consumer<Contract.Config.Builder<String>> builderConsumer = b -> {};
+        final IllegalArgumentException thrown = assertThrows(IllegalArgumentException.class, () -> {
+            Contract.create(null, builderConsumer);
+        });
+        
+        assertThrown(thrown);
+    }
+    
+    @Test
+    default void contract_create_withClassAndNullBuilder_Throws() {
+        final IllegalArgumentException thrown = assertThrows(IllegalArgumentException.class, () -> {
+            Contract.create(String.class, null);
+        });
+        
+        assertThrown(thrown);
+    }
+    
+    @Test
+    default void contract_create_withClassAndBuilder_Works() {
+        final Contract<String> contract = Contract.create(String.class,
+            b -> {
+                assertSame(b, b.name("test"));
+                assertSame(b, b.replaceable(true));
+                assertSame(b, b.typeName("chars"));
+            });
+        
+        assertNotNull(contract);
+        assertEquals("test", contract.getName());
+        assertEquals("chars", contract.getTypeName());
+        assertTrue(contract.isReplaceable());
     }
     
     @Test

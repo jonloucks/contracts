@@ -77,6 +77,7 @@ final class LifeCyclePromisorImpl<T> implements Promisor<T> {
         if (thrown instanceof RuntimeException) {
             throw (RuntimeException) thrown;
         }
+        throw new IllegalStateException(thrown);
     }
     
     private T createDeliverableIfNeeded() {
