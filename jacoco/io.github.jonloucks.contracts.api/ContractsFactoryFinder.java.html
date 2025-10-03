@@ -4,53 +4,62 @@ import java.lang.reflect.Constructor;
 import java.util.Optional;
 import java.util.ServiceLoader;
 
+import static io.github.jonloucks.contracts.api.Checks.configCheck;
 import static io.github.jonloucks.contracts.api.Checks.nullCheck;
 
 final class ContractsFactoryFinder {
     private final Contracts.Config config;
     
-<span class="fc" id="L12">    ContractsFactoryFinder(Contracts.Config config) {</span>
-<span class="fc" id="L13">        this.config = nullCheck(config, &quot;config was null&quot;);</span>
-<span class="fc" id="L14">    }</span>
+<span class="fc" id="L13">    ContractsFactoryFinder(Contracts.Config config) {</span>
+<span class="fc" id="L14">        this.config = configCheck(config);</span>
+<span class="fc" id="L15">    }</span>
     
     ContractsFactory find() {
-<span class="fc" id="L17">        return createByReflection()</span>
-<span class="fc" id="L18">            .or(this::createByServiceLoader)</span>
-<span class="fc" id="L19">            .orElseThrow(this::newNotFoundException);</span>
+<span class="fc" id="L18">        return createByReflection()</span>
+<span class="fc" id="L19">            .or(this::createByServiceLoader)</span>
+<span class="fc" id="L20">            .orElseThrow(this::newNotFoundException);</span>
     }
 
     private Optional&lt;? extends ContractsFactory&gt; createByServiceLoader() {
-<span class="fc bfc" id="L23" title="All 2 branches covered.">        if (config.useServiceLoader()) {</span>
+<span class="fc bfc" id="L24" title="All 2 branches covered.">        if (config.useServiceLoader()) {</span>
             try {
-<span class="fc" id="L25">                final Class&lt;? extends ContractsFactory&gt; factoryClass = nullCheck(config.serviceLoaderClass(), &quot;config.serviceLoaderClass() was null&quot;);</span>
-<span class="fc" id="L26">                final ServiceLoader&lt;? extends ContractsFactory&gt; serviceLoader = ServiceLoader.load(factoryClass);</span>
-<span class="fc" id="L27">                return serviceLoader.findFirst();</span>
-<span class="fc" id="L28">            } catch (Throwable thrown) {</span>
-<span class="fc" id="L29">                return Optional.empty();</span>
+<span class="fc" id="L26">                return ServiceLoader.load(getServivceFactoryClass()).findFirst();</span>
+<span class="fc" id="L27">            } catch (Throwable ignored) {</span>
+<span class="fc" id="L28">                return Optional.empty();</span>
             }
         }
-<span class="fc" id="L32">        return Optional.empty();</span>
+<span class="fc" id="L31">        return Optional.empty();</span>
+    }
+    
+    private Class&lt;? extends ContractsFactory&gt; getServivceFactoryClass() {
+<span class="fc" id="L35">        return nullCheck(config.serviceLoaderClass(), &quot;config.serviceLoaderClass() was null&quot;);</span>
     }
     
     private Optional&lt;ContractsFactory&gt; createByReflection() {
-<span class="fc bfc" id="L36" title="All 2 branches covered.">        if (config.useReflection()) {</span>
-<span class="fc" id="L37">            final String className = nullCheck(config.reflectionClassName(), &quot;config.reflectionClassName() was null&quot;);</span>
-<span class="fc bfc" id="L38" title="All 2 branches covered.">            if (className.isEmpty()) {</span>
-<span class="fc" id="L39">                return Optional.empty();</span>
+<span class="fc bfc" id="L39" title="All 2 branches covered.">        if (config.useReflection()) {</span>
+<span class="fc" id="L40">            final String className = getClassName();</span>
+<span class="fc bfc" id="L41" title="All 2 branches covered.">            if (className.isEmpty()) {</span>
+<span class="fc" id="L42">                return Optional.empty();</span>
             }
             try {
-<span class="fc" id="L42">                final Class&lt;?&gt; bootstrapClass = Class.forName(className);</span>
-<span class="fc" id="L43">                final Constructor&lt;?&gt; bootstrapConstructor = bootstrapClass.getConstructor();</span>
-<span class="fc" id="L44">                return Optional.of((ContractsFactory) bootstrapConstructor.newInstance());</span>
-<span class="fc" id="L45">            } catch (Throwable thrown) {</span>
-<span class="fc" id="L46">                return Optional.empty();</span>
+<span class="fc" id="L45">                return Optional.of((ContractsFactory) getConstructor(className).newInstance());</span>
+<span class="fc" id="L46">            } catch (Throwable ignored) {</span>
+<span class="fc" id="L47">                return Optional.empty();</span>
             }
         }
-<span class="fc" id="L49">        return Optional.empty();</span>
+<span class="fc" id="L50">        return Optional.empty();</span>
+    }
+    
+    private String getClassName() {
+<span class="fc" id="L54">        return nullCheck(config.reflectionClassName(), &quot;config.reflectionClassName() was null&quot;);</span>
+    }
+   
+    private Constructor&lt;?&gt; getConstructor(String className) throws Throwable {
+<span class="fc" id="L58">        return Class.forName(className).getConstructor();</span>
     }
     
     private ContractException newNotFoundException() {
-<span class="fc" id="L53">        return new ContractException(&quot;Unable to find GlobalContracts ContractsFactory&quot;);</span>
+<span class="fc" id="L62">        return new ContractException(&quot;Unable to find GlobalContracts ContractsFactory&quot;);</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>

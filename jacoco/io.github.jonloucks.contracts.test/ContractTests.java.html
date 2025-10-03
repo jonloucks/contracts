@@ -3,134 +3,169 @@
 import io.github.jonloucks.contracts.api.Contract;
 import org.junit.jupiter.api.Test;
 
-import static io.github.jonloucks.contracts.test.Tools.assertContract;
-import static io.github.jonloucks.contracts.test.Tools.assertInstantiateThrows;
+import java.util.function.Consumer;
+
+import static io.github.jonloucks.contracts.test.Tools.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 @SuppressWarnings(&quot;CodeBlock2Expr&quot;)
 public interface ContractTests {
-    
+
     @Test
     default void contract_Instantiate_Throws() {
-<span class="fc" id="L15">        assertInstantiateThrows(Contract.class);</span>
-<span class="fc" id="L16">    }</span>
+<span class="fc" id="L16">        assertInstantiateThrows(Contract.class);</span>
+<span class="fc" id="L17">    }</span>
     
     @Test
     default void contract_create_withNullTypes_Throws() {
-<span class="fc" id="L20">        final IllegalArgumentException thrown = assertThrows(IllegalArgumentException.class, () -&gt; {</span>
-<span class="nc" id="L21">            Contract.create(&quot;test&quot;, (String[]) null);</span>
-<span class="nc" id="L22">        });</span>
+<span class="fc" id="L21">        final IllegalArgumentException thrown = assertThrows(IllegalArgumentException.class, () -&gt; {</span>
+<span class="nc" id="L22">            Contract.create(&quot;test&quot;, (String[]) null);</span>
+<span class="nc" id="L23">        });</span>
         
-<span class="fc" id="L24">        assertNotNull(thrown.getMessage());</span>
-<span class="fc" id="L25">    }</span>
+<span class="fc" id="L25">        assertThrown(thrown);</span>
+<span class="fc" id="L26">    }</span>
     
     @Test
     default void contract_create_withNullConfig_Throws() {
-<span class="fc" id="L29">        final IllegalArgumentException thrown = assertThrows(IllegalArgumentException.class, () -&gt; {</span>
-<span class="nc" id="L30">            Contract.create((Contract.Config&lt;?&gt;)null);</span>
-<span class="nc" id="L31">        });</span>
+<span class="fc" id="L30">        final IllegalArgumentException thrown = assertThrows(IllegalArgumentException.class, () -&gt; {</span>
+<span class="nc" id="L31">            Contract.create((Contract.Config&lt;?&gt;)null);</span>
+<span class="nc" id="L32">        });</span>
         
-<span class="fc" id="L33">        assertNotNull(thrown.getMessage());</span>
-<span class="fc" id="L34">    }</span>
+<span class="fc" id="L34">        assertThrown(thrown);</span>
+<span class="fc" id="L35">    }</span>
     
     @Test
     default void contract_create_withNullClass_Throws() {
-<span class="fc" id="L38">        final IllegalArgumentException thrown = assertThrows(IllegalArgumentException.class, () -&gt; {</span>
-<span class="nc" id="L39">            Contract.create((Class&lt;?&gt;)null);</span>
-<span class="nc" id="L40">        });</span>
+<span class="fc" id="L39">        final IllegalArgumentException thrown = assertThrows(IllegalArgumentException.class, () -&gt; {</span>
+<span class="nc" id="L40">            Contract.create((Class&lt;?&gt;)null);</span>
+<span class="nc" id="L41">        });</span>
         
-<span class="fc" id="L42">        assertNotNull(thrown.getMessage());</span>
-<span class="fc" id="L43">    }</span>
+<span class="fc" id="L43">        assertThrown(thrown);</span>
+<span class="fc" id="L44">    }</span>
+    
+    @Test
+    default void contract_create_withNullClassAndBuilder_Throws() {
+<span class="pc" id="L48">        final Consumer&lt;Contract.Config.Builder&lt;String&gt;&gt; builderConsumer = b -&gt; {};</span>
+<span class="fc" id="L49">        final IllegalArgumentException thrown = assertThrows(IllegalArgumentException.class, () -&gt; {</span>
+<span class="nc" id="L50">            Contract.create(null, builderConsumer);</span>
+<span class="nc" id="L51">        });</span>
+        
+<span class="fc" id="L53">        assertThrown(thrown);</span>
+<span class="fc" id="L54">    }</span>
+    
+    @Test
+    default void contract_create_withClassAndNullBuilder_Throws() {
+<span class="fc" id="L58">        final IllegalArgumentException thrown = assertThrows(IllegalArgumentException.class, () -&gt; {</span>
+<span class="nc" id="L59">            Contract.create(String.class, null);</span>
+<span class="nc" id="L60">        });</span>
+        
+<span class="fc" id="L62">        assertThrown(thrown);</span>
+<span class="fc" id="L63">    }</span>
+    
+    @Test
+    default void contract_create_withClassAndBuilder_Works() {
+<span class="fc" id="L67">        final Contract&lt;String&gt; contract = Contract.create(String.class,</span>
+            b -&gt; {
+<span class="fc" id="L69">                assertSame(b, b.name(&quot;test&quot;));</span>
+<span class="fc" id="L70">                assertSame(b, b.replaceable(true));</span>
+<span class="fc" id="L71">                assertSame(b, b.typeName(&quot;chars&quot;));</span>
+<span class="fc" id="L72">            });</span>
+        
+<span class="fc" id="L74">        assertNotNull(contract);</span>
+<span class="fc" id="L75">        assertEquals(&quot;test&quot;, contract.getName());</span>
+<span class="fc" id="L76">        assertEquals(&quot;chars&quot;, contract.getTypeName());</span>
+<span class="fc" id="L77">        assertTrue(contract.isReplaceable());</span>
+<span class="fc" id="L78">    }</span>
     
     @Test
     default void contract_create_IntegerContract_Works() {
-<span class="fc" id="L47">        final String contractName = &quot;testContract&quot;;</span>
-<span class="fc" id="L48">        final Contract&lt;Integer&gt; contract = Contract.create(contractName);</span>
-<span class="fc" id="L49">        final Contract.Config&lt;Integer&gt; expectedConfig = new Contract.Config&lt;&gt;() {</span>
+<span class="fc" id="L82">        final String contractName = &quot;testContract&quot;;</span>
+<span class="fc" id="L83">        final Contract&lt;Integer&gt; contract = Contract.create(contractName);</span>
+<span class="fc" id="L84">        final Contract.Config&lt;Integer&gt; expectedConfig = new Contract.Config&lt;&gt;() {</span>
             
             @Override
             public String name() {
-<span class="fc" id="L53">                return contractName;</span>
+<span class="fc" id="L88">                return contractName;</span>
             }
             
             @Override
             public String typeName() {
-<span class="fc" id="L58">                return Integer.class.getTypeName();</span>
+<span class="fc" id="L93">                return Integer.class.getTypeName();</span>
             }
             
             @Override
             public Integer cast(Object instance) {
-<span class="fc" id="L63">                return (Integer) instance;</span>
+<span class="fc" id="L98">                return (Integer) instance;</span>
             }
             
         };
-<span class="fc" id="L67">        assertContract(contract, expectedConfig, 0);</span>
-<span class="fc" id="L68">    }</span>
+<span class="fc" id="L102">        assertContract(contract, expectedConfig, 0);</span>
+<span class="fc" id="L103">    }</span>
     
     @Test
     default void contract_create_ByClass_Works() {
-<span class="fc" id="L72">        final Class&lt;String&gt; contractClass = String.class;</span>
-<span class="fc" id="L73">        final Contract&lt;String&gt; contract = Contract.create(contractClass);</span>
-<span class="fc" id="L74">        final Contract.Config&lt;String&gt; expectedConfig = new Contract.Config&lt;&gt;() {</span>
+<span class="fc" id="L107">        final Class&lt;String&gt; contractClass = String.class;</span>
+<span class="fc" id="L108">        final Contract&lt;String&gt; contract = Contract.create(contractClass);</span>
+<span class="fc" id="L109">        final Contract.Config&lt;String&gt; expectedConfig = new Contract.Config&lt;&gt;() {</span>
             
             @Override
             public String name() {
-<span class="fc" id="L78">                return contractClass.getTypeName();</span>
+<span class="fc" id="L113">                return contractClass.getTypeName();</span>
             }
             
             @Override
             public String typeName() {
-<span class="fc" id="L83">                return contractClass.getTypeName();</span>
+<span class="fc" id="L118">                return contractClass.getTypeName();</span>
             }
             
             @Override
             public String cast(Object instance) {
-<span class="fc" id="L88">                return contractClass.cast(instance);</span>
+<span class="fc" id="L123">                return contractClass.cast(instance);</span>
             }
             
         };
-<span class="fc" id="L92">        assertContract(contract, expectedConfig, &quot;hello&quot;);</span>
-<span class="fc" id="L93">    }</span>
+<span class="fc" id="L127">        assertContract(contract, expectedConfig, &quot;hello&quot;);</span>
+<span class="fc" id="L128">    }</span>
     
     @Test
     default void contract_create_Works() {
-<span class="fc" id="L97">        final Contract.Config&lt;String&gt; config = new Contract.Config&lt;&gt;() {</span>
+<span class="fc" id="L132">        final Contract.Config&lt;String&gt; config = new Contract.Config&lt;&gt;() {</span>
             @Override
             public String cast(Object instance) {
-<span class="fc" id="L100">                return (String) instance;</span>
+<span class="fc" id="L135">                return (String) instance;</span>
             }
             
             @Override
             public String typeName() {
-<span class="fc" id="L105">                return String.class.getName();</span>
+<span class="fc" id="L140">                return String.class.getName();</span>
             }
             
             @Override
             public String name() {
-<span class="fc" id="L110">                return &quot;Some String contract&quot;;</span>
+<span class="fc" id="L145">                return &quot;Some String contract&quot;;</span>
             }
             
             @Override
             public boolean isReplaceable() {
-<span class="pc bpc" id="L115" title="1 of 2 branches missed.">                return !Contract.Config.super.isReplaceable();</span>
+<span class="pc bpc" id="L150" title="1 of 2 branches missed.">                return !Contract.Config.super.isReplaceable();</span>
             }
         };
-<span class="fc" id="L118">        final Contract&lt;String&gt; contract = Contract.create(config);</span>
+<span class="fc" id="L153">        final Contract&lt;String&gt; contract = Contract.create(config);</span>
         
-<span class="fc" id="L120">        assertContract(contract, config, &quot;abc&quot;);</span>
-<span class="fc" id="L121">    }</span>
+<span class="fc" id="L155">        assertContract(contract, config, &quot;abc&quot;);</span>
+<span class="fc" id="L156">    }</span>
     
     @Test
     default void contract_Config_Defaults() {
-<span class="fc" id="L125">        final Contract.Config&lt;String&gt; defaults = x -&gt; (String)x;</span>
+<span class="fc" id="L160">        final Contract.Config&lt;String&gt; defaults = x -&gt; (String)x;</span>
         
-<span class="fc" id="L127">        assertAll(</span>
-<span class="fc" id="L128">            () -&gt; assertFalse(defaults.isReplaceable(), &quot;Default for replaceable.&quot;),</span>
-<span class="fc" id="L129">            () -&gt; assertEquals(&quot;&quot;, defaults.name(), &quot;Default for name.&quot;),</span>
-<span class="fc" id="L130">            () -&gt; assertEquals(&quot;&quot;, defaults.typeName(), &quot;Default for typeName.&quot;),</span>
-<span class="fc" id="L131">            () -&gt; assertSame( &quot;abc&quot;, defaults.cast(&quot;abc&quot;), &quot;Cast should work.&quot;),</span>
-<span class="pc" id="L132">            () -&gt; assertThrows(ClassCastException.class, () -&gt; defaults.cast(12L))</span>
+<span class="fc" id="L162">        assertAll(</span>
+<span class="fc" id="L163">            () -&gt; assertFalse(defaults.isReplaceable(), &quot;Default for replaceable.&quot;),</span>
+<span class="fc" id="L164">            () -&gt; assertEquals(&quot;&quot;, defaults.name(), &quot;Default for name.&quot;),</span>
+<span class="fc" id="L165">            () -&gt; assertEquals(&quot;&quot;, defaults.typeName(), &quot;Default for typeName.&quot;),</span>
+<span class="fc" id="L166">            () -&gt; assertSame( &quot;abc&quot;, defaults.cast(&quot;abc&quot;), &quot;Cast should work.&quot;),</span>
+<span class="pc" id="L167">            () -&gt; assertThrows(ClassCastException.class, () -&gt; defaults.cast(12L))</span>
         );
-<span class="fc" id="L134">    }</span>
+<span class="fc" id="L169">    }</span>
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>

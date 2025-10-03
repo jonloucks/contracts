@@ -7,9 +7,10 @@ public final class Checks {
     
     /**
      * Utility class instantiation protection
+     * Test coverage not possible, java module protections in place
      */
-<span class="nc" id="L11">    private Checks() {</span>
-<span class="nc" id="L12">        throw new AssertionError(&quot;Illegal constructor&quot;);</span>
+<span class="nc" id="L12">    private Checks() {</span>
+<span class="nc" id="L13">        throw new AssertionError(&quot;Illegal constructor&quot;);</span>
     }
     
     /**
@@ -21,7 +22,16 @@ public final class Checks {
      * @throws IllegalArgumentException when invalid
      */
     public static &lt;T&gt; Contract&lt;T&gt; contractCheck(Contract&lt;T&gt; contract) {
-<span class="fc" id="L24">        return nullCheck(contract, &quot;contract was null&quot;);</span>
+<span class="fc" id="L25">        return nullCheck(contract, &quot;contract was not preset&quot;);</span>
+    }
+    
+    /**
+     * Check if given Contracts is not null or invalid
+     * @param contracts the Contracts to check
+     * @return a valid Contracts
+     */
+    public static Contracts contractsCheck(Contracts contracts) {
+<span class="fc" id="L34">        return nullCheck(contracts, &quot;contracts was not present&quot;);</span>
     }
     
     /**
@@ -33,7 +43,67 @@ public final class Checks {
      * @throws IllegalArgumentException when invalid
      */
     public static &lt;T&gt; Promisor&lt;T&gt; promisorCheck(Promisor&lt;T&gt; promisor) {
-<span class="fc" id="L36">        return nullCheck(promisor, &quot;promisor was null&quot;);</span>
+<span class="fc" id="L46">        return nullCheck(promisor, &quot;promisor was not preset&quot;);</span>
+    }
+    
+    /**
+     * Check if given config is not null or invalid
+     *
+     * @param config the config to check
+     * @param &lt;T&gt;      the type of config
+     * @return a valid config
+     * @throws IllegalArgumentException when invalid
+     */
+    public static &lt;T&gt; T configCheck(T config) {
+<span class="fc" id="L58">        return nullCheck(config, &quot;config was not preset&quot;);</span>
+    }
+    
+    /**
+     * Check if given builder is not null or invalid
+     *
+     * @param builder the builder to check
+     * @param &lt;T&gt;      the type of builder
+     * @return a valid builder
+     * @throws IllegalArgumentException when invalid
+     */
+    public static &lt;T&gt; T builderCheck(T builder) {
+<span class="fc" id="L70">        return nullCheck(builder, &quot;builder was not present&quot;);</span>
+    }
+    
+    /**
+     * Check if given builder consumer is not null or invalid
+     *
+     * @param builderConsumer the builder consumer to check
+     * @param &lt;T&gt;      the type of builder consumer
+     * @return a valid builder consumer
+     * @throws IllegalArgumentException when invalid
+     */
+    public static &lt;T&gt; T builderConsumerCheck(T builderConsumer) {
+<span class="fc" id="L82">        return nullCheck(builderConsumer, &quot;builder consumer was not present&quot;);</span>
+    }
+    
+    /**
+     * Check if given type is not null or invalid
+     *
+     * @param type the type to check
+     * @param &lt;T&gt;      the type of type
+     * @return a valid type
+     * @throws IllegalArgumentException when invalid
+     */
+    public static &lt;T&gt; T typeCheck(T type) {
+<span class="fc" id="L94">        return nullCheck(type, &quot;type was was not present&quot;);</span>
+    }
+    
+    /**
+     * Check if given name is not null or invalid
+     *
+     * @param name the name to check
+     * @param &lt;T&gt;      the type of name
+     * @return a valid name
+     * @throws IllegalArgumentException when invalid
+     */
+    public static &lt;T&gt; T nameCheck(T name) {
+<span class="fc" id="L106">        return nullCheck(name, &quot;name was was not present&quot;);</span>
     }
     
     /**
@@ -45,7 +115,7 @@ public final class Checks {
      * @throws IllegalArgumentException when invalid
      */
     public static &lt;T&gt; T messageCheck(T t) {
-<span class="fc" id="L48">        return nullCheck(t, &quot;Message was null&quot;);</span>
+<span class="fc" id="L118">        return nullCheck(t, &quot;Message was not present&quot;);</span>
     }
     
     /**
@@ -58,7 +128,7 @@ public final class Checks {
      * @throws IllegalArgumentException when invalid
      */
     public static &lt;T&gt; T nullCheck(T t, String message) {
-<span class="fc bfc" id="L61" title="All 2 branches covered.">        return illegalCheck(t, null == t, message);</span>
+<span class="fc bfc" id="L131" title="All 2 branches covered.">        return illegalCheck(t, null == t, message);</span>
     }
     
     /**
@@ -72,13 +142,13 @@ public final class Checks {
      * @throws IllegalArgumentException when invalid
      */
     public static &lt;T&gt; T illegalCheck(T t, boolean failed, String message) {
-<span class="pc bpc" id="L75" title="1 of 2 branches missed.">        if (null == message) {</span>
-<span class="nc" id="L76">            throw new IllegalArgumentException(&quot;Message for illegal check was null&quot;);</span>
+<span class="fc bfc" id="L145" title="All 2 branches covered.">        if (null == message) {</span>
+<span class="fc" id="L146">            throw new IllegalArgumentException(&quot;Message for illegal check was not present&quot;);</span>
         }
-<span class="fc bfc" id="L78" title="All 2 branches covered.">        if (failed) {</span>
-<span class="fc" id="L79">            throw new IllegalArgumentException(message);</span>
+<span class="fc bfc" id="L148" title="All 2 branches covered.">        if (failed) {</span>
+<span class="fc" id="L149">            throw new IllegalArgumentException(message);</span>
         }
-<span class="fc" id="L81">        return t;</span>
+<span class="fc" id="L151">        return t;</span>
     }
     
     /**
@@ -87,25 +157,35 @@ public final class Checks {
      * @param contracts the contracts to check
      */
     public static void validateContracts(Contracts contracts) {
-<span class="fc" id="L90">        final Contracts validContracts = nullCheck(contracts, &quot;contracts was null&quot;);</span>
-<span class="fc" id="L91">        final Contract&lt;String&gt; contract = Contract.create(&quot;validation contract&quot;);</span>
-<span class="fc" id="L92">        final String deliverableValue = &quot;validate value&quot;;</span>
-        
-<span class="fc bfc" id="L94" title="All 2 branches covered.">        if (validContracts.isBound(contract)) {</span>
-<span class="fc" id="L95">            throw new ContractException(&quot;Contract should not be bound&quot;);</span>
-        }
-<span class="fc" id="L97">        try (AutoClose closeBinding = nullCheck(validContracts.bind(contract, () -&gt; deliverableValue), &quot;bind() was null&quot;)) {</span>
-<span class="fc" id="L98">            final AutoClose ignoredWarning = closeBinding;</span>
-<span class="fc bfc" id="L99" title="All 2 branches covered.">            if (!validContracts.isBound(contract)) {</span>
-<span class="fc" id="L100">                throw new ContractException(&quot;Contract binding not working&quot;);</span>
+<span class="fc" id="L160">        final Contracts validContracts = contractsCheck(contracts);</span>
+        try {
+<span class="fc" id="L162">            final Contract&lt;String&gt; contract = Contract.create(&quot;validation contract&quot;);</span>
+<span class="fc" id="L163">            final String deliverableValue = &quot;validate value&quot;;</span>
+            
+<span class="fc bfc" id="L165" title="All 2 branches covered.">            if (validContracts.isBound(contract)) {</span>
+<span class="fc" id="L166">                throw new ContractException(&quot;Contract should not be bound&quot;);</span>
             }
-<span class="pc bpc" id="L102" title="1 of 2 branches missed.">            if (!deliverableValue.equals(validContracts.claim(contract))) {</span>
-<span class="nc" id="L103">                throw new ContractException(&quot;Contract claiming not working&quot;);</span>
+<span class="fc" id="L168">            final AutoClose bindReturn = validContracts.bind(contract, () -&gt; deliverableValue);</span>
+<span class="fc bfc" id="L169" title="All 2 branches covered.">            if (null == bindReturn) {</span>
+<span class="fc" id="L170">                throw new ContractException(&quot;Contract bind returned null&quot;);</span>
             }
-        }
-<span class="fc bfc" id="L106" title="All 2 branches covered.">        if (validContracts.isBound(contract)) {</span>
-<span class="fc" id="L107">            throw new ContractException(&quot;Contract unbinding not working&quot;);</span>
-        }
-<span class="fc" id="L109">    }</span>
+<span class="fc" id="L172">            try (AutoClose closeBinding = bindReturn) {</span>
+<span class="fc" id="L173">                final AutoClose ignoredWarning = closeBinding;</span>
+<span class="fc bfc" id="L174" title="All 2 branches covered.">                if (!validContracts.isBound(contract)) {</span>
+<span class="fc" id="L175">                    throw new ContractException(&quot;Contract should have been bound&quot;);</span>
+                }
+<span class="fc bfc" id="L177" title="All 2 branches covered.">                if (!deliverableValue.equals(validContracts.claim(contract))) {</span>
+<span class="fc" id="L178">                    throw new ContractException(&quot;Contract claiming not working&quot;);</span>
+                }
+            }
+<span class="fc bfc" id="L181" title="All 2 branches covered.">            if (validContracts.isBound(contract)) {</span>
+<span class="fc" id="L182">                throw new ContractException(&quot;Contract unbinding not working&quot;);</span>
+            }
+<span class="fc" id="L184">        } catch (ContractException thrown) {</span>
+<span class="fc" id="L185">            throw thrown;</span>
+<span class="fc" id="L186">        } catch (RuntimeException thrown) {</span>
+<span class="fc" id="L187">            throw new ContractException(&quot;Contracts unexpected validation error&quot;, thrown);</span>
+<span class="fc" id="L188">        }</span>
+<span class="fc" id="L189">    }</span>
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>

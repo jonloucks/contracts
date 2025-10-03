@@ -32,7 +32,7 @@ public interface ValidateTests {
     @Test
     default void validate_WhenBindReturnsNull_Throws(@Mock Contracts contracts) {
 <span class="fc" id="L34">        when(contracts.isBound(any())).thenReturn(false);</span>
-<span class="fc" id="L35">        final IllegalArgumentException thrown = assertThrows(IllegalArgumentException.class, () -&gt; {</span>
+<span class="fc" id="L35">        final ContractException thrown = assertThrows(ContractException.class, () -&gt; {</span>
 <span class="nc" id="L36">            Checks.validateContracts(contracts);</span>
 <span class="nc" id="L37">        });</span>
 <span class="fc" id="L38">        assertThrown(thrown);</span>
@@ -48,61 +48,115 @@ public interface ValidateTests {
 <span class="fc" id="L48">    }</span>
     
     @Test
-    default void validate_isBound_AfterBind_ReturnsFalse_Throws(@Mock Contracts contracts, @Mock AutoClose closeBinding) {
+    default void validate_bind_ReturnsNull_Throws(@Mock Contracts contracts) {
 <span class="fc" id="L52">        when(contracts.isBound(any())).thenReturn(false);</span>
 <span class="fc" id="L53">        when(contracts.bind(any(), any())).thenAnswer((Answer&lt;AutoClose&gt;) invocationOnMock -&gt; {</span>
-<span class="fc" id="L54">            when(contracts.isBound(any())).thenReturn(false);</span>
-<span class="fc" id="L55">            return closeBinding;</span>
+<span class="fc" id="L54">            return null;</span>
         });
-<span class="fc" id="L57">        final ContractException thrown = assertThrows(ContractException.class, () -&gt; {</span>
-<span class="nc" id="L58">            Checks.validateContracts(contracts);</span>
-<span class="nc" id="L59">        });</span>
-<span class="fc" id="L60">        assertThrown(thrown, &quot;Contract binding not working&quot;);</span>
-<span class="fc" id="L61">    }</span>
+<span class="fc" id="L56">        final ContractException thrown = assertThrows(ContractException.class, () -&gt; {</span>
+<span class="nc" id="L57">            Checks.validateContracts(contracts);</span>
+<span class="nc" id="L58">        });</span>
+<span class="fc" id="L59">        assertThrown(thrown, &quot;Contract bind returned null&quot;);</span>
+<span class="fc" id="L60">    }</span>
+    
+    @Test
+    default void validate_isBound_AfterBind_ReturnsFalse_Throws(@Mock Contracts contracts, @Mock AutoClose closeBinding) {
+<span class="fc" id="L64">        when(contracts.isBound(any())).thenReturn(false);</span>
+<span class="fc" id="L65">        when(contracts.bind(any(), any())).thenAnswer((Answer&lt;AutoClose&gt;) invocationOnMock -&gt; {</span>
+<span class="fc" id="L66">            when(contracts.isBound(any())).thenReturn(false);</span>
+<span class="fc" id="L67">            return closeBinding;</span>
+        });
+<span class="fc" id="L69">        final ContractException thrown = assertThrows(ContractException.class, () -&gt; {</span>
+<span class="nc" id="L70">            Checks.validateContracts(contracts);</span>
+<span class="nc" id="L71">        });</span>
+<span class="fc" id="L72">        assertThrown(thrown, &quot;Contract should have been bound&quot;);</span>
+<span class="fc" id="L73">    }</span>
+    
+    @Test
+    default void validate_claim_AfterBind_ReturnsUnexpected_Throws(@Mock Contracts contracts, @Mock AutoClose closeBinding) {
+<span class="fc" id="L77">        when(contracts.isBound(any())).thenReturn(false);</span>
+<span class="fc" id="L78">        when(contracts.bind(any(), any())).thenAnswer((Answer&lt;AutoClose&gt;) invocationOnMock -&gt; {</span>
+<span class="fc" id="L79">            when(contracts.isBound(any())).thenReturn(true);</span>
+<span class="fc" id="L80">            return closeBinding;</span>
+        });
+<span class="fc" id="L82">        doAnswer((Answer&lt;Void&gt;) invocation -&gt; {</span>
+<span class="fc" id="L83">            when(contracts.isBound(any())).thenReturn(false);</span>
+<span class="fc" id="L84">            return null;</span>
+<span class="fc" id="L85">        }).when(closeBinding).close();</span>
+<span class="fc" id="L86">        when(contracts.claim(any())).thenAnswer((Answer&lt;?&gt;) invocationOnMock -&gt; {</span>
+<span class="fc" id="L87">            return null;</span>
+        });
+        
+<span class="fc" id="L90">        final ContractException thrown = assertThrows(ContractException.class, () -&gt; {</span>
+<span class="nc" id="L91">            Checks.validateContracts(contracts);</span>
+<span class="nc" id="L92">        });</span>
+<span class="fc" id="L93">        assertThrown(thrown, &quot;Contract claiming not working&quot;);</span>
+<span class="fc" id="L94">    }</span>
+    
+    @Test
+    default void validate_claim_AfterBind_ThrowsUnexpected_Throws(@Mock Contracts contracts, @Mock AutoClose closeBinding) {
+<span class="fc" id="L98">        when(contracts.isBound(any())).thenReturn(false);</span>
+<span class="fc" id="L99">        when(contracts.bind(any(), any())).thenAnswer((Answer&lt;AutoClose&gt;) invocationOnMock -&gt; {</span>
+<span class="fc" id="L100">            when(contracts.isBound(any())).thenReturn(true);</span>
+<span class="fc" id="L101">            return closeBinding;</span>
+        });
+<span class="fc" id="L103">        doAnswer((Answer&lt;Void&gt;) invocation -&gt; {</span>
+<span class="fc" id="L104">            when(contracts.isBound(any())).thenReturn(false);</span>
+<span class="fc" id="L105">            return null;</span>
+<span class="fc" id="L106">        }).when(closeBinding).close();</span>
+<span class="fc" id="L107">        when(contracts.claim(any())).thenAnswer((Answer&lt;?&gt;) invocationOnMock -&gt; {</span>
+<span class="fc" id="L108">            throw new ArithmeticException(&quot;Math overflow&quot;);</span>
+        });
+        
+<span class="fc" id="L111">        final ContractException thrown = assertThrows(ContractException.class, () -&gt; {</span>
+<span class="nc" id="L112">            Checks.validateContracts(contracts);</span>
+<span class="nc" id="L113">        });</span>
+<span class="fc" id="L114">        assertThrown(thrown, &quot;Contracts unexpected validation error&quot;);</span>
+<span class="fc" id="L115">    }</span>
     
     @Test
     default void validate_Success_DoesNotThrow(@Mock Contracts contracts, @Mock AutoClose closeBinding) {
-<span class="fc" id="L65">        final AtomicReference&lt;Promisor&lt;?&gt;&gt; promisor = new AtomicReference&lt;&gt;();</span>
-<span class="fc" id="L66">        when(contracts.isBound(any())).thenReturn(false);</span>
-<span class="fc" id="L67">        when(contracts.bind(any(), any())).thenAnswer((Answer&lt;AutoClose&gt;) invocationOnMock -&gt; {</span>
-<span class="fc" id="L68">            promisor.set(invocationOnMock.getArgument(1));</span>
-<span class="fc" id="L69">            when(contracts.isBound(any())).thenReturn(true);</span>
-<span class="fc" id="L70">            return closeBinding;</span>
+<span class="fc" id="L119">        final AtomicReference&lt;Promisor&lt;?&gt;&gt; promisor = new AtomicReference&lt;&gt;();</span>
+<span class="fc" id="L120">        when(contracts.isBound(any())).thenReturn(false);</span>
+<span class="fc" id="L121">        when(contracts.bind(any(), any())).thenAnswer((Answer&lt;AutoClose&gt;) invocationOnMock -&gt; {</span>
+<span class="fc" id="L122">            promisor.set(invocationOnMock.getArgument(1));</span>
+<span class="fc" id="L123">            when(contracts.isBound(any())).thenReturn(true);</span>
+<span class="fc" id="L124">            return closeBinding;</span>
         });
-<span class="fc" id="L72">        doAnswer((Answer&lt;Void&gt;) invocation -&gt; {</span>
-<span class="fc" id="L73">            when(contracts.isBound(any())).thenReturn(false);</span>
-<span class="fc" id="L74">            return null;</span>
-<span class="fc" id="L75">        }).when(closeBinding).close();</span>
-<span class="fc" id="L76">        when(contracts.claim(any())).thenAnswer((Answer&lt;?&gt;) invocationOnMock -&gt; {</span>
-<span class="fc" id="L77">            return promisor.get().demand();</span>
+<span class="fc" id="L126">        doAnswer((Answer&lt;Void&gt;) invocation -&gt; {</span>
+<span class="fc" id="L127">            when(contracts.isBound(any())).thenReturn(false);</span>
+<span class="fc" id="L128">            return null;</span>
+<span class="fc" id="L129">        }).when(closeBinding).close();</span>
+<span class="fc" id="L130">        when(contracts.claim(any())).thenAnswer((Answer&lt;?&gt;) invocationOnMock -&gt; {</span>
+<span class="fc" id="L131">            return promisor.get().demand();</span>
         });
         
-<span class="fc" id="L80">        assertDoesNotThrow(() -&gt; {</span>
-<span class="fc" id="L81">            Checks.validateContracts(contracts);</span>
-<span class="fc" id="L82">        });</span>
-<span class="fc" id="L83">    }</span>
+<span class="fc" id="L134">        assertDoesNotThrow(() -&gt; {</span>
+<span class="fc" id="L135">            Checks.validateContracts(contracts);</span>
+<span class="fc" id="L136">        });</span>
+<span class="fc" id="L137">    }</span>
     
     @Test
     default void validate_AfterUnbindContractIsStillBound_Throws(@Mock Contracts contracts, @Mock AutoClose closeBinding) {
-<span class="fc" id="L87">        final AtomicReference&lt;Promisor&lt;?&gt;&gt; promisor = new AtomicReference&lt;&gt;();</span>
-<span class="fc" id="L88">        when(contracts.isBound(any())).thenReturn(false);</span>
-<span class="fc" id="L89">        doAnswer((Answer&lt;Void&gt;) invocation -&gt; {</span>
-<span class="fc" id="L90">            when(contracts.isBound(any())).thenReturn(true);</span>
-<span class="fc" id="L91">            return null;</span>
-<span class="fc" id="L92">        }).when(closeBinding).close();</span>
+<span class="fc" id="L141">        final AtomicReference&lt;Promisor&lt;?&gt;&gt; promisor = new AtomicReference&lt;&gt;();</span>
+<span class="fc" id="L142">        when(contracts.isBound(any())).thenReturn(false);</span>
+<span class="fc" id="L143">        doAnswer((Answer&lt;Void&gt;) invocation -&gt; {</span>
+<span class="fc" id="L144">            when(contracts.isBound(any())).thenReturn(true);</span>
+<span class="fc" id="L145">            return null;</span>
+<span class="fc" id="L146">        }).when(closeBinding).close();</span>
  
-<span class="fc" id="L94">        when(contracts.bind(any(), any())).thenAnswer((Answer&lt;AutoClose&gt;) onMock -&gt; {</span>
-<span class="fc" id="L95">            promisor.set(onMock.getArgument(1));</span>
-<span class="fc" id="L96">            when(contracts.isBound(any())).thenReturn(true);</span>
-<span class="fc" id="L97">            return closeBinding;</span>
+<span class="fc" id="L148">        when(contracts.bind(any(), any())).thenAnswer((Answer&lt;AutoClose&gt;) onMock -&gt; {</span>
+<span class="fc" id="L149">            promisor.set(onMock.getArgument(1));</span>
+<span class="fc" id="L150">            when(contracts.isBound(any())).thenReturn(true);</span>
+<span class="fc" id="L151">            return closeBinding;</span>
         });
-<span class="fc" id="L99">        when(contracts.claim(any())).thenAnswer((Answer&lt;?&gt;) invocationOnMock -&gt; {</span>
-<span class="fc" id="L100">            return promisor.get().demand();</span>
+<span class="fc" id="L153">        when(contracts.claim(any())).thenAnswer((Answer&lt;?&gt;) invocationOnMock -&gt; {</span>
+<span class="fc" id="L154">            return promisor.get().demand();</span>
         });
-<span class="fc" id="L102">        final ContractException thrown = assertThrows(ContractException.class, () -&gt; {</span>
-<span class="nc" id="L103">            Checks.validateContracts(contracts);</span>
-<span class="nc" id="L104">        });</span>
-<span class="fc" id="L105">        assertThrown(thrown, &quot;Contract unbinding not working&quot;);</span>
-<span class="fc" id="L106">    }</span>
+<span class="fc" id="L156">        final ContractException thrown = assertThrows(ContractException.class, () -&gt; {</span>
+<span class="nc" id="L157">            Checks.validateContracts(contracts);</span>
+<span class="nc" id="L158">        });</span>
+<span class="fc" id="L159">        assertThrown(thrown, &quot;Contract unbinding not working&quot;);</span>
+<span class="fc" id="L160">    }</span>
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>

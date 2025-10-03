@@ -16,12 +16,12 @@ final class RepositoryImpl implements Repository, AutoClose {
     
     @Override
     public AutoClose open() {
-<span class="pc bpc" id="L19" title="1 of 2 branches missed.">        if (openState.transitionToOpen()) {</span>
+<span class="fc bfc" id="L19" title="All 2 branches covered.">        if (openState.transitionToOpen()) {</span>
 <span class="fc" id="L20">            storedContracts.values().forEach(StorageImpl::bind);</span>
 <span class="fc" id="L21">            check();</span>
 <span class="fc" id="L22">            return this;</span>
         }
-<span class="nc" id="L24">        return ()-&gt;{};</span>
+<span class="fc" id="L24">        return ()-&gt;{};</span>
     }
     
     @Override
@@ -48,7 +48,7 @@ final class RepositoryImpl implements Repository, AutoClose {
 <span class="fc" id="L48">            storage.bind();</span>
         }
 <span class="fc" id="L50">        return () -&gt; {</span>
-<span class="pc bpc" id="L51" title="1 of 2 branches missed.">            if (storedContracts.remove(validContract, storage)) {</span>
+<span class="fc bfc" id="L51" title="All 2 branches covered.">            if (storedContracts.remove(validContract, storage)) {</span>
 <span class="fc" id="L52">                storage.close();</span>
             }
 <span class="fc" id="L54">        };</span>
@@ -88,7 +88,7 @@ final class RepositoryImpl implements Repository, AutoClose {
 <span class="fc" id="L88">        }</span>
     
         private void bind() {
-<span class="pc bpc" id="L91" title="2 of 4 branches missed.">            if (contract.isReplaceable() || !contracts.isBound(contract)) {</span>
+<span class="pc bpc" id="L91" title="1 of 4 branches missed.">            if (contract.isReplaceable() || !contracts.isBound(contract)) {</span>
 <span class="fc" id="L92">                close();</span>
 <span class="fc" id="L93">                closeBinding = contracts.bind(contract, promisor);</span>
             }
