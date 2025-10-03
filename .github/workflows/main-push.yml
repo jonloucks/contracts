@@ -65,7 +65,7 @@ jobs:
         working-directory: gh-pages
         run: |
           rm -rf javadoc/ jacoco/ ; mkdir -p javadoc ; mkdir -p jacoco
-          cp -r "${{ github.workspace }}/main-project/build/docs/javadoc/"* javadoc/
+          cp -r "${{ github.workspace }}/main-project/${{ github.event.repository.name }}-api/build/docs/javadoc/"* javadoc/
           cp -r "${{ github.workspace }}/main-project/build/reports/jacoco/test/html/"* jacoco/
 
       - name: Commit and Push gh-pages
