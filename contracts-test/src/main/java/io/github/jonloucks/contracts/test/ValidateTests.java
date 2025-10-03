@@ -32,7 +32,7 @@ public interface ValidateTests {
     @Test
     default void validate_WhenBindReturnsNull_Throws(@Mock Contracts contracts) {
         when(contracts.isBound(any())).thenReturn(false);
-        final IllegalArgumentException thrown = assertThrows(IllegalArgumentException.class, () -> {
+        final ContractException thrown = assertThrows(ContractException.class, () -> {
             Checks.validateContracts(contracts);
         });
         assertThrown(thrown);
@@ -48,6 +48,18 @@ public interface ValidateTests {
     }
     
     @Test
+    default void validate_bind_ReturnsNull_Throws(@Mock Contracts contracts) {
+        when(contracts.isBound(any())).thenReturn(false);
+        when(contracts.bind(any(), any())).thenAnswer((Answer<AutoClose>) invocationOnMock -> {
+            return null;
+        });
+        final ContractException thrown = assertThrows(ContractException.class, () -> {
+            Checks.validateContracts(contracts);
+        });
+        assertThrown(thrown, "Contract bind returned null");
+    }
+    
+    @Test
     default void validate_isBound_AfterBind_ReturnsFalse_Throws(@Mock Contracts contracts, @Mock AutoClose closeBinding) {
         when(contracts.isBound(any())).thenReturn(false);
         when(contracts.bind(any(), any())).thenAnswer((Answer<AutoClose>) invocationOnMock -> {
@@ -57,7 +69,49 @@ public interface ValidateTests {
         final ContractException thrown = assertThrows(ContractException.class, () -> {
             Checks.validateContracts(contracts);
         });
-        assertThrown(thrown, "Contract binding not working");
+        assertThrown(thrown, "Contract should have been bound");
+    }
+    
+    @Test
+    default void validate_claim_AfterBind_ReturnsUnexpected_Throws(@Mock Contracts contracts, @Mock AutoClose closeBinding) {
+        when(contracts.isBound(any())).thenReturn(false);
+        when(contracts.bind(any(), any())).thenAnswer((Answer<AutoClose>) invocationOnMock -> {
+            when(contracts.isBound(any())).thenReturn(true);
+            return closeBinding;
+        });
+        doAnswer((Answer<Void>) invocation -> {
+            when(contracts.isBound(any())).thenReturn(false);
+            return null;
+        }).when(closeBinding).close();
+        when(contracts.claim(any())).thenAnswer((Answer<?>) invocationOnMock -> {
+            return null;
+        });
+        
+        final ContractException thrown = assertThrows(ContractException.class, () -> {
+            Checks.validateContracts(contracts);
+        });
+        assertThrown(thrown, "Contract claiming not working");
+    }
+    
+    @Test
+    default void validate_claim_AfterBind_ThrowsUnexpected_Throws(@Mock Contracts contracts, @Mock AutoClose closeBinding) {
+        when(contracts.isBound(any())).thenReturn(false);
+        when(contracts.bind(any(), any())).thenAnswer((Answer<AutoClose>) invocationOnMock -> {
+            when(contracts.isBound(any())).thenReturn(true);
+            return closeBinding;
+        });
+        doAnswer((Answer<Void>) invocation -> {
+            when(contracts.isBound(any())).thenReturn(false);
+            return null;
+        }).when(closeBinding).close();
+        when(contracts.claim(any())).thenAnswer((Answer<?>) invocationOnMock -> {
+            throw new ArithmeticException("Math overflow");
+        });
+        
+        final ContractException thrown = assertThrows(ContractException.class, () -> {
+            Checks.validateContracts(contracts);
+        });
+        assertThrown(thrown, "Contracts unexpected validation error");
     }
     
     @Test

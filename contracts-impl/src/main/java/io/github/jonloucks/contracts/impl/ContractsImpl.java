@@ -74,7 +74,7 @@ final class ContractsImpl implements Contracts, AutoClose  {
     }
     
     ContractsImpl(Contracts.Config config) {
-        final Contracts.Config validConfig = nullCheck(config, "config was null");
+        final Contracts.Config validConfig = configCheck(config);
         
         // keeping the promises open permanently
         repository.store(Promisors.CONTRACT, PromisorsImpl::new);
@@ -167,7 +167,7 @@ final class ContractsImpl implements Contracts, AutoClose  {
         });
     }
     
-    private <T> T applyWithLock(Lock requestedLock, Supplier<T> block) {
+    private static <T> T applyWithLock(Lock requestedLock, Supplier<T> block) {
         requestedLock.lock();
         try {
             return block.get();

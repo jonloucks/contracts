@@ -1,7 +1,6 @@
 package io.github.jonloucks.contracts.api;
 
-import static io.github.jonloucks.contracts.api.Checks.nullCheck;
-import static io.github.jonloucks.contracts.api.Checks.validateContracts;
+import static io.github.jonloucks.contracts.api.Checks.*;
 
 /**
  * Provides access to the shared singleton of a Contracts implementation
@@ -67,7 +66,7 @@ public final class GlobalContracts {
      * @return the new service
      */
     public static Contracts createContracts(Contracts.Config config) {
-        final Contracts.Config validConfig = nullCheck(config, "Contracts config was null");
+        final Contracts.Config validConfig = configCheck(config);
         
         final ContractsFactoryFinder factoryFinder = new ContractsFactoryFinder(config);
         final ContractsFactory contractsFactory = nullCheck(factoryFinder.find(), "find() was null");

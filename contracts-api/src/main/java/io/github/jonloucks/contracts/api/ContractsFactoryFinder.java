@@ -4,13 +4,14 @@ import java.lang.reflect.Constructor;
 import java.util.Optional;
 import java.util.ServiceLoader;
 
+import static io.github.jonloucks.contracts.api.Checks.configCheck;
 import static io.github.jonloucks.contracts.api.Checks.nullCheck;
 
 final class ContractsFactoryFinder {
     private final Contracts.Config config;
     
     ContractsFactoryFinder(Contracts.Config config) {
-        this.config = nullCheck(config, "config was null");
+        this.config = configCheck(config);
     }
     
     ContractsFactory find() {
@@ -22,31 +23,39 @@ final class ContractsFactoryFinder {
     private Optional<? extends ContractsFactory> createByServiceLoader() {
         if (config.useServiceLoader()) {
             try {
-                final Class<? extends ContractsFactory> factoryClass = nullCheck(config.serviceLoaderClass(), "config.serviceLoaderClass() was null");
-                final ServiceLoader<? extends ContractsFactory> serviceLoader = ServiceLoader.load(factoryClass);
-                return serviceLoader.findFirst();
-            } catch (Throwable thrown) {
+                return ServiceLoader.load(getServivceFactoryClass()).findFirst();
+            } catch (Throwable ignored) {
                 return Optional.empty();
             }
         }
         return Optional.empty();
     }
     
+    private Class<? extends ContractsFactory> getServivceFactoryClass() {
+        return nullCheck(config.serviceLoaderClass(), "config.serviceLoaderClass() was null");
+    }
+    
     private Optional<ContractsFactory> createByReflection() {
         if (config.useReflection()) {
-            final String className = nullCheck(config.reflectionClassName(), "config.reflectionClassName() was null");
+            final String className = getClassName();
             if (className.isEmpty()) {
                 return Optional.empty();
             }
             try {
-                final Class<?> bootstrapClass = Class.forName(className);
-                final Constructor<?> bootstrapConstructor = bootstrapClass.getConstructor();
-                return Optional.of((ContractsFactory) bootstrapConstructor.newInstance());
-            } catch (Throwable thrown) {
+                return Optional.of((ContractsFactory) getConstructor(className).newInstance());
+            } catch (Throwable ignored) {
                 return Optional.empty();
             }
         }
         return Optional.empty();
+    }
+    
+    private String getClassName() {
+        return nullCheck(config.reflectionClassName(), "config.reflectionClassName() was null");
+    }
+   
+    private Constructor<?> getConstructor(String className) throws Throwable {
+        return Class.forName(className).getConstructor();
     }
     
     private ContractException newNotFoundException() {
