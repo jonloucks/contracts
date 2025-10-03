@@ -82,8 +82,8 @@ final class LifeCyclePromisorImpl&lt;T&gt; implements Promisor&lt;T&gt; {
     
     private T createDeliverableIfNeeded() {
 <span class="fc" id="L84">        synchronized (simpleLock) {</span>
-<span class="pc bpc" id="L85" title="1 of 2 branches missed.">            if (isDeliverableAcquired.get()) {</span>
-<span class="nc" id="L86">                return atomicDeliverable.get();</span>
+<span class="fc bfc" id="L85" title="All 2 branches covered.">            if (isDeliverableAcquired.get()) {</span>
+<span class="fc" id="L86">                return atomicDeliverable.get();</span>
             } else {
 <span class="fc" id="L88">                return createDeliverable();</span>
             }

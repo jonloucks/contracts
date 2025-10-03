@@ -1,1 +1,1 @@
-moduleSearchIndex = [{"l":"io.github.jonloucks.contracts"}];updateSearchResults();
+moduleSearchIndex = [{"l":"io.github.jonloucks.contracts.api"}];updateSearchResults();

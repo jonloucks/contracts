@@ -1,2 +1,2 @@
-module:io.github.jonloucks.contracts
-io.github.jonloucks.contracts
+module:io.github.jonloucks.contracts.api
+io.github.jonloucks.contracts.api
