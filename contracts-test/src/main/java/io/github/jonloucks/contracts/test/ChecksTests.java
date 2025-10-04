@@ -155,10 +155,10 @@ public interface ChecksTests {
     @Test
     default void checks_illegalCheck_WhenFailed_Throws() {
         final IllegalArgumentException thrown = assertThrows(IllegalArgumentException.class, () -> {
-            Checks.illegalCheck("abc", true, "xyz");
+            Checks.illegalCheck("abc", true, "Xyz.");
         });
         
-        Tools.assertThrown(thrown, "xyz");
+        assertThrown(thrown, "Xyz.");
     }
     @Test
     default void checks_illegalCheck_WhenNullMessage_Throws() {
@@ -166,6 +166,6 @@ public interface ChecksTests {
             Checks.illegalCheck("abc", false, null);
         });
         
-        Tools.assertThrown(thrown);
+        assertThrown(thrown);
     }
 }

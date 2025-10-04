@@ -66,12 +66,12 @@ public interface ToolsTests {
     
     @Test
     default void tools_assertThrown_Works() {
-        final String validReason = "reason";
-        final Throwable validCause = new RuntimeException("cause");
+        final String validReason = "This is a reason.";
+        final Throwable validCause = new RuntimeException("This is a cause.");
         final Throwable validException = new RuntimeException(validReason);
         final Throwable exceptionWithNullReason = new RuntimeException((String)null);
         final Throwable validExceptionWithCause = new RuntimeException(validReason, validCause);
-        final Throwable unknownException = new RuntimeException("unknown");
+        final Throwable unknownException = new RuntimeException("This is an unknown exception.");
    
         assertAll(
             () -> assertFails(() -> Tools.assertThrown(null, validCause, validReason)),
@@ -83,19 +83,19 @@ public interface ToolsTests {
             () -> assertFails(() -> Tools.assertThrown(exceptionWithNullReason, validCause, validReason)),
             () -> assertDoesNotThrow(() -> Tools.assertThrown(validException, null, validReason)),
             () -> assertFails(() -> Tools.assertThrown(validExceptionWithCause, null, validReason)),
-            () -> assertFails(() -> Tools.assertThrown(validExceptionWithCause, validCause, "different")),
+            () -> assertFails(() -> Tools.assertThrown(validExceptionWithCause, validCause, "Different.")),
             () -> assertDoesNotThrow(() -> Tools.assertThrown(validExceptionWithCause, validCause, validReason))
         );
     }
     
     @Test
     default void tools_assertThrownThrown_Works() {
-        final String validReason = "reason";
-        final Throwable validCause = new RuntimeException("cause");
+        final String validReason = "This is a reason.";
+        final Throwable validCause = new RuntimeException("This is a cause.");
         final Throwable validException = new RuntimeException(validReason);
         final Throwable exceptionWithNullReason = new RuntimeException((String)null);
         final Throwable validExceptionWithCause = new RuntimeException(validReason, validCause);
-        final Throwable unknownException = new RuntimeException("unknown");
+        final Throwable unknownException = new RuntimeException("This is an unknown exception.");
         
         assertAll(
             () -> assertFails(() -> Tools.assertThrown(null, validCause)),
@@ -180,7 +180,7 @@ public interface ToolsTests {
         final IllegalArgumentException thrown = assertThrows(IllegalArgumentException.class, ()-> {
             Tools.sleep(null);
         });
-        assertThrown(thrown, "Duration must not be null");
+        assertThrown(thrown, "Duration must be present.");
     }
     
     @ParameterizedTest(name = "Duration {0} milliseconds")
@@ -205,6 +205,6 @@ public interface ToolsTests {
         final IllegalArgumentException thrown = assertThrows(IllegalArgumentException.class, () -> {
             Tools.sleep(expectedDuration);
         });
-        assertThrown(thrown, "Duration must not be negative");
+        assertThrown(thrown, "Duration must not be negative.");
     }
 }

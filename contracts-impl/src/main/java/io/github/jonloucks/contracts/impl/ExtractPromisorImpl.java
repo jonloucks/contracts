@@ -30,7 +30,7 @@ final class ExtractPromisorImpl<T, R> implements Promisor<R> {
    
     ExtractPromisorImpl(Promisor<T> referent, Function<T, R> transform) {
         this.referent = promisorCheck(referent);
-        this.transform = nullCheck(transform, "transform was null");
+        this.transform = nullCheck(transform, "Transform must be present.");
     }
     
     private final Promisor<T> referent;

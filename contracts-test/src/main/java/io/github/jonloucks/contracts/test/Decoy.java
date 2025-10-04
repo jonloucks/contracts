@@ -32,6 +32,6 @@ public interface Decoy<D> extends Promisor<D>, ContractsFactory, Contracts, Auto
     
     @Override
     default Contracts create(Contracts.Config config) {
-        throw new ContractException("Decoy.create not implemented");
+        throw new ContractException("Decoy.create not implemented.");
     }
 }

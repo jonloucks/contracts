@@ -28,7 +28,7 @@ final class ContractBuilderImpl<T> implements Contract.Config.Builder<T> {
     
     @Override
     public Builder<T> typeName(String typeName) {
-        this.typeName = nullCheck(typeName, "typeName was not present");
+        this.typeName = nullCheck(typeName, "The typeName must be present");
         return this;
     }
     

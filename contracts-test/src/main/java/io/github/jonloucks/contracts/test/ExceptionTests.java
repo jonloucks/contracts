@@ -26,16 +26,16 @@ public interface ExceptionTests {
     
     @Test
     default void exception_ContractException_WithValid_Works() {
-        final ContractException exception = new ContractException("abc");
+        final ContractException exception = new ContractException("Abc.");
         
-        assertThrown(exception, "abc");
+        assertThrown(exception, "Abc.");
     }
     
     @Test
     default void exception_ContractException_WithCause_Works() {
-        final OutOfMemoryError cause = new OutOfMemoryError("memory");
-        final ContractException exception = new ContractException("abc", cause);
+        final OutOfMemoryError cause = new OutOfMemoryError("Out of memory.");
+        final ContractException exception = new ContractException("Abc.", cause);
         
-        assertThrown(exception, cause, "abc");
+        assertThrown(exception, cause, "Abc.");
     }
 }

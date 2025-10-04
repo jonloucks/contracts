@@ -53,7 +53,7 @@ final class LifeCyclePromisorImpl<T> implements Promisor<T> {
     
     private boolean getCurrentDeliverable(AtomicReference<T> placeholder) {
         if (usageCounter.get() == 0) {
-            throw new IllegalStateException("Usage count is zero");
+            throw new IllegalStateException("Usage count is zero.");
         }
         maybeRethrowOpenException();
         synchronized (simpleLock) {
