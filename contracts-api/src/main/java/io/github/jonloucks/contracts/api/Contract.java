@@ -215,13 +215,13 @@ public final class Contract<T> {
     private Contract(Config<T> config) {
         this.config = configCheck(config);
         nameCheck(config.name());
-        nullCheck(config.typeName(), "config type was not present");
+        nullCheck(config.typeName(), "Config type must be present.");
     }
     
     //Since arrays are reified the following is safe and checked
     @SuppressWarnings("unchecked")
     private static <T> Class<T> detectDeliverableType(T ... reifiedArray) {
-        final T[] validReifiedArray = nullCheck(reifiedArray, "reified array was not present");
+        final T[] validReifiedArray = nullCheck(reifiedArray, "Reified array must be present.");
         return (Class<T>) validReifiedArray.getClass().getComponentType();
     }
 }

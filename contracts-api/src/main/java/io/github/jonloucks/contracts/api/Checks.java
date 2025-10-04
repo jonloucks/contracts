@@ -10,7 +10,7 @@ public final class Checks {
      * Test coverage not possible, java module protections in place
      */
     private Checks() {
-        throw new AssertionError("Illegal constructor");
+        throw new AssertionError("Illegal constructor call.");
     }
     
     /**
@@ -22,7 +22,7 @@ public final class Checks {
      * @throws IllegalArgumentException when invalid
      */
     public static <T> Contract<T> contractCheck(Contract<T> contract) {
-        return nullCheck(contract, "contract was not preset");
+        return nullCheck(contract, "Contract was not preset.");
     }
     
     /**
@@ -31,7 +31,7 @@ public final class Checks {
      * @return a valid Contracts
      */
     public static Contracts contractsCheck(Contracts contracts) {
-        return nullCheck(contracts, "contracts was not present");
+        return nullCheck(contracts, "Contracts must be present.");
     }
     
     /**
@@ -43,7 +43,7 @@ public final class Checks {
      * @throws IllegalArgumentException when invalid
      */
     public static <T> Promisor<T> promisorCheck(Promisor<T> promisor) {
-        return nullCheck(promisor, "promisor was not preset");
+        return nullCheck(promisor, "Promisor was not preset.");
     }
     
     /**
@@ -55,7 +55,7 @@ public final class Checks {
      * @throws IllegalArgumentException when invalid
      */
     public static <T> T configCheck(T config) {
-        return nullCheck(config, "config was not preset");
+        return nullCheck(config, "Config was not preset.");
     }
     
     /**
@@ -67,7 +67,7 @@ public final class Checks {
      * @throws IllegalArgumentException when invalid
      */
     public static <T> T builderCheck(T builder) {
-        return nullCheck(builder, "builder was not present");
+        return nullCheck(builder, "Builder must be present.");
     }
     
     /**
@@ -79,7 +79,7 @@ public final class Checks {
      * @throws IllegalArgumentException when invalid
      */
     public static <T> T builderConsumerCheck(T builderConsumer) {
-        return nullCheck(builderConsumer, "builder consumer was not present");
+        return nullCheck(builderConsumer, "Builder consumer must be present.");
     }
     
     /**
@@ -91,7 +91,7 @@ public final class Checks {
      * @throws IllegalArgumentException when invalid
      */
     public static <T> T typeCheck(T type) {
-        return nullCheck(type, "type was was not present");
+        return nullCheck(type, "Type was must be present.");
     }
     
     /**
@@ -103,7 +103,7 @@ public final class Checks {
      * @throws IllegalArgumentException when invalid
      */
     public static <T> T nameCheck(T name) {
-        return nullCheck(name, "name was was not present");
+        return nullCheck(name, "Name was must be present.");
     }
     
     /**
@@ -115,7 +115,7 @@ public final class Checks {
      * @throws IllegalArgumentException when invalid
      */
     public static <T> T messageCheck(T t) {
-        return nullCheck(t, "Message was not present");
+        return nullCheck(t, "Message must be present.");
     }
     
     /**
@@ -143,7 +143,7 @@ public final class Checks {
      */
     public static <T> T illegalCheck(T t, boolean failed, String message) {
         if (null == message) {
-            throw new IllegalArgumentException("Message for illegal check was not present");
+            throw new IllegalArgumentException("Message for illegal check must be present.");
         }
         if (failed) {
             throw new IllegalArgumentException(message);
@@ -163,28 +163,28 @@ public final class Checks {
             final String deliverableValue = "validate value";
             
             if (validContracts.isBound(contract)) {
-                throw new ContractException("Contract should not be bound");
+                throw new ContractException("Contract should not be bound.");
             }
             final AutoClose bindReturn = validContracts.bind(contract, () -> deliverableValue);
             if (null == bindReturn) {
-                throw new ContractException("Contract bind returned null");
+                throw new ContractException("Contract bind returned null.");
             }
             try (AutoClose closeBinding = bindReturn) {
                 final AutoClose ignoredWarning = closeBinding;
                 if (!validContracts.isBound(contract)) {
-                    throw new ContractException("Contract should have been bound");
+                    throw new ContractException("Contract should have been bound.");
                 }
                 if (!deliverableValue.equals(validContracts.claim(contract))) {
-                    throw new ContractException("Contract claiming not working");
+                    throw new ContractException("Contract claiming not working.");
                 }
             }
             if (validContracts.isBound(contract)) {
-                throw new ContractException("Contract unbinding not working");
+                throw new ContractException("Contract unbinding not working.");
             }
         } catch (ContractException thrown) {
             throw thrown;
         } catch (RuntimeException thrown) {
-            throw new ContractException("Contracts unexpected validation error", thrown);
+            throw new ContractException("Contracts unexpected validation error.", thrown);
         }
     }
 }

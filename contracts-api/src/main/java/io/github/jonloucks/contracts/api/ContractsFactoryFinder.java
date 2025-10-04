@@ -32,7 +32,7 @@ final class ContractsFactoryFinder {
     }
     
     private Class<? extends ContractsFactory> getServivceFactoryClass() {
-        return nullCheck(config.serviceLoaderClass(), "config.serviceLoaderClass() was null");
+        return nullCheck(config.serviceLoaderClass(), "config.serviceLoaderClass() must be present.");
     }
     
     private Optional<ContractsFactory> createByReflection() {
@@ -51,7 +51,7 @@ final class ContractsFactoryFinder {
     }
     
     private String getClassName() {
-        return nullCheck(config.reflectionClassName(), "config.reflectionClassName() was null");
+        return nullCheck(config.reflectionClassName(), "config.reflectionClassName() must be present.");
     }
    
     private Constructor<?> getConstructor(String className) throws Throwable {
@@ -59,6 +59,6 @@ final class ContractsFactoryFinder {
     }
     
     private ContractException newNotFoundException() {
-        return new ContractException("Unable to find GlobalContracts ContractsFactory");
+        return new ContractException("Unable to find ContractsFactory.");
     }
 }

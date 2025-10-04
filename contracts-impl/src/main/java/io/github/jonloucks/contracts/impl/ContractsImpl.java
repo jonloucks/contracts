@@ -177,19 +177,19 @@ final class ContractsImpl implements Contracts, AutoClose  {
     }
     
     private static ContractException newCloseDidNotCompleteException() {
-        return new ContractException("Contracts failed to close after trying multiple times");
+        return new ContractException("Contracts failed to close after trying multiple times.");
     }
     
     private static <T> ContractException newContractNotPromisedException(Contract<T> contract) {
-        return new ContractException("Contract " + contract + " was not promised");
+        return new ContractException("Contract " + contract + " was not promised.");
     }
     
     private static <T> ContractException newContractNotReplaceableException(Contract<T> contract) {
-        return new ContractException("Contract " + contract + " is not replaceable");
+        return new ContractException("Contract " + contract + " is not replaceable.");
     }
     
     private static <T> ContractException newContractDuplicateBindException(Contract<T> contract) {
-        return new ContractException("Contract " + contract + " duplicated bindings not allowed");
+        return new ContractException("Contract " + contract + " duplicated bindings not allowed.");
     }
     
     private final IdempotentImpl openState = new IdempotentImpl();

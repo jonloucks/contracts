@@ -44,7 +44,7 @@ public interface ValidateTests {
         final ContractException thrown = assertThrows(ContractException.class, () -> {
             Checks.validateContracts(contracts);
         });
-        assertThrown(thrown, "Contract should not be bound");
+        assertThrown(thrown, "Contract should not be bound.");
     }
     
     @Test
@@ -56,7 +56,7 @@ public interface ValidateTests {
         final ContractException thrown = assertThrows(ContractException.class, () -> {
             Checks.validateContracts(contracts);
         });
-        assertThrown(thrown, "Contract bind returned null");
+        assertThrown(thrown, "Contract bind returned null.");
     }
     
     @Test
@@ -69,7 +69,7 @@ public interface ValidateTests {
         final ContractException thrown = assertThrows(ContractException.class, () -> {
             Checks.validateContracts(contracts);
         });
-        assertThrown(thrown, "Contract should have been bound");
+        assertThrown(thrown, "Contract should have been bound.");
     }
     
     @Test
@@ -90,7 +90,7 @@ public interface ValidateTests {
         final ContractException thrown = assertThrows(ContractException.class, () -> {
             Checks.validateContracts(contracts);
         });
-        assertThrown(thrown, "Contract claiming not working");
+        assertThrown(thrown, "Contract claiming not working.");
     }
     
     @Test
@@ -105,13 +105,13 @@ public interface ValidateTests {
             return null;
         }).when(closeBinding).close();
         when(contracts.claim(any())).thenAnswer((Answer<?>) invocationOnMock -> {
-            throw new ArithmeticException("Math overflow");
+            throw new ArithmeticException("Math overflow.");
         });
         
         final ContractException thrown = assertThrows(ContractException.class, () -> {
             Checks.validateContracts(contracts);
         });
-        assertThrown(thrown, "Contracts unexpected validation error");
+        assertThrown(thrown, "Contracts unexpected validation error.");
     }
     
     @Test
@@ -156,6 +156,6 @@ public interface ValidateTests {
         final ContractException thrown = assertThrows(ContractException.class, () -> {
             Checks.validateContracts(contracts);
         });
-        assertThrown(thrown, "Contract unbinding not working");
+        assertThrown(thrown, "Contract unbinding not working.");
     }
 }
