@@ -74,10 +74,7 @@ final class LifeCyclePromisorImpl<T> implements Promisor<T> {
         if (thrown instanceof Error) {
             throw (Error) thrown;
         }
-        if (thrown instanceof RuntimeException) {
-            throw (RuntimeException) thrown;
-        }
-        throw new IllegalStateException(thrown);
+        throw (RuntimeException) thrown;
     }
     
     private T createDeliverableIfNeeded() {
@@ -101,16 +98,14 @@ final class LifeCyclePromisorImpl<T> implements Promisor<T> {
     
     private void openDeliverable(final T deliverable) {
         if (deliverable instanceof AutoOpen) {
-            synchronized (simpleLock) {
-                try {
-                    atomicClose.set(((AutoOpen) deliverable).open());
-                } catch (Throwable thrown) {
-                    if (atomicDeliverable.compareAndSet(deliverable, null)) {
-                        openException.set(thrown);
-                        isDeliverableAcquired.set(false);
-                    }
-                    throw thrown;
+            try {
+                atomicClose.set(((AutoOpen) deliverable).open());
+            } catch (RuntimeException | Error thrown) {
+                if (atomicDeliverable.compareAndSet(deliverable, null)) {
+                    openException.set(thrown);
+                    isDeliverableAcquired.set(false);
                 }
+                throw thrown;
             }
         }
     }

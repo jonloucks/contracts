@@ -180,7 +180,7 @@ public interface ToolsTests {
         final IllegalArgumentException thrown = assertThrows(IllegalArgumentException.class, ()-> {
             Tools.sleep(null);
         });
-        assertThrown(thrown);
+        assertThrown(thrown, "Duration must not be null");
     }
     
     @ParameterizedTest(name = "Duration {0} milliseconds")
@@ -205,6 +205,6 @@ public interface ToolsTests {
         final IllegalArgumentException thrown = assertThrows(IllegalArgumentException.class, () -> {
             Tools.sleep(expectedDuration);
         });
-        assertThrown(thrown);
+        assertThrown(thrown, "Duration must not be negative");
     }
 }
