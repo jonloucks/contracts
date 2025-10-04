@@ -38,7 +38,7 @@ final class RepositoryImpl implements Repository, AutoClose {
 <span class="fc" id="L38">        final Promisor&lt;T&gt; validPromisor = promisorCheck(promisor);</span>
         
 <span class="fc bfc" id="L40" title="All 2 branches covered.">        if (storedContracts.containsKey(validContract)) {</span>
-<span class="fc" id="L41">            throw new ContractException( &quot;The contract &quot; + validContract + &quot; already promised&quot;);</span>
+<span class="fc" id="L41">            throw new ContractException( &quot;The contract &quot; + validContract + &quot;  is already promised.&quot;);</span>
         }
 <span class="fc" id="L43">        final StorageImpl&lt;T&gt; storage = new StorageImpl&lt;&gt;(contracts,validContract, validPromisor);</span>
         
@@ -58,7 +58,7 @@ final class RepositoryImpl implements Repository, AutoClose {
     public void check() {
 <span class="fc" id="L59">        requiredContracts.forEach(contract -&gt; {</span>
 <span class="fc bfc" id="L60" title="All 2 branches covered.">            if (!contracts.isBound(contract)) {</span>
-<span class="fc" id="L61">                throw new ContractException( &quot;The contract &quot; + contract + &quot; is required&quot;);</span>
+<span class="fc" id="L61">                throw new ContractException( &quot;The contract &quot; + contract + &quot; is required.&quot;);</span>
             }
 <span class="fc" id="L63">        });</span>
 <span class="fc" id="L64">    }</span>

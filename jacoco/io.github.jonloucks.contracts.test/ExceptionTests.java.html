@@ -26,17 +26,17 @@ public interface ExceptionTests {
     
     @Test
     default void exception_ContractException_WithValid_Works() {
-<span class="fc" id="L29">        final ContractException exception = new ContractException(&quot;abc&quot;);</span>
+<span class="fc" id="L29">        final ContractException exception = new ContractException(&quot;Abc.&quot;);</span>
         
-<span class="fc" id="L31">        assertThrown(exception, &quot;abc&quot;);</span>
+<span class="fc" id="L31">        assertThrown(exception, &quot;Abc.&quot;);</span>
 <span class="fc" id="L32">    }</span>
     
     @Test
     default void exception_ContractException_WithCause_Works() {
-<span class="fc" id="L36">        final OutOfMemoryError cause = new OutOfMemoryError(&quot;memory&quot;);</span>
-<span class="fc" id="L37">        final ContractException exception = new ContractException(&quot;abc&quot;, cause);</span>
+<span class="fc" id="L36">        final OutOfMemoryError cause = new OutOfMemoryError(&quot;Out of memory.&quot;);</span>
+<span class="fc" id="L37">        final ContractException exception = new ContractException(&quot;Abc.&quot;, cause);</span>
         
-<span class="fc" id="L39">        assertThrown(exception, cause, &quot;abc&quot;);</span>
+<span class="fc" id="L39">        assertThrown(exception, cause, &quot;Abc.&quot;);</span>
 <span class="fc" id="L40">    }</span>
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>

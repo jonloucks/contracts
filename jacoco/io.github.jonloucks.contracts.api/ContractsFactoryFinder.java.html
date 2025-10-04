@@ -32,7 +32,7 @@ final class ContractsFactoryFinder {
     }
     
     private Class&lt;? extends ContractsFactory&gt; getServivceFactoryClass() {
-<span class="fc" id="L35">        return nullCheck(config.serviceLoaderClass(), &quot;config.serviceLoaderClass() was null&quot;);</span>
+<span class="fc" id="L35">        return nullCheck(config.serviceLoaderClass(), &quot;config.serviceLoaderClass() must be present.&quot;);</span>
     }
     
     private Optional&lt;ContractsFactory&gt; createByReflection() {
@@ -51,7 +51,7 @@ final class ContractsFactoryFinder {
     }
     
     private String getClassName() {
-<span class="fc" id="L54">        return nullCheck(config.reflectionClassName(), &quot;config.reflectionClassName() was null&quot;);</span>
+<span class="fc" id="L54">        return nullCheck(config.reflectionClassName(), &quot;config.reflectionClassName() must be present.&quot;);</span>
     }
    
     private Constructor&lt;?&gt; getConstructor(String className) throws Throwable {
@@ -59,7 +59,7 @@ final class ContractsFactoryFinder {
     }
     
     private ContractException newNotFoundException() {
-<span class="fc" id="L62">        return new ContractException(&quot;Unable to find GlobalContracts ContractsFactory&quot;);</span>
+<span class="fc" id="L62">        return new ContractException(&quot;Unable to find ContractsFactory.&quot;);</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>

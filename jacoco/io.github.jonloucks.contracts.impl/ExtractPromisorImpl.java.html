@@ -30,7 +30,7 @@ final class ExtractPromisorImpl&lt;T, R&gt; implements Promisor&lt;R&gt; {
    
 <span class="fc" id="L31">    ExtractPromisorImpl(Promisor&lt;T&gt; referent, Function&lt;T, R&gt; transform) {</span>
 <span class="fc" id="L32">        this.referent = promisorCheck(referent);</span>
-<span class="fc" id="L33">        this.transform = nullCheck(transform, &quot;transform was null&quot;);</span>
+<span class="fc" id="L33">        this.transform = nullCheck(transform, &quot;Transform must be present.&quot;);</span>
 <span class="fc" id="L34">    }</span>
     
     private final Promisor&lt;T&gt; referent;

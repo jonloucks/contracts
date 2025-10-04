@@ -215,13 +215,13 @@ public final class Contract&lt;T&gt; {
 <span class="fc" id="L215">    private Contract(Config&lt;T&gt; config) {</span>
 <span class="fc" id="L216">        this.config = configCheck(config);</span>
 <span class="fc" id="L217">        nameCheck(config.name());</span>
-<span class="fc" id="L218">        nullCheck(config.typeName(), &quot;config type was not present&quot;);</span>
+<span class="fc" id="L218">        nullCheck(config.typeName(), &quot;Config type must be present.&quot;);</span>
 <span class="fc" id="L219">    }</span>
     
     //Since arrays are reified the following is safe and checked
     @SuppressWarnings(&quot;unchecked&quot;)
     private static &lt;T&gt; Class&lt;T&gt; detectDeliverableType(T ... reifiedArray) {
-<span class="fc" id="L224">        final T[] validReifiedArray = nullCheck(reifiedArray, &quot;reified array was not present&quot;);</span>
+<span class="fc" id="L224">        final T[] validReifiedArray = nullCheck(reifiedArray, &quot;Reified array must be present.&quot;);</span>
 <span class="fc" id="L225">        return (Class&lt;T&gt;) validReifiedArray.getClass().getComponentType();</span>
     }
 }

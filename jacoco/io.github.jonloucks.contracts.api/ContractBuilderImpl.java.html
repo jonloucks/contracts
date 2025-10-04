@@ -28,7 +28,7 @@ final class ContractBuilderImpl&lt;T&gt; implements Contract.Config.Builder&lt;T
     
     @Override
     public Builder&lt;T&gt; typeName(String typeName) {
-<span class="fc" id="L31">        this.typeName = nullCheck(typeName, &quot;typeName was not present&quot;);</span>
+<span class="fc" id="L31">        this.typeName = nullCheck(typeName, &quot;The typeName must be present&quot;);</span>
 <span class="fc" id="L32">        return this;</span>
     }
     

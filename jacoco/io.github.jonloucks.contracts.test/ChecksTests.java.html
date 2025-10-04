@@ -155,10 +155,10 @@ public interface ChecksTests {
     @Test
     default void checks_illegalCheck_WhenFailed_Throws() {
 <span class="fc" id="L157">        final IllegalArgumentException thrown = assertThrows(IllegalArgumentException.class, () -&gt; {</span>
-<span class="nc" id="L158">            Checks.illegalCheck(&quot;abc&quot;, true, &quot;xyz&quot;);</span>
+<span class="nc" id="L158">            Checks.illegalCheck(&quot;abc&quot;, true, &quot;Xyz.&quot;);</span>
 <span class="nc" id="L159">        });</span>
         
-<span class="fc" id="L161">        Tools.assertThrown(thrown, &quot;xyz&quot;);</span>
+<span class="fc" id="L161">        assertThrown(thrown, &quot;Xyz.&quot;);</span>
 <span class="fc" id="L162">    }</span>
     @Test
     default void checks_illegalCheck_WhenNullMessage_Throws() {
@@ -166,7 +166,7 @@ public interface ChecksTests {
 <span class="nc" id="L166">            Checks.illegalCheck(&quot;abc&quot;, false, null);</span>
 <span class="nc" id="L167">        });</span>
         
-<span class="fc" id="L169">        Tools.assertThrown(thrown);</span>
+<span class="fc" id="L169">        assertThrown(thrown);</span>
 <span class="fc" id="L170">    }</span>
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>

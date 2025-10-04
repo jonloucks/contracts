@@ -66,12 +66,12 @@ public interface ToolsTests {
     
     @Test
     default void tools_assertThrown_Works() {
-<span class="fc" id="L69">        final String validReason = &quot;reason&quot;;</span>
-<span class="fc" id="L70">        final Throwable validCause = new RuntimeException(&quot;cause&quot;);</span>
+<span class="fc" id="L69">        final String validReason = &quot;This is a reason.&quot;;</span>
+<span class="fc" id="L70">        final Throwable validCause = new RuntimeException(&quot;This is a cause.&quot;);</span>
 <span class="fc" id="L71">        final Throwable validException = new RuntimeException(validReason);</span>
 <span class="fc" id="L72">        final Throwable exceptionWithNullReason = new RuntimeException((String)null);</span>
 <span class="fc" id="L73">        final Throwable validExceptionWithCause = new RuntimeException(validReason, validCause);</span>
-<span class="fc" id="L74">        final Throwable unknownException = new RuntimeException(&quot;unknown&quot;);</span>
+<span class="fc" id="L74">        final Throwable unknownException = new RuntimeException(&quot;This is an unknown exception.&quot;);</span>
    
 <span class="fc" id="L76">        assertAll(</span>
 <span class="pc" id="L77">            () -&gt; assertFails(() -&gt; Tools.assertThrown(null, validCause, validReason)),</span>
@@ -83,19 +83,19 @@ public interface ToolsTests {
 <span class="pc" id="L83">            () -&gt; assertFails(() -&gt; Tools.assertThrown(exceptionWithNullReason, validCause, validReason)),</span>
 <span class="fc" id="L84">            () -&gt; assertDoesNotThrow(() -&gt; Tools.assertThrown(validException, null, validReason)),</span>
 <span class="pc" id="L85">            () -&gt; assertFails(() -&gt; Tools.assertThrown(validExceptionWithCause, null, validReason)),</span>
-<span class="pc" id="L86">            () -&gt; assertFails(() -&gt; Tools.assertThrown(validExceptionWithCause, validCause, &quot;different&quot;)),</span>
+<span class="pc" id="L86">            () -&gt; assertFails(() -&gt; Tools.assertThrown(validExceptionWithCause, validCause, &quot;Different.&quot;)),</span>
 <span class="fc" id="L87">            () -&gt; assertDoesNotThrow(() -&gt; Tools.assertThrown(validExceptionWithCause, validCause, validReason))</span>
         );
 <span class="fc" id="L89">    }</span>
     
     @Test
     default void tools_assertThrownThrown_Works() {
-<span class="fc" id="L93">        final String validReason = &quot;reason&quot;;</span>
-<span class="fc" id="L94">        final Throwable validCause = new RuntimeException(&quot;cause&quot;);</span>
+<span class="fc" id="L93">        final String validReason = &quot;This is a reason.&quot;;</span>
+<span class="fc" id="L94">        final Throwable validCause = new RuntimeException(&quot;This is a cause.&quot;);</span>
 <span class="fc" id="L95">        final Throwable validException = new RuntimeException(validReason);</span>
 <span class="fc" id="L96">        final Throwable exceptionWithNullReason = new RuntimeException((String)null);</span>
 <span class="fc" id="L97">        final Throwable validExceptionWithCause = new RuntimeException(validReason, validCause);</span>
-<span class="fc" id="L98">        final Throwable unknownException = new RuntimeException(&quot;unknown&quot;);</span>
+<span class="fc" id="L98">        final Throwable unknownException = new RuntimeException(&quot;This is an unknown exception.&quot;);</span>
         
 <span class="fc" id="L100">        assertAll(</span>
 <span class="pc" id="L101">            () -&gt; assertFails(() -&gt; Tools.assertThrown(null, validCause)),</span>
@@ -180,7 +180,7 @@ public interface ToolsTests {
 <span class="fc" id="L180">        final IllegalArgumentException thrown = assertThrows(IllegalArgumentException.class, ()-&gt; {</span>
 <span class="nc" id="L181">            Tools.sleep(null);</span>
 <span class="nc" id="L182">        });</span>
-<span class="fc" id="L183">        assertThrown(thrown, &quot;Duration must not be null&quot;);</span>
+<span class="fc" id="L183">        assertThrown(thrown, &quot;Duration must be present.&quot;);</span>
 <span class="fc" id="L184">    }</span>
     
     @ParameterizedTest(name = &quot;Duration {0} milliseconds&quot;)
@@ -205,7 +205,7 @@ public interface ToolsTests {
 <span class="fc" id="L205">        final IllegalArgumentException thrown = assertThrows(IllegalArgumentException.class, () -&gt; {</span>
 <span class="nc" id="L206">            Tools.sleep(expectedDuration);</span>
 <span class="nc" id="L207">        });</span>
-<span class="fc" id="L208">        assertThrown(thrown, &quot;Duration must not be negative&quot;);</span>
+<span class="fc" id="L208">        assertThrown(thrown, &quot;Duration must not be negative.&quot;);</span>
 <span class="fc" id="L209">    }</span>
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>

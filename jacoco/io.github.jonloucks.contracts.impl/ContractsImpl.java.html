@@ -177,19 +177,19 @@ final class ContractsImpl implements Contracts, AutoClose  {
     }
     
     private static ContractException newCloseDidNotCompleteException() {
-<span class="fc" id="L180">        return new ContractException(&quot;Contracts failed to close after trying multiple times&quot;);</span>
+<span class="fc" id="L180">        return new ContractException(&quot;Contracts failed to close after trying multiple times.&quot;);</span>
     }
     
     private static &lt;T&gt; ContractException newContractNotPromisedException(Contract&lt;T&gt; contract) {
-<span class="fc" id="L184">        return new ContractException(&quot;Contract &quot; + contract + &quot; was not promised&quot;);</span>
+<span class="fc" id="L184">        return new ContractException(&quot;Contract &quot; + contract + &quot; was not promised.&quot;);</span>
     }
     
     private static &lt;T&gt; ContractException newContractNotReplaceableException(Contract&lt;T&gt; contract) {
-<span class="fc" id="L188">        return new ContractException(&quot;Contract &quot; + contract + &quot; is not replaceable&quot;);</span>
+<span class="fc" id="L188">        return new ContractException(&quot;Contract &quot; + contract + &quot; is not replaceable.&quot;);</span>
     }
     
     private static &lt;T&gt; ContractException newContractDuplicateBindException(Contract&lt;T&gt; contract) {
-<span class="fc" id="L192">        return new ContractException(&quot;Contract &quot; + contract + &quot; duplicated bindings not allowed&quot;);</span>
+<span class="fc" id="L192">        return new ContractException(&quot;Contract &quot; + contract + &quot; duplicated bindings not allowed.&quot;);</span>
     }
     
 <span class="fc" id="L195">    private final IdempotentImpl openState = new IdempotentImpl();</span>
