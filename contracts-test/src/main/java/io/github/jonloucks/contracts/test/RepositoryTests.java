@@ -85,7 +85,7 @@ public interface RepositoryTests {
     }
     
     @Test
-    default void repository_closeTwice_DoesNothing() {
+    default void repository_close_Twice_DoesNothing() {
         runWithScenario(( contracts,repository) -> {
             final Contract<String> textContract = Contract.create("test text");
             try (AutoClose closeBinding = repository.store(textContract, () -> "x")) {
@@ -96,7 +96,7 @@ public interface RepositoryTests {
     }
     
     @Test
-    default void repository_openTwice_DoesNothing() {
+    default void repository_open_Twice_DoesNothing() {
         runWithScenario(( contracts,repository) -> {
             final Contract<String> textContract = Contract.create("test text");
             try (AutoClose closeBinding = repository.store(textContract, () -> "y")) {
@@ -104,7 +104,7 @@ public interface RepositoryTests {
                 try (AutoClose closeRepository = repository.open()) {
                     final AutoClose ignored2 = closeRepository;
                 }
-                assertEquals("y", contracts.claim(textContract), "contract deliverable replace should match");
+                assertEquals("y", contracts.claim(textContract), "contract deliverable should not change");
             }
         });
     }
