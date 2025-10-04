@@ -22,7 +22,7 @@ public final class Checks {
      * @throws IllegalArgumentException when invalid
      */
     public static <T> Contract<T> contractCheck(Contract<T> contract) {
-        return nullCheck(contract, "Contract was not preset.");
+        return nullCheck(contract, "Contract must be present.");
     }
     
     /**
@@ -43,7 +43,7 @@ public final class Checks {
      * @throws IllegalArgumentException when invalid
      */
     public static <T> Promisor<T> promisorCheck(Promisor<T> promisor) {
-        return nullCheck(promisor, "Promisor was not preset.");
+        return nullCheck(promisor, "Promisor must be present.");
     }
     
     /**
@@ -55,7 +55,7 @@ public final class Checks {
      * @throws IllegalArgumentException when invalid
      */
     public static <T> T configCheck(T config) {
-        return nullCheck(config, "Config was not preset.");
+        return nullCheck(config, "Config must be present.");
     }
     
     /**
