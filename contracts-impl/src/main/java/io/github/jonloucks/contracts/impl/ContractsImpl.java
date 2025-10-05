@@ -15,34 +15,15 @@ import static java.util.Optional.ofNullable;
  * Implementation for {@link io.github.jonloucks.contracts.api.Contracts}
  * @see io.github.jonloucks.contracts.api.Contracts
  */
-final class ContractsImpl implements Contracts, AutoClose  {
+final class ContractsImpl implements Contracts {
 
     @Override
     public AutoClose open() {
         if (openState.transitionToOpen()) {
             closeRepository = repository.open();
-            return this;
+            return this::close;
         }
         return ()->{};
-    }
-    
-    @Override
-    public void close() {
-        if (openState.transitionToClosed()) {
-            try {
-                for (int attempts = 1, broken = breakAllBindings(); broken > 0; broken = breakAllBindings(), attempts++) {
-                    if (attempts > 5) {
-                        throw newCloseDidNotCompleteException();
-                    }
-                }
-            } finally {
-                ofNullable(closeRepository).ifPresent( close -> {
-                    closeRepository = null;
-                    close.close();
-                });
-
-            }
-        }
     }
 
     @Override
@@ -82,6 +63,24 @@ final class ContractsImpl implements Contracts, AutoClose  {
         
         if (validConfig.useShutdownHooks()) {
             Runtime.getRuntime().addShutdownHook(new Thread(this::close));
+        }
+    }
+    
+    private void close() {
+        if (openState.transitionToClosed()) {
+            try {
+                for (int attempts = 1, broken = breakAllBindings(); broken > 0; broken = breakAllBindings(), attempts++) {
+                    if (attempts > 5) {
+                        throw newCloseDidNotCompleteException();
+                    }
+                }
+            } finally {
+                ofNullable(closeRepository).ifPresent( close -> {
+                    closeRepository = null;
+                    close.close();
+                });
+                
+            }
         }
     }
     
