@@ -69,8 +69,8 @@ public final class GlobalContracts {
         final Contracts.Config validConfig = configCheck(config);
         
         final ContractsFactoryFinder factoryFinder = new ContractsFactoryFinder(config);
-        final ContractsFactory contractsFactory = nullCheck(factoryFinder.find(), "find() was null");
-        return nullCheck(contractsFactory.create(validConfig), "create() was null");
+        final ContractsFactory contractsFactory = nullCheck(factoryFinder.find(), "Contracts factory not found.");
+        return nullCheck(contractsFactory.create(validConfig), "Contracts could not be created.");
     }
     
     private static final GlobalContracts INSTANCE = new GlobalContracts();
