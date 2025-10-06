@@ -12,24 +12,16 @@ import static java.util.Optional.ofNullable;
  * Implementation for {@link io.github.jonloucks.contracts.api.Repository}
  * @see io.github.jonloucks.contracts.api.Repository
  */
-final class RepositoryImpl implements Repository, AutoClose {
+final class RepositoryImpl implements Repository {
     
     @Override
     public AutoClose open() {
         if (openState.transitionToOpen()) {
             storedContracts.values().forEach(StorageImpl::bind);
             check();
-            return this;
+            return this::close;
         }
         return ()->{};
-    }
-    
-    @Override
-    public void close() {
-        if (openState.transitionToClosed()) {
-            storedContracts.values().forEach(StorageImpl::close);
-            storedContracts.clear();
-        }
     }
     
     @Override
@@ -72,6 +64,13 @@ final class RepositoryImpl implements Repository, AutoClose {
     
     RepositoryImpl(Contracts contracts) {
         this.contracts = contracts;
+    }
+    
+    private void close() {
+        if (openState.transitionToClosed()) {
+            storedContracts.values().forEach(StorageImpl::close);
+            storedContracts.clear();
+        }
     }
     
     /**

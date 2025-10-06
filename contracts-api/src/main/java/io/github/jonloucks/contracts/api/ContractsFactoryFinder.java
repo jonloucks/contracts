@@ -23,7 +23,7 @@ final class ContractsFactoryFinder {
     private Optional<? extends ContractsFactory> createByServiceLoader() {
         if (config.useServiceLoader()) {
             try {
-                return ServiceLoader.load(getServivceFactoryClass()).findFirst();
+                return ServiceLoader.load(getServiceFactoryClass()).findFirst();
             } catch (Throwable ignored) {
                 return Optional.empty();
             }
@@ -31,8 +31,8 @@ final class ContractsFactoryFinder {
         return Optional.empty();
     }
     
-    private Class<? extends ContractsFactory> getServivceFactoryClass() {
-        return nullCheck(config.serviceLoaderClass(), "config.serviceLoaderClass() must be present.");
+    private Class<? extends ContractsFactory> getServiceFactoryClass() {
+        return nullCheck(config.serviceLoaderClass(), "Contracts Service Loader class must be present.");
     }
     
     private Optional<ContractsFactory> createByReflection() {
@@ -51,7 +51,7 @@ final class ContractsFactoryFinder {
     }
     
     private String getClassName() {
-        return nullCheck(config.reflectionClassName(), "config.reflectionClassName() must be present.");
+        return nullCheck(config.reflectionClassName(), "Reflection reflection class name must be present.");
     }
    
     private Constructor<?> getConstructor(String className) throws Throwable {
@@ -59,6 +59,6 @@ final class ContractsFactoryFinder {
     }
     
     private ContractException newNotFoundException() {
-        return new ContractException("Unable to find ContractsFactory.");
+        return new ContractException("Unable to find Contracts factory.");
     }
 }
