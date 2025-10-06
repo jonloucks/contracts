@@ -9,12 +9,17 @@ public static final Contact<String> WEATHER = Contract.create("Current Weather")
 ```
 ```
 // Promissing
-Contracts.bindContract(WEATHER, () -> "Raining");
+GlobalContracts.bindContract(WEATHER, () -> "Raining");
 ```
 ```
 // Consumption
-String weather = Contracts.claimContract(WEATHER);
+String weather = GlobalContracts.claimContract(WEATHER);
 ```
+## References
+[Java API](https://jonloucks.github.io/contracts/javadoc/)
+
+[Java Test Coverage](https://jonloucks.github.io/contracts/jacoco/)
+
 ## Badges
 [![Coverage Badge](https://raw.githubusercontent.com/jonloucks/contracts/refs/heads/badges/main-coverage.svg)](https://jonloucks.github.io/contracts/jacoco/)
 [![Javadoc Badge](https://raw.githubusercontent.com/jonloucks/contracts/refs/heads/badges/main-javadoc.svg)](https://jonloucks.github.io/contracts/javadoc/)
@@ -23,7 +28,7 @@ Goals
 1. Security
 2. Encapsulation
 3. Use anywhere
-4. Type safe. no casting needed. No uncheck surprises
+4. Type safe. no casting needed. No unchecked surprises
 5. By default, a Contract is only visible to the author
 6. Deploys on oldest supported LTS version of Java with JPMS. (currently 11)
 7. Compiles with minimum Java language (currently 9)
