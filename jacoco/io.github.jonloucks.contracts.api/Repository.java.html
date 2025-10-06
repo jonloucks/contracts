@@ -8,7 +8,7 @@ import java.util.function.Supplier;
  * 1. Optional feature to register required contracts.
  * 2. Optional feature to manage multiple contract bindings.
  */
-public interface Repository extends AutoOpen, AutoClose {
+public interface Repository extends AutoOpen {
     
     /**
      * Contract to deliver a Repository factory

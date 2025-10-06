@@ -23,7 +23,7 @@ final class ContractsFactoryFinder {
     private Optional&lt;? extends ContractsFactory&gt; createByServiceLoader() {
 <span class="fc bfc" id="L24" title="All 2 branches covered.">        if (config.useServiceLoader()) {</span>
             try {
-<span class="fc" id="L26">                return ServiceLoader.load(getServivceFactoryClass()).findFirst();</span>
+<span class="fc" id="L26">                return ServiceLoader.load(getServiceFactoryClass()).findFirst();</span>
 <span class="fc" id="L27">            } catch (Throwable ignored) {</span>
 <span class="fc" id="L28">                return Optional.empty();</span>
             }
@@ -31,8 +31,8 @@ final class ContractsFactoryFinder {
 <span class="fc" id="L31">        return Optional.empty();</span>
     }
     
-    private Class&lt;? extends ContractsFactory&gt; getServivceFactoryClass() {
-<span class="fc" id="L35">        return nullCheck(config.serviceLoaderClass(), &quot;config.serviceLoaderClass() must be present.&quot;);</span>
+    private Class&lt;? extends ContractsFactory&gt; getServiceFactoryClass() {
+<span class="fc" id="L35">        return nullCheck(config.serviceLoaderClass(), &quot;Contracts Service Loader class must be present.&quot;);</span>
     }
     
     private Optional&lt;ContractsFactory&gt; createByReflection() {
@@ -51,7 +51,7 @@ final class ContractsFactoryFinder {
     }
     
     private String getClassName() {
-<span class="fc" id="L54">        return nullCheck(config.reflectionClassName(), &quot;config.reflectionClassName() must be present.&quot;);</span>
+<span class="fc" id="L54">        return nullCheck(config.reflectionClassName(), &quot;Reflection reflection class name must be present.&quot;);</span>
     }
    
     private Constructor&lt;?&gt; getConstructor(String className) throws Throwable {
@@ -59,7 +59,7 @@ final class ContractsFactoryFinder {
     }
     
     private ContractException newNotFoundException() {
-<span class="fc" id="L62">        return new ContractException(&quot;Unable to find ContractsFactory.&quot;);</span>
+<span class="fc" id="L62">        return new ContractException(&quot;Unable to find Contracts factory.&quot;);</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>
