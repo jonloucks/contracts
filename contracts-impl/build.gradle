@@ -1,6 +1,6 @@
 plugins {
-    id 'java-library-kit'
-    id 'maven-publish-kit'
+    id 'io.github.jonloucks.java-library-kit'
+    id 'io.github.jonloucks.maven-publish-kit'
 }
 
 apply from: "${rootDir}/gradle/java-publishing.gradle"
