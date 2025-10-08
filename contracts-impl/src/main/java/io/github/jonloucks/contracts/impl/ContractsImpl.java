@@ -58,8 +58,8 @@ final class ContractsImpl implements Contracts {
         final Contracts.Config validConfig = configCheck(config);
         
         // keeping the promises open permanently
-        repository.store(Promisors.CONTRACT, PromisorsImpl::new);
-        repository.store(Repository.FACTORY, () -> () -> new RepositoryImpl(this));
+        repository.keep(Promisors.CONTRACT, PromisorsImpl::new);
+        repository.keep(Repository.FACTORY, () -> () -> new RepositoryImpl(this));
         
         if (validConfig.useShutdownHooks()) {
             Runtime.getRuntime().addShutdownHook(new Thread(this::close));

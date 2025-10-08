@@ -1,5 +1,5 @@
 /**
- * contracts.impl tests
+ * contracts-impl tests
  */
 module io.github.jonloucks.contracts.impl.test {
     uses io.github.jonloucks.contracts.api.ContractsFactory;

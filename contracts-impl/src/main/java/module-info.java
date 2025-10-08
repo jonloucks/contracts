@@ -1,6 +1,3 @@
-import io.github.jonloucks.contracts.api.ContractsFactory;
-import io.github.jonloucks.contracts.impl.ContractsFactoryImpl;
-
 /**
  * The implementation module for Contracts
  */
@@ -9,5 +6,5 @@ module io.github.jonloucks.contracts.impl {
     
     opens io.github.jonloucks.contracts.impl to io.github.jonloucks.contracts.api;
     
-    provides ContractsFactory with ContractsFactoryImpl;
+    provides io.github.jonloucks.contracts.api.ContractsFactory with io.github.jonloucks.contracts.impl.ContractsFactoryImpl;
 }
