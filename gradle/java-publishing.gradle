@@ -40,7 +40,7 @@ boolean doingSigning() {
 }
 
 if (doingSigning()) {
-    apply plugin: 'signing-kit'
+    apply plugin: 'io.github.jonloucks.signing-kit'
 }
 
 publishing {

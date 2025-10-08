@@ -7,9 +7,9 @@ buildscript {
 }
 
 plugins {
-    id 'java-library-kit' version libs.versions.gradle.kit.version
-    id 'maven-publish-kit' version libs.versions.gradle.kit.version
-    id 'signing-kit' version libs.versions.gradle.kit.version
+    id 'io.github.jonloucks.java-library-kit' version libs.versions.gradle.kit.version
+    id 'io.github.jonloucks.maven-publish-kit' version libs.versions.gradle.kit.version
+    id 'io.github.jonloucks.signing-kit' version libs.versions.gradle.kit.version
 }
 
 apply from: "${rootDir}/gradle/java-publishing.gradle"
