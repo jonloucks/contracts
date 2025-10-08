@@ -27,6 +27,19 @@ public interface Repository extends AutoOpen {
     &lt;T&gt; AutoClose store(Contract&lt;T&gt; contract, Promisor&lt;T&gt; promisor);
     
     /**
+     * Keep the binding for the life of the repository
+     * If the Repository is not open, the binding will be created when repository is opened.
+     * If the Repository has already been opened the binding is created immediately
+     * @param contract the contract to be bound
+     * @param promisor the promisor to be bounded
+     * @param &lt;T&gt; the type of contract deliverable
+     */
+     default &lt;T&gt; void keep(Contract&lt;T&gt; contract, Promisor&lt;T&gt; promisor) {
+         //noinspection resource
+<span class="fc" id="L39">         store(contract, promisor);</span>
+<span class="fc" id="L40">     }</span>
+    
+    /**
      * Check that all requirements have fulfilled
      */
     void check();

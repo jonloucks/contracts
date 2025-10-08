@@ -58,8 +58,8 @@ final class ContractsImpl implements Contracts {
 <span class="fc" id="L58">        final Contracts.Config validConfig = configCheck(config);</span>
         
         // keeping the promises open permanently
-<span class="fc" id="L61">        repository.store(Promisors.CONTRACT, PromisorsImpl::new);</span>
-<span class="fc" id="L62">        repository.store(Repository.FACTORY, () -&gt; () -&gt; new RepositoryImpl(this));</span>
+<span class="fc" id="L61">        repository.keep(Promisors.CONTRACT, PromisorsImpl::new);</span>
+<span class="fc" id="L62">        repository.keep(Repository.FACTORY, () -&gt; () -&gt; new RepositoryImpl(this));</span>
         
 <span class="fc bfc" id="L64" title="All 2 branches covered.">        if (validConfig.useShutdownHooks()) {</span>
 <span class="fc" id="L65">            Runtime.getRuntime().addShutdownHook(new Thread(this::close));</span>

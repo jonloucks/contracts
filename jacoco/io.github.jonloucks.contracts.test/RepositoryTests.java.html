@@ -110,61 +110,58 @@ public interface RepositoryTests {
 <span class="fc" id="L110">    }</span>
     
     @Test
-    default void repository_store_Twice_Throws() {
+    default void repository_keep_Twice_Throws() {
 <span class="fc" id="L114">        runWithScenario(( contracts,repository) -&gt; {</span>
 <span class="fc" id="L115">            final Contract&lt;String&gt; textContract = Contract.create(&quot;test text&quot;);</span>
             
-<span class="pc" id="L117">            try (AutoClose closeBinding = repository.store(textContract, () -&gt; &quot;x&quot;)) {</span>
-<span class="fc" id="L118">                final AutoClose ignored = closeBinding;</span>
-                
-<span class="fc" id="L120">                final ContractException thrown = assertThrows(ContractException.class, () -&gt; {</span>
-<span class="nc" id="L121">                    repository.store(textContract, () -&gt; &quot;y&quot;);</span>
-<span class="nc" id="L122">                });</span>
-<span class="fc" id="L123">                assertThrown(thrown);</span>
-            }
-<span class="fc" id="L125">        });</span>
-<span class="fc" id="L126">    }</span>
+<span class="pc" id="L117">            repository.keep(textContract, () -&gt; &quot;x&quot;);</span>
+            
+<span class="fc" id="L119">            final ContractException thrown = assertThrows(ContractException.class, () -&gt; {</span>
+<span class="nc" id="L120">                repository.keep(textContract, () -&gt; &quot;y&quot;);</span>
+<span class="nc" id="L121">            });</span>
+<span class="fc" id="L122">            assertThrown(thrown);</span>
+<span class="fc" id="L123">        });</span>
+<span class="fc" id="L124">    }</span>
     
     @Test
-    default void repository_store_Replace_Works() {
-<span class="fc" id="L130">        runWithScenario(( contracts,repository) -&gt; {</span>
-<span class="fc" id="L131">            final Contract&lt;String&gt; textContract = Contract.create(String.class, b -&gt; b.replaceable(true));</span>
-<span class="pc" id="L132">            try (AutoClose closeFirstBinding = contracts.bind(textContract, () -&gt; &quot;x&quot;) ) {</span>
-<span class="fc" id="L133">                final AutoClose ignoredFirstBinding = closeFirstBinding;</span>
-<span class="fc" id="L134">                try (AutoClose closeBinding = repository.store(textContract, () -&gt; &quot;y&quot;)) {</span>
-<span class="fc" id="L135">                    final AutoClose ignored = closeBinding;</span>
-<span class="fc" id="L136">                    final String text = contracts.claim(textContract);</span>
-<span class="fc" id="L137">                    assertEquals(&quot;y&quot;, text, &quot;contract deliverable replace should match&quot;);</span>
-                }
+    default void repository_keep_Replace_Works() {
+<span class="fc" id="L128">        runWithScenario(( contracts,repository) -&gt; {</span>
+<span class="fc" id="L129">            final Contract&lt;String&gt; textContract = Contract.create(String.class, b -&gt; b.replaceable(true));</span>
+            
+<span class="pc" id="L131">            try (AutoClose closeFirstBinding = contracts.bind(textContract, () -&gt; &quot;x&quot;) ) {</span>
+<span class="fc" id="L132">                final AutoClose ignoredFirstBinding = closeFirstBinding;</span>
+<span class="fc" id="L133">                repository.keep(textContract, () -&gt; &quot;y&quot;);</span>
+<span class="fc" id="L134">                final String text = contracts.claim(textContract);</span>
+<span class="fc" id="L135">                assertEquals(&quot;y&quot;, text, &quot;contract deliverable replace should match&quot;);</span>
             }
-<span class="fc" id="L140">        });</span>
-<span class="fc" id="L141">    }</span>
+<span class="fc" id="L137">        });</span>
+<span class="fc" id="L138">    }</span>
     
     @Test
     default void repository_InternalCoverage() {
-<span class="fc" id="L145">        assertInstantiateThrows(RepositoryTestsTool.class);</span>
-<span class="fc" id="L146">    }</span>
+<span class="fc" id="L142">        assertInstantiateThrows(RepositoryTestsTool.class);</span>
+<span class="fc" id="L143">    }</span>
     
     final class RepositoryTestsTool {
-<span class="fc" id="L149">        private RepositoryTestsTool() {</span>
-<span class="fc" id="L150">            throw new AssertionError(&quot;Illegal constructor&quot;);</span>
+<span class="fc" id="L146">        private RepositoryTestsTool() {</span>
+<span class="fc" id="L147">            throw new AssertionError(&quot;Illegal constructor&quot;);</span>
         }
         interface ScenarioConfig extends BiConsumer&lt;Contracts, Repository&gt; {
         
         }
         
         static void runWithScenario(ScenarioConfig block) {
-<span class="fc" id="L157">            withContracts(contracts -&gt; {</span>
-<span class="fc" id="L158">                final Contract&lt;Repository&gt; contract = Contract.create(&quot;test repository&quot;);</span>
-<span class="fc" id="L159">                final Promisors promisors = contracts.claim(Promisors.CONTRACT);</span>
-<span class="fc" id="L160">                final Promisor&lt;Repository&gt; promisor = promisors.createLifeCyclePromisor(()-&gt;contracts.claim(Repository.FACTORY).get());</span>
-<span class="fc" id="L161">                try (AutoClose closeBinding = contracts.bind(contract, promisor)) {</span>
-<span class="fc" id="L162">                    final AutoClose ignored = closeBinding;</span>
-<span class="fc" id="L163">                    final Repository repository = contracts.claim(contract);</span>
-<span class="fc" id="L164">                    block.accept(contracts, repository);</span>
+<span class="fc" id="L154">            withContracts(contracts -&gt; {</span>
+<span class="fc" id="L155">                final Contract&lt;Repository&gt; contract = Contract.create(&quot;test repository&quot;);</span>
+<span class="fc" id="L156">                final Promisors promisors = contracts.claim(Promisors.CONTRACT);</span>
+<span class="fc" id="L157">                final Promisor&lt;Repository&gt; promisor = promisors.createLifeCyclePromisor(()-&gt;contracts.claim(Repository.FACTORY).get());</span>
+<span class="fc" id="L158">                try (AutoClose closeBinding = contracts.bind(contract, promisor)) {</span>
+<span class="fc" id="L159">                    final AutoClose ignored = closeBinding;</span>
+<span class="fc" id="L160">                    final Repository repository = contracts.claim(contract);</span>
+<span class="fc" id="L161">                    block.accept(contracts, repository);</span>
                 }
-<span class="fc" id="L166">            });</span>
-<span class="fc" id="L167">        }</span>
+<span class="fc" id="L163">            });</span>
+<span class="fc" id="L164">        }</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>
