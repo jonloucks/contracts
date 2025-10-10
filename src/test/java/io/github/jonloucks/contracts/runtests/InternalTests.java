@@ -5,7 +5,7 @@ import org.junit.jupiter.api.Test;
 
 import static io.github.jonloucks.contracts.test.Tools.assertInstantiateThrows;
 
-public interface Tests {
+public interface InternalTests {
     
     @Test
     default void stub_Instantiate_Throws() {

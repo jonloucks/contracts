@@ -14,7 +14,7 @@ import org.mockito.quality.Strictness;
 @ExtendWith(RunTests.MyExtension.class)
 public class RunTests implements
     io.github.jonloucks.contracts.test.Tests,
-    Tests {
+    InternalTests {
 
     public static class MyExtension implements BeforeTestExecutionCallback, AfterTestExecutionCallback {
 

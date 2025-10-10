@@ -13,6 +13,7 @@ import org.mockito.stubbing.Answer;
 
 import java.time.Duration;
 import java.util.concurrent.*;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Supplier;
 
@@ -170,6 +171,32 @@ public interface LifeCyclePromisorTests {
             @Override
             public Duration demandDelay() {
                 return Duration.ofMillis(100);
+            }
+        });
+    }
+    
+    @Test
+    default void lifeCyclePromisor_Demand_Reentrancy_Works() {
+        withContracts(contracts -> {
+            final Contract<Decoy<String>> contract = Contract.create("Contract");
+            final Decoy<String> mockDeliverable = spy();
+            final Promisor<Decoy<String>> mockPromisor = spy();
+            final AtomicBoolean firstDemand = new AtomicBoolean(true);
+            
+            overrideDemand(mockPromisor, Duration.ZERO, () -> {
+                if (firstDemand.compareAndSet(true, false)) {
+                    return mockDeliverable;
+                } else {
+                    return contracts.claim(contract);
+                }
+            });
+            
+            final Promisor<Decoy<String>> testSubject = createTestSubject(contracts, mockPromisor);
+            
+            try (AutoClose closeBinding = contracts.bind(contract, testSubject)) {
+                final AutoClose ignored2 = closeBinding;
+                
+                assertSame(mockDeliverable, mockPromisor.demand());
             }
         });
     }

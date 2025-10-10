@@ -56,6 +56,21 @@ public interface ToolsTests {
     }
     
     @Test
+    default void tools_assertFails_WhenNoFailure_Fails() {
+        assertFails(() -> assertFails(()->{}));
+    }
+    
+    @Test
+    default void tools_assertFails_WhenThrowsNonAssertions_Fails() {
+        assertFails(() -> assertFails(()->{ throw new IllegalStateException("Oh My."); }));
+    }
+    
+    @Test
+    default void tools_assertFails_WhenThrowsAsserts_Succeeds() {
+       assertDoesNotThrow(() -> assertFails(()->{ throw new AssertionError("Oh My."); }));
+    }
+    
+    @Test
     default void tools_assertContract_Works() {
         final Contract<String> validContract = Contract.create("test");
         final Contract.Config<String> validConfig = String.class::cast;
