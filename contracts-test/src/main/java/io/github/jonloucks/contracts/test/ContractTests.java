@@ -144,11 +144,6 @@ public interface ContractTests {
             public String name() {
                 return "Some String contract";
             }
-            
-            @Override
-            public boolean isReplaceable() {
-                return !Contract.Config.super.isReplaceable();
-            }
         };
         final Contract<String> contract = Contract.create(config);
         

@@ -25,6 +25,10 @@ public final class Tools {
         throw new AssertionError("Illegal constructor call");
     }
     
+    /**
+     * For testing testing
+     * @param executable the test that is expected to fail
+     */
     public static void assertFails(Executable executable) {
         final Executable validExecutable = nullCheck(executable, "Executable must be present.");
         final AssertionError thrown = assertThrows(AssertionError.class, validExecutable);

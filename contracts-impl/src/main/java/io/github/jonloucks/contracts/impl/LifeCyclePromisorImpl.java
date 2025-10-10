@@ -101,10 +101,8 @@ final class LifeCyclePromisorImpl<T> implements Promisor<T> {
             try {
                 atomicClose.set(((AutoOpen) deliverable).open());
             } catch (RuntimeException | Error thrown) {
-                if (atomicDeliverable.compareAndSet(deliverable, null)) {
-                    openException.set(thrown);
-                    isDeliverableAcquired.set(false);
-                }
+                openException.set(thrown);
+                isDeliverableAcquired.set(false);
                 throw thrown;
             }
         }

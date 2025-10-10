@@ -85,18 +85,18 @@ public interface RepositoryTests {
     }
     
     @Test
-    default void repository_close_Twice_DoesNothing() {
+    default void repository_store_WhenClosedTwice_DoesNothing() {
         runWithScenario(( contracts,repository) -> {
             final Contract<String> textContract = Contract.create("test text");
-            try (AutoClose closeBinding = repository.store(textContract, () -> "x")) {
-                assertDoesNotThrow(closeBinding::close);
-                assertDoesNotThrow(closeBinding::close);
+            try (AutoClose closeStore = repository.store(textContract, () -> "x")) {
+                assertDoesNotThrow(closeStore::close);
+                assertDoesNotThrow(closeStore::close);
             }
         });
     }
     
     @Test
-    default void repository_open_Twice_DoesNothing() {
+    default void repository_open_WhenCalledTwice_DoesNothing() {
         runWithScenario(( contracts,repository) -> {
             final Contract<String> textContract = Contract.create("test text");
             try (AutoClose closeBinding = repository.store(textContract, () -> "y")) {
@@ -110,7 +110,19 @@ public interface RepositoryTests {
     }
     
     @Test
-    default void repository_keep_Twice_Throws() {
+    default void repository_close_WhenCalledTwice_DoesNothing() {
+        withContracts(contracts -> {
+            final Repository repository = contracts.claim(Repository.FACTORY).get();
+            
+            try (AutoClose closeRepository = repository.open()) {
+                closeRepository.close();
+                assertDoesNotThrow(closeRepository::close);
+            }
+        });
+    }
+    
+    @Test
+    default void repository_keep_WhenCalledTwice_Throws() {
         runWithScenario(( contracts,repository) -> {
             final Contract<String> textContract = Contract.create("test text");
             
@@ -138,6 +150,20 @@ public interface RepositoryTests {
     }
     
     @Test
+    default void repository_keep_WhenNotReplaceableAndBound_IsIgnored() {
+        runWithScenario(( contracts,repository) -> {
+            final Contract<String> textContract = Contract.create(String.class, b -> b.replaceable(false));
+            
+            try (AutoClose closeFirstBinding = contracts.bind(textContract, () -> "x") ) {
+                final AutoClose ignoredFirstBinding = closeFirstBinding;
+                repository.keep(textContract, () -> "y");
+                final String text = contracts.claim(textContract);
+                assertEquals("x", text, "contract deliverable should not change");
+            }
+        });
+    }
+    
+    @Test
     default void repository_InternalCoverage() {
         assertInstantiateThrows(RepositoryTestsTool.class);
     }
@@ -152,12 +178,9 @@ public interface RepositoryTests {
         
         static void runWithScenario(ScenarioConfig block) {
             withContracts(contracts -> {
-                final Contract<Repository> contract = Contract.create("test repository");
-                final Promisors promisors = contracts.claim(Promisors.CONTRACT);
-                final Promisor<Repository> promisor = promisors.createLifeCyclePromisor(()->contracts.claim(Repository.FACTORY).get());
-                try (AutoClose closeBinding = contracts.bind(contract, promisor)) {
-                    final AutoClose ignored = closeBinding;
-                    final Repository repository = contracts.claim(contract);
+                final Repository repository = contracts.claim(Repository.FACTORY).get();
+                try (AutoClose closeRepository = repository.open()) {
+                    final AutoClose ignored = closeRepository;
                     block.accept(contracts, repository);
                 }
             });
