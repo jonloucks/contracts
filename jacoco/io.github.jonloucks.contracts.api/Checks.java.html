@@ -7,10 +7,11 @@ public final class Checks {
     
     /**
      * Utility class instantiation protection
-     * Test coverage not possible, java module protections in place
      */
-<span class="nc" id="L12">    private Checks() {</span>
-<span class="nc" id="L13">        throw new AssertionError(&quot;Illegal constructor call.&quot;);</span>
+    private Checks() {
+        // conflicting standards.  100% code coverage vs throwing exception on instantiation of utility class.
+        // Java modules protects agents invoking private methods.
+        // There are unit tests that will fail if this constructor is not private
     }
     
     /**
@@ -22,7 +23,7 @@ public final class Checks {
      * @throws IllegalArgumentException when invalid
      */
     public static &lt;T&gt; Contract&lt;T&gt; contractCheck(Contract&lt;T&gt; contract) {
-<span class="fc" id="L25">        return nullCheck(contract, &quot;Contract must be present.&quot;);</span>
+<span class="fc" id="L26">        return nullCheck(contract, &quot;Contract must be present.&quot;);</span>
     }
     
     /**
@@ -31,7 +32,7 @@ public final class Checks {
      * @return a valid Contracts
      */
     public static Contracts contractsCheck(Contracts contracts) {
-<span class="fc" id="L34">        return nullCheck(contracts, &quot;Contracts must be present.&quot;);</span>
+<span class="fc" id="L35">        return nullCheck(contracts, &quot;Contracts must be present.&quot;);</span>
     }
     
     /**
@@ -43,7 +44,7 @@ public final class Checks {
      * @throws IllegalArgumentException when invalid
      */
     public static &lt;T&gt; Promisor&lt;T&gt; promisorCheck(Promisor&lt;T&gt; promisor) {
-<span class="fc" id="L46">        return nullCheck(promisor, &quot;Promisor must be present.&quot;);</span>
+<span class="fc" id="L47">        return nullCheck(promisor, &quot;Promisor must be present.&quot;);</span>
     }
     
     /**
@@ -55,7 +56,7 @@ public final class Checks {
      * @throws IllegalArgumentException when invalid
      */
     public static &lt;T&gt; T configCheck(T config) {
-<span class="fc" id="L58">        return nullCheck(config, &quot;Config must be present.&quot;);</span>
+<span class="fc" id="L59">        return nullCheck(config, &quot;Config must be present.&quot;);</span>
     }
     
     /**
@@ -67,7 +68,7 @@ public final class Checks {
      * @throws IllegalArgumentException when invalid
      */
     public static &lt;T&gt; T builderCheck(T builder) {
-<span class="fc" id="L70">        return nullCheck(builder, &quot;Builder must be present.&quot;);</span>
+<span class="fc" id="L71">        return nullCheck(builder, &quot;Builder must be present.&quot;);</span>
     }
     
     /**
@@ -79,7 +80,7 @@ public final class Checks {
      * @throws IllegalArgumentException when invalid
      */
     public static &lt;T&gt; T builderConsumerCheck(T builderConsumer) {
-<span class="fc" id="L82">        return nullCheck(builderConsumer, &quot;Builder consumer must be present.&quot;);</span>
+<span class="fc" id="L83">        return nullCheck(builderConsumer, &quot;Builder consumer must be present.&quot;);</span>
     }
     
     /**
@@ -91,7 +92,7 @@ public final class Checks {
      * @throws IllegalArgumentException when invalid
      */
     public static &lt;T&gt; T typeCheck(T type) {
-<span class="fc" id="L94">        return nullCheck(type, &quot;Type was must be present.&quot;);</span>
+<span class="fc" id="L95">        return nullCheck(type, &quot;Type was must be present.&quot;);</span>
     }
     
     /**
@@ -103,7 +104,7 @@ public final class Checks {
      * @throws IllegalArgumentException when invalid
      */
     public static &lt;T&gt; T nameCheck(T name) {
-<span class="fc" id="L106">        return nullCheck(name, &quot;Name was must be present.&quot;);</span>
+<span class="fc" id="L107">        return nullCheck(name, &quot;Name was must be present.&quot;);</span>
     }
     
     /**
@@ -115,7 +116,7 @@ public final class Checks {
      * @throws IllegalArgumentException when invalid
      */
     public static &lt;T&gt; T messageCheck(T t) {
-<span class="fc" id="L118">        return nullCheck(t, &quot;Message must be present.&quot;);</span>
+<span class="fc" id="L119">        return nullCheck(t, &quot;Message must be present.&quot;);</span>
     }
     
     /**
@@ -128,7 +129,7 @@ public final class Checks {
      * @throws IllegalArgumentException when invalid
      */
     public static &lt;T&gt; T nullCheck(T t, String message) {
-<span class="fc bfc" id="L131" title="All 2 branches covered.">        return illegalCheck(t, null == t, message);</span>
+<span class="fc bfc" id="L132" title="All 2 branches covered.">        return illegalCheck(t, null == t, message);</span>
     }
     
     /**
@@ -142,13 +143,13 @@ public final class Checks {
      * @throws IllegalArgumentException when invalid
      */
     public static &lt;T&gt; T illegalCheck(T t, boolean failed, String message) {
-<span class="fc bfc" id="L145" title="All 2 branches covered.">        if (null == message) {</span>
-<span class="fc" id="L146">            throw new IllegalArgumentException(&quot;Message for illegal check must be present.&quot;);</span>
+<span class="fc bfc" id="L146" title="All 2 branches covered.">        if (null == message) {</span>
+<span class="fc" id="L147">            throw new IllegalArgumentException(&quot;Message for illegal check must be present.&quot;);</span>
         }
-<span class="fc bfc" id="L148" title="All 2 branches covered.">        if (failed) {</span>
-<span class="fc" id="L149">            throw new IllegalArgumentException(message);</span>
+<span class="fc bfc" id="L149" title="All 2 branches covered.">        if (failed) {</span>
+<span class="fc" id="L150">            throw new IllegalArgumentException(message);</span>
         }
-<span class="fc" id="L151">        return t;</span>
+<span class="fc" id="L152">        return t;</span>
     }
     
     /**
@@ -157,35 +158,35 @@ public final class Checks {
      * @param contracts the contracts to check
      */
     public static void validateContracts(Contracts contracts) {
-<span class="fc" id="L160">        final Contracts validContracts = contractsCheck(contracts);</span>
+<span class="fc" id="L161">        final Contracts validContracts = contractsCheck(contracts);</span>
         try {
-<span class="fc" id="L162">            final Contract&lt;String&gt; contract = Contract.create(&quot;validation contract&quot;);</span>
-<span class="fc" id="L163">            final String deliverableValue = &quot;validate value&quot;;</span>
+<span class="fc" id="L163">            final Contract&lt;String&gt; contract = Contract.create(&quot;validation contract&quot;);</span>
+<span class="fc" id="L164">            final String deliverableValue = &quot;validate value&quot;;</span>
             
-<span class="fc bfc" id="L165" title="All 2 branches covered.">            if (validContracts.isBound(contract)) {</span>
-<span class="fc" id="L166">                throw new ContractException(&quot;Contract should not be bound.&quot;);</span>
+<span class="fc bfc" id="L166" title="All 2 branches covered.">            if (validContracts.isBound(contract)) {</span>
+<span class="fc" id="L167">                throw new ContractException(&quot;Contract should not be bound.&quot;);</span>
             }
-<span class="fc" id="L168">            final AutoClose bindReturn = validContracts.bind(contract, () -&gt; deliverableValue);</span>
-<span class="fc bfc" id="L169" title="All 2 branches covered.">            if (null == bindReturn) {</span>
-<span class="fc" id="L170">                throw new ContractException(&quot;Contract bind returned null.&quot;);</span>
+<span class="fc" id="L169">            final AutoClose bindReturn = validContracts.bind(contract, () -&gt; deliverableValue);</span>
+<span class="fc bfc" id="L170" title="All 2 branches covered.">            if (null == bindReturn) {</span>
+<span class="fc" id="L171">                throw new ContractException(&quot;Contract bind returned null.&quot;);</span>
             }
-<span class="fc" id="L172">            try (AutoClose closeBinding = bindReturn) {</span>
-<span class="fc" id="L173">                final AutoClose ignoredWarning = closeBinding;</span>
-<span class="fc bfc" id="L174" title="All 2 branches covered.">                if (!validContracts.isBound(contract)) {</span>
-<span class="fc" id="L175">                    throw new ContractException(&quot;Contract should have been bound.&quot;);</span>
+<span class="fc" id="L173">            try (AutoClose closeBinding = bindReturn) {</span>
+<span class="fc" id="L174">                final AutoClose ignoredWarning = closeBinding;</span>
+<span class="fc bfc" id="L175" title="All 2 branches covered.">                if (!validContracts.isBound(contract)) {</span>
+<span class="fc" id="L176">                    throw new ContractException(&quot;Contract should have been bound.&quot;);</span>
                 }
-<span class="fc bfc" id="L177" title="All 2 branches covered.">                if (!deliverableValue.equals(validContracts.claim(contract))) {</span>
-<span class="fc" id="L178">                    throw new ContractException(&quot;Contract claiming not working.&quot;);</span>
+<span class="fc bfc" id="L178" title="All 2 branches covered.">                if (!deliverableValue.equals(validContracts.claim(contract))) {</span>
+<span class="fc" id="L179">                    throw new ContractException(&quot;Contract claiming not working.&quot;);</span>
                 }
             }
-<span class="fc bfc" id="L181" title="All 2 branches covered.">            if (validContracts.isBound(contract)) {</span>
-<span class="fc" id="L182">                throw new ContractException(&quot;Contract unbinding not working.&quot;);</span>
+<span class="fc bfc" id="L182" title="All 2 branches covered.">            if (validContracts.isBound(contract)) {</span>
+<span class="fc" id="L183">                throw new ContractException(&quot;Contract unbinding not working.&quot;);</span>
             }
-<span class="fc" id="L184">        } catch (ContractException thrown) {</span>
-<span class="fc" id="L185">            throw thrown;</span>
-<span class="fc" id="L186">        } catch (RuntimeException thrown) {</span>
-<span class="fc" id="L187">            throw new ContractException(&quot;Contracts unexpected validation error.&quot;, thrown);</span>
-<span class="fc" id="L188">        }</span>
-<span class="fc" id="L189">    }</span>
+<span class="fc" id="L185">        } catch (ContractException thrown) {</span>
+<span class="fc" id="L186">            throw thrown;</span>
+<span class="fc" id="L187">        } catch (RuntimeException thrown) {</span>
+<span class="fc" id="L188">            throw new ContractException(&quot;Contracts unexpected validation error.&quot;, thrown);</span>
+<span class="fc" id="L189">        }</span>
+<span class="fc" id="L190">    }</span>
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>

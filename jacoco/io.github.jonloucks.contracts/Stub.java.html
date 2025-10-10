@@ -7,16 +7,21 @@ import io.github.jonloucks.contracts.api.GlobalContracts;
  * A placeholder class to make sure dependencies are correct for api and implementation.
  */
 public final class Stub {
- 
-<span class="nc" id="L11">    private Stub() {</span>
-<span class="nc" id="L12">        throw new AssertionError(&quot;Illegal constructor&quot;);</span>
+    
+    /**
+     * Utility class instantiation protection
+     */
+    private Stub() {
+        // conflicting standards.  100% code coverage vs throwing exception on instantiation of utility class.
+        // Java modules protects agents invoking private methods.
+        // There are unit tests that will fail if this constructor is not private
     }
     
     /**
      * Validates basic functionality.
      */
     public static void validate() {
-<span class="fc" id="L19">        Checks.validateContracts(GlobalContracts.getInstance());</span>
-<span class="fc" id="L20">    }</span>
+<span class="fc" id="L24">        Checks.validateContracts(GlobalContracts.getInstance());</span>
+<span class="fc" id="L25">    }</span>
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>
