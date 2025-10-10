@@ -56,13 +56,11 @@ final class LifeCyclePromisorImpl<T> implements Promisor<T> {
             throw new IllegalStateException("Usage count is zero.");
         }
         maybeRethrowOpenException();
-        synchronized (simpleLock) {
-            if (isDeliverableAcquired.get()) {
-                placeholder.set(atomicDeliverable.get());
-                return true;
-            }
-            return false;
+        if (isDeliverableAcquired.get()) {
+            placeholder.set(atomicDeliverable.get());
+            return true;
         }
+        return false;
     }
     
     private void maybeRethrowOpenException() {
