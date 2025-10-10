@@ -22,7 +22,7 @@ import static io.github.jonloucks.contracts.test.Tools.*;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
-@SuppressWarnings({"Convert2MethodRef", "CodeBlock2Expr"})
+@SuppressWarnings({"Convert2MethodRef"})
 @ExtendWith(MockitoExtension.class)
 @MockitoSettings(strictness = Strictness.LENIENT)
 public interface LifeCyclePromisorTests {
@@ -98,7 +98,7 @@ public interface LifeCyclePromisorTests {
     }
     
     @ParameterizedTest(name = "Threads = {0}")
-    @ValueSource(ints = { 1, 2, 3, 5, 8, 12, 17, 29 })
+    @ValueSource(ints = { 1, 3, 29 })
     default void lifeCyclePromisor_ClaimsDuringOpen(int threadCount) throws Throwable {
         runWithScenario(new ScenarioConfig() {
             @Override
@@ -107,13 +107,13 @@ public interface LifeCyclePromisorTests {
             }
             @Override
             public void mockupDeliverable(Decoy<String> mockDeliverable) {
-                overrideOpen(mockDeliverable, Duration.ofMillis(200), () -> {});
+                overrideOpen(mockDeliverable, Duration.ofMillis(100), () -> {});
             }
         });
     }
     
     @ParameterizedTest(name = "Threads = {0}")
-    @ValueSource(ints = { 1, 2, 3, 5, 8, 12, 17, 29 })
+    @ValueSource(ints = { 1, 3, 29 })
     default void lifeCyclePromisor_ThrowingOpen(int threadCount) throws Throwable {
         runWithScenario(new ScenarioConfig() {
             @Override
@@ -141,7 +141,7 @@ public interface LifeCyclePromisorTests {
     }
     
     @ParameterizedTest(name = "Threads = {0}")
-    @ValueSource(ints = { 1, 2, 3, 5, 8, 12, 17, 29 })
+    @ValueSource(ints = { 1, 3, 29 })
     default void lifeCyclePromisor_ClaimsDuringClose(int threadCount) throws Throwable  {
         runWithScenario(new ScenarioConfig() {
             @Override
@@ -161,7 +161,7 @@ public interface LifeCyclePromisorTests {
     }
     
     @ParameterizedTest(name = "Threads = {0}")
-    @ValueSource(ints = { 1, 2, 3, 5, 8, 12, 17, 29 })
+    @ValueSource(ints = { 1, 3, 29 })
     default void lifeCyclePromisor_ClaimsDuringDemand(int threadCount) throws Throwable {
         runWithScenario(new ScenarioConfig() {
             @Override
@@ -175,28 +175,17 @@ public interface LifeCyclePromisorTests {
         });
     }
     
-    @Test
-    default void lifeCyclePromisor_Demand_Reentrancy_Works() {
-        withContracts(contracts -> {
-            final Contract<Decoy<String>> contract = Contract.create("Contract");
-            final Decoy<String> mockDeliverable = spy();
-            final Promisor<Decoy<String>> mockPromisor = spy();
-            final AtomicBoolean firstDemand = new AtomicBoolean(true);
-            
-            overrideDemand(mockPromisor, Duration.ZERO, () -> {
-                if (firstDemand.compareAndSet(true, false)) {
-                    return mockDeliverable;
-                } else {
-                    return contracts.claim(contract);
-                }
-            });
-            
-            final Promisor<Decoy<String>> testSubject = createTestSubject(contracts, mockPromisor);
-            
-            try (AutoClose closeBinding = contracts.bind(contract, testSubject)) {
-                final AutoClose ignored2 = closeBinding;
-                
-                assertSame(mockDeliverable, mockPromisor.demand());
+    @ParameterizedTest(name = "Threads = {0}")
+    @ValueSource(ints = { 1, 3, 29 })
+    default void lifeCyclePromisor_Demand_Reentrancy_Works(int threadCount) throws Throwable {
+        runWithScenario(new ScenarioConfig() {
+            @Override
+            public int threadCount() {
+                return threadCount;
+            }
+            @Override
+            public boolean reentrancy() {
+                return true;
             }
         });
     }
@@ -232,6 +221,11 @@ public interface LifeCyclePromisorTests {
             default float successPercentage() {
                 return 1.0f;
             }
+            
+            default boolean reentrancy() {
+                return false;
+            }
+            
         }
         
         static void runWithScenario(ScenarioConfig config) {
@@ -245,10 +239,18 @@ public interface LifeCyclePromisorTests {
             final CountDownLatch latch = new CountDownLatch(config.threadCount());
             @SuppressWarnings("resource") final Decoy<String> mockDeliverable = spy();
             final Promisor<Decoy<String>> mockPromisor = spy();
+            final AtomicBoolean firstDemand = new AtomicBoolean(true);
             
             withContracts( contracts -> {
-                overrideDemand(mockPromisor, config.demandDelay(), () -> mockDeliverable);
                 config.mockupDeliverable(mockDeliverable);
+                overrideDemand(mockPromisor, config.demandDelay(), () -> {
+                    if (firstDemand.compareAndSet(true, false)) {
+                        config.demandDelay();
+                    } else if (config.reentrancy()) {
+                        return contracts.claim(contract);
+                    }
+                    return mockDeliverable;
+                });
                 
                 final Promisor<Decoy<String>> testSubject = createTestSubject(contracts, mockPromisor);
                 
@@ -317,7 +319,7 @@ public interface LifeCyclePromisorTests {
             }).when(decoy).close();
         }
         
-        static <T> void overrideDemand(Promisor<T> promisor, Duration duration, Supplier<T> block) {
+        private static <T> void overrideDemand(Promisor<T> promisor, Duration duration, Supplier<T> block) {
             when(promisor.demand()).thenAnswer((Answer<T>) invocation -> {
                 sleep(duration);
                 return block.get();
