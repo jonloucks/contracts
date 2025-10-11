@@ -15,16 +15,17 @@ GlobalContracts.bindContract(WEATHER, () -> "Raining");
 // Consumption
 String weather = GlobalContracts.claimContract(WEATHER);
 ```
-## References
+## Documentation and Reports
 [Java API](https://jonloucks.github.io/contracts/javadoc/)
 
 [Java Test Coverage](https://jonloucks.github.io/contracts/jacoco/)
 
 ## Badges
+[![OpenSSF Best Practices](https://www.bestpractices.dev/projects/11290/badge)](https://www.bestpractices.dev/projects/11290)
 [![Coverage Badge](https://raw.githubusercontent.com/jonloucks/contracts/refs/heads/badges/main-coverage.svg)](https://jonloucks.github.io/contracts/jacoco/)
 [![Javadoc Badge](https://raw.githubusercontent.com/jonloucks/contracts/refs/heads/badges/main-javadoc.svg)](https://jonloucks.github.io/contracts/javadoc/)
 
-Goals
+## Goals
 1. Security
 2. Encapsulation
 3. Use anywhere
