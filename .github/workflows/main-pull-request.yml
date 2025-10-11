@@ -69,3 +69,9 @@ jobs:
       run: |
         echo "coverage = ${{ steps.jacoco.outputs.coverage }}"
         echo "branches = ${{ steps.jacoco.outputs.branches }}"
+
+    - name: Test Coverage Verification
+      working-directory: main-project
+      run: ./gradlew jacocoTestCoverageVerification
+      env:
+        PROJECT_WORKFLOW: 'main-pull-request'
