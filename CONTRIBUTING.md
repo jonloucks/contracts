@@ -45,11 +45,14 @@ To get started with local development:
     ```sh
     ./gradlew test
     ```
-
+5. **Code Coverage Verification** to ensure coverage:
+    ```sh
+    ./gradlew jacocoTestCoverageVerification
+    ```
 ## 4. Submitting a Pull Request
 Before submitting a pull request (PR), please follow these steps:
 -   **Create a new branch** from the `main` branch with a descriptive name (e.g., `feature/add-new-feature` or `fix/issue-description`).
--   **Ensure your code is well-tested** and passes all existing tests.
+-   **Ensure your code is well-tested** and passes all existing tests with minimum coverage of 95% 
 -   **Write a clear and detailed commit message** following the style guide below.
 -   **Push your changes** to your forked repository and open a PR against our `main` branch.
 -   **Fill out the PR template** completely.
