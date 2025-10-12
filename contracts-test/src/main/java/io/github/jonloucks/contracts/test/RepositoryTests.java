@@ -2,13 +2,20 @@ package io.github.jonloucks.contracts.test;
 
 import io.github.jonloucks.contracts.api.*;
 import org.junit.jupiter.api.Test;
+import org.mockito.stubbing.Answer;
 
+import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.BiConsumer;
 import java.util.function.Supplier;
 
 import static io.github.jonloucks.contracts.test.RepositoryTests.RepositoryTestsTool.runWithScenario;
 import static io.github.jonloucks.contracts.test.Tools.*;
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.when;
 
 @SuppressWarnings({"try", "CodeBlock2Expr"})
 public interface RepositoryTests {
@@ -118,6 +125,44 @@ public interface RepositoryTests {
                 closeRepository.close();
                 assertDoesNotThrow(closeRepository::close);
             }
+        });
+    }
+    
+    @Test
+    default void repository_close_ReleasesResources() {
+        withContracts(contracts -> {
+            final Repository repository = contracts.claim(Repository.FACTORY).get();
+            final int count = 10;
+            final List<Contract<Integer>> contractList = new ArrayList<>();
+            final LinkedList<Integer> expectedOrder = new LinkedList<>();
+            final List<Integer> actualOrder = new ArrayList<>();
+            for (int i = 0; i < count; i++) {
+                final Integer deliverable = i;
+                final Promisor<Integer> promisor = spy();
+                final AtomicInteger referenceCount = new AtomicInteger();
+                when(promisor.demand()).thenReturn(deliverable);
+                when(promisor.incrementUsage()).thenAnswer((Answer<Integer>) invocation -> referenceCount.incrementAndGet());
+                when(promisor.decrementUsage()).thenAnswer((Answer<Integer>) invocation -> {
+                    final int currentCount = referenceCount.decrementAndGet();
+                    if (currentCount == 0) {
+                        actualOrder.add(deliverable);
+                    }
+                    return currentCount;
+                });
+                final Contract<Integer> contract = Contract.create("Contact " + deliverable);
+                contractList.add(contract);
+                expectedOrder.push(deliverable);
+                repository.keep(contract, promisor);
+            }
+            try (AutoClose closeRepository = repository.open()) {
+                final AutoClose ignoreCloseRepository = closeRepository;
+                for (int i = 0; i < count; i++) {
+                    contracts.claim(contractList.get(i));
+                }
+            }
+            assertFalse(actualOrder.isEmpty(), "Actual order should not be empty");
+            assertEquals(expectedOrder.size(), actualOrder.size(), "closed promisors count");
+            assertEquals(expectedOrder, actualOrder, "closed promisors order");
         });
     }
     
