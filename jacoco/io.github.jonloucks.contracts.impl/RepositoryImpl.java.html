@@ -68,38 +68,49 @@ final class RepositoryImpl implements Repository {
     
     private void close() {
 <span class="fc bfc" id="L70" title="All 2 branches covered.">        if (openState.transitionToClosed()) {</span>
-<span class="fc" id="L71">            storedContracts.values().forEach(StorageImpl::close);</span>
-<span class="fc" id="L72">            storedContracts.clear();</span>
+<span class="fc" id="L71">            reverseCloseStorage();</span>
         }
-<span class="fc" id="L74">    }</span>
+<span class="fc" id="L73">    }</span>
+    
+    private void reverseCloseStorage() {
+<span class="fc" id="L76">        final Stack&lt;StorageImpl&lt;?&gt;&gt; storageStack = new Stack&lt;&gt;();</span>
+<span class="fc" id="L77">        storedContracts.values().forEach(storageStack::push);</span>
+        try {
+<span class="fc bfc" id="L79" title="All 2 branches covered.">            while (!storageStack.isEmpty()) {</span>
+<span class="fc" id="L80">                storageStack.pop().close();</span>
+            }
+        } finally {
+<span class="fc" id="L83">            storedContracts.clear();</span>
+        }
+<span class="fc" id="L85">    }</span>
     
     /**
      * Using LinkedHashMap to retain insertion order
      */
-<span class="fc" id="L79">    private final Map&lt;Contract&lt;?&gt;, StorageImpl&lt;?&gt;&gt; storedContracts = new LinkedHashMap&lt;&gt;();</span>
+<span class="fc" id="L90">    private final Map&lt;Contract&lt;?&gt;, StorageImpl&lt;?&gt;&gt; storedContracts = new LinkedHashMap&lt;&gt;();</span>
     
     private static final class StorageImpl&lt;T&gt; implements AutoClose {
 
-<span class="fc" id="L83">        StorageImpl(Contracts contracts, Contract&lt;T&gt; contract, Promisor&lt;T&gt; promisor) {</span>
-<span class="fc" id="L84">            this.contracts = contracts;</span>
-<span class="fc" id="L85">            this.contract = contract;</span>
-<span class="fc" id="L86">            this.promisor = promisor;</span>
-<span class="fc" id="L87">        }</span>
+<span class="fc" id="L94">        StorageImpl(Contracts contracts, Contract&lt;T&gt; contract, Promisor&lt;T&gt; promisor) {</span>
+<span class="fc" id="L95">            this.contracts = contracts;</span>
+<span class="fc" id="L96">            this.contract = contract;</span>
+<span class="fc" id="L97">            this.promisor = promisor;</span>
+<span class="fc" id="L98">        }</span>
     
         private void bind() {
-<span class="fc bfc" id="L90" title="All 4 branches covered.">            if (contract.isReplaceable() || !contracts.isBound(contract)) {</span>
-<span class="fc" id="L91">                close();</span>
-<span class="fc" id="L92">                closeBinding = contracts.bind(contract, promisor);</span>
+<span class="fc bfc" id="L101" title="All 4 branches covered.">            if (contract.isReplaceable() || !contracts.isBound(contract)) {</span>
+<span class="fc" id="L102">                close();</span>
+<span class="fc" id="L103">                closeBinding = contracts.bind(contract, promisor);</span>
             }
-<span class="fc" id="L94">        }</span>
+<span class="fc" id="L105">        }</span>
         
         @Override
         public void close() {
-<span class="fc" id="L98">            ofNullable(closeBinding).ifPresent(close -&gt; {</span>
-<span class="fc" id="L99">                this.closeBinding = null;</span>
-<span class="fc" id="L100">                close.close();</span>
-<span class="fc" id="L101">            });</span>
-<span class="fc" id="L102">        }</span>
+<span class="fc" id="L109">            ofNullable(closeBinding).ifPresent(close -&gt; {</span>
+<span class="fc" id="L110">                this.closeBinding = null;</span>
+<span class="fc" id="L111">                close.close();</span>
+<span class="fc" id="L112">            });</span>
+<span class="fc" id="L113">        }</span>
         
         private final Contract&lt;T&gt; contract;
         private final Promisor&lt;T&gt; promisor;
@@ -108,7 +119,7 @@ final class RepositoryImpl implements Repository {
     }
     
     private final Contracts contracts;
-<span class="fc" id="L111">    private final IdempotentImpl openState = new IdempotentImpl();</span>
-<span class="fc" id="L112">    private final Set&lt;Contract&lt;?&gt;&gt; requiredContracts = new HashSet&lt;&gt;();</span>
+<span class="fc" id="L122">    private final IdempotentImpl openState = new IdempotentImpl();</span>
+<span class="fc" id="L123">    private final Set&lt;Contract&lt;?&gt;&gt; requiredContracts = new HashSet&lt;&gt;();</span>
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>
