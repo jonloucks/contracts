@@ -19,6 +19,7 @@ public interface Repository extends AutoOpen {
      * Store the binding.
      * If the Repository is not open, the binding will be created when repository is opened.
      * If the Repository has already been opened the binding is created immediately
+     * Note: If never explicitly closed, the order of closing promisors is the reverse order they are stored
      * @param contract the contract to be bound
      * @param promisor the promisor to be bounded
      * @return AutoClose responsible for removing the binding from this Repository
@@ -30,6 +31,7 @@ public interface Repository extends AutoOpen {
      * Keep the binding for the life of the repository
      * If the Repository is not open, the binding will be created when repository is opened.
      * If the Repository has already been opened the binding is created immediately
+     * Note: The order of closing promisors is the reverse order they are stored
      * @param contract the contract to be bound
      * @param promisor the promisor to be bounded
      * @param <T> the type of contract deliverable

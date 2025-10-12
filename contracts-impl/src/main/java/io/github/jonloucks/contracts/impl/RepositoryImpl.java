@@ -68,7 +68,18 @@ final class RepositoryImpl implements Repository {
     
     private void close() {
         if (openState.transitionToClosed()) {
-            storedContracts.values().forEach(StorageImpl::close);
+            reverseCloseStorage();
+        }
+    }
+    
+    private void reverseCloseStorage() {
+        final Stack<StorageImpl<?>> storageStack = new Stack<>();
+        storedContracts.values().forEach(storageStack::push);
+        try {
+            while (!storageStack.isEmpty()) {
+                storageStack.pop().close();
+            }
+        } finally {
             storedContracts.clear();
         }
     }
