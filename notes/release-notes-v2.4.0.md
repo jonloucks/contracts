@@ -3,10 +3,10 @@
 We welcome all users to upgrade. 
 
 ## Customer impact
-*   None 
-* For forks of this repository:
-  * Binding methods now have an overload taking a BindStrategy
-  * Please review.
+*   None
+
+## Forked Repositories Impact
+* Merge recommended, changes in Contracts and Repository interfaces
 
 ## 🚀 New Features
 

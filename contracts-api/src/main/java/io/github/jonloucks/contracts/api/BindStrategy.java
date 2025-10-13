@@ -1,19 +1,25 @@
 package io.github.jonloucks.contracts.api;
 
 /**
- * Binding strategy
+ * Binding strategy.
+ * <p>
+ * Used to dictate how or if binding should happen when the Contract is already bound.
+ * </p>
+ * @see Contracts#bind(Contract, Promisor, BindStrategy)
+ * @see Repository#store(Contract, Promisor, BindStrategy)
+ * @see Repository#keep(Contract, Promisor, BindStrategy)
  */
 public enum BindStrategy {
     /**
-     * Ensure the stored promisor is always bound to the given contract or else throws and error
+     * Bind the new promisor to the given contract always or else throws an error.
      */
     ALWAYS,
     /**
-     * Only bind the contract if not already bound
+     * Bind the new promisor to the given contract if not already bound.
      */
     IF_NOT_BOUND,
     /**
-     * Bind the contract if not bound or the contract is replaceable
+     * Bind the new promisor to the given contract only if replacement is allowed
      */
     IF_ALLOWED
 }
