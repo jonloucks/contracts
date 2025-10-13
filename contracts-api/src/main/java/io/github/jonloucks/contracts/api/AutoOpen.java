@@ -11,6 +11,11 @@ package io.github.jonloucks.contracts.api;
 public interface AutoOpen {
     
     /**
+     * For cases that need an AutoOpen that does not open anything
+     */
+    AutoOpen NONE = () -> AutoClose.NONE;
+    
+    /**
      * AutoOpen this instance
      * @return the mechanism to shut down
      */

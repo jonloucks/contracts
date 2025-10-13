@@ -2,7 +2,7 @@
 
 Thank you for your interest in contributing to Contracts! We welcome and value all contributions, from new features to bug fixes and documentation improvements. This guide will help you navigate the process.
 
-Please note that this project is governed by our [Code of Conduct](CODE_OF_CONDUCT.md). By participating, you are expected to uphold this code.
+Please note that this project is governed by our [Code of Conduct](lsCODE_OF_CONDUCT.md). By participating, you are expected to uphold this code.
 
 ## Table of Contents
 1.  [Reporting Bugs](#reporting-bugs)
