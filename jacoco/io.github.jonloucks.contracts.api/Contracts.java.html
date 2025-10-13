@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Contracts.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">contracts</a> &gt; <a href="index.source.html" class="el_package">io.github.jonloucks.contracts.api</a> &gt; <span class="el_source">Contracts.java</span></div><h1>Contracts.java</h1><pre class="source lang-java linenums">package io.github.jonloucks.contracts.api;
 
+import static io.github.jonloucks.contracts.api.BindStrategy.IF_ALLOWED;
+
 /**
  * The actual implementation used for Contracts itself.
  * It is used to bootstrap Contracts without it knowing the implementation if Contracts.
@@ -38,7 +40,22 @@ public interface Contracts extends AutoOpen {
      * @throws ContractException when contract is already bound and can't be replaced
      * @throws SecurityException when permission to bind is denied
      */
-    &lt;T&gt; AutoClose bind(Contract&lt;T&gt; contract, Promisor&lt;T&gt; promisor);
+    default &lt;T&gt; AutoClose bind(Contract&lt;T&gt; contract, Promisor&lt;T&gt; promisor) {
+<span class="fc" id="L44">        return bind(contract, promisor, IF_ALLOWED);</span>
+    }
+    
+    /**
+     * Establish a binding between a Contract and a Promisor
+     *
+     * @param contract the contract to bind the Promisor
+     * @param promisor the Promisor for the given contract
+     * @param bindStrategy the binding strategy
+     * @param &lt;T&gt;      The type of the value returned by the promisor
+     * @return Use to release (unbind) this contract
+     * @throws ContractException when contract is already bound and can't be replaced
+     * @throws SecurityException when permission to bind is denied
+     */
+    &lt;T&gt; AutoClose bind(Contract&lt;T&gt; contract, Promisor&lt;T&gt; promisor, BindStrategy bindStrategy);
     
     /**
      * The Contracts configuration
@@ -49,35 +66,35 @@ public interface Contracts extends AutoOpen {
          * @return if true, shutdown hooks will be added to ensure cleanup of Contracts
          */
         default boolean useShutdownHooks() {
-<span class="fc" id="L52">            return true;</span>
+<span class="fc" id="L69">            return true;</span>
         }
         
         /**
          * @return if true, reflection might be used to locate the ContractsFactory
          */
         default boolean useReflection() {
-<span class="fc" id="L59">            return true;</span>
+<span class="fc" id="L76">            return true;</span>
         }
         
         /**
          * @return if true, the ServiceLoader might be used to locate the ContractsFactory
          */
         default boolean useServiceLoader() {
-<span class="fc" id="L66">            return true;</span>
+<span class="fc" id="L83">            return true;</span>
         }
         
         /**
          * @return the class name to load from the ServiceLoader to find the ContractsFactory
          */
         default Class&lt;? extends ContractsFactory&gt; serviceLoaderClass() {
-<span class="fc" id="L73">            return ContractsFactory.class;</span>
+<span class="fc" id="L90">            return ContractsFactory.class;</span>
         }
         
         /**
          * @return the class name to use if reflection is used to find the ContractsFactory
          */
         default String reflectionClassName() {
-<span class="fc" id="L80">            return &quot;io.github.jonloucks.contracts.impl.ContractsFactoryImpl&quot;;</span>
+<span class="fc" id="L97">            return &quot;io.github.jonloucks.contracts.impl.ContractsFactoryImpl&quot;;</span>
         }
     }
 }

@@ -101,6 +101,9 @@ extends <a href="AutoOpen.html" title="interface in io.github.jonloucks.contract
 <div class="block">Contract to deliver a Repository factory</div>
 </div>
 </div>
+<div class="inherited-list">
+<h3 id="fields-inherited-from-class-io.github.jonloucks.contracts.api.AutoOpen">Fields inherited from interface&nbsp;io.github.jonloucks.contracts.api.<a href="AutoOpen.html" title="interface in io.github.jonloucks.contracts.api">AutoOpen</a></h3>
+<code><a href="AutoOpen.html#NONE">NONE</a></code></div>
 </section>
 </li>
 <!-- ========== METHOD SUMMARY =========== -->
@@ -126,14 +129,29 @@ extends <a href="AutoOpen.html" title="interface in io.github.jonloucks.contract
 <div class="block">Keep the binding for the life of the repository
  If the Repository is not open, the binding will be created when repository is opened.</div>
 </div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code>&lt;T&gt;&nbsp;void</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code><a href="#require(io.github.jonloucks.contracts.api.Contract)" class="member-name-link">require</a><wbr>(<a href="Contract.html" title="class in io.github.jonloucks.contracts.api">Contract</a>&lt;T&gt;&nbsp;contract)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3">
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab5"><code>default &lt;T&gt;&nbsp;void</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab5"><code><a href="#keep(io.github.jonloucks.contracts.api.Contract,io.github.jonloucks.contracts.api.Promisor,io.github.jonloucks.contracts.api.BindStrategy)" class="member-name-link">keep</a><wbr>(<a href="Contract.html" title="class in io.github.jonloucks.contracts.api">Contract</a>&lt;T&gt;&nbsp;contract,
+ <a href="Promisor.html" title="interface in io.github.jonloucks.contracts.api">Promisor</a>&lt;T&gt;&nbsp;promisor,
+ <a href="BindStrategy.html" title="enum class in io.github.jonloucks.contracts.api">BindStrategy</a>&nbsp;bindStrategy)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab5">
+<div class="block">Keep the binding for the life of the repository
+ If the Repository is not open, the binding will be created when repository is opened.</div>
+</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code>&lt;T&gt;&nbsp;void</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code><a href="#require(io.github.jonloucks.contracts.api.Contract)" class="member-name-link">require</a><wbr>(<a href="Contract.html" title="class in io.github.jonloucks.contracts.api">Contract</a>&lt;T&gt;&nbsp;contract)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3">
 <div class="block">Added a required contract</div>
 </div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code>&lt;T&gt;&nbsp;<a href="AutoClose.html" title="interface in io.github.jonloucks.contracts.api">AutoClose</a></code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code><a href="#store(io.github.jonloucks.contracts.api.Contract,io.github.jonloucks.contracts.api.Promisor)" class="member-name-link">store</a><wbr>(<a href="Contract.html" title="class in io.github.jonloucks.contracts.api">Contract</a>&lt;T&gt;&nbsp;contract,
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab5"><code>default &lt;T&gt;&nbsp;<a href="AutoClose.html" title="interface in io.github.jonloucks.contracts.api">AutoClose</a></code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab5"><code><a href="#store(io.github.jonloucks.contracts.api.Contract,io.github.jonloucks.contracts.api.Promisor)" class="member-name-link">store</a><wbr>(<a href="Contract.html" title="class in io.github.jonloucks.contracts.api">Contract</a>&lt;T&gt;&nbsp;contract,
  <a href="Promisor.html" title="interface in io.github.jonloucks.contracts.api">Promisor</a>&lt;T&gt;&nbsp;promisor)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab5">
+<div class="block">Store the binding.</div>
+</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code>&lt;T&gt;&nbsp;<a href="AutoClose.html" title="interface in io.github.jonloucks.contracts.api">AutoClose</a></code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code><a href="#store(io.github.jonloucks.contracts.api.Contract,io.github.jonloucks.contracts.api.Promisor,io.github.jonloucks.contracts.api.BindStrategy)" class="member-name-link">store</a><wbr>(<a href="Contract.html" title="class in io.github.jonloucks.contracts.api">Contract</a>&lt;T&gt;&nbsp;contract,
+ <a href="Promisor.html" title="interface in io.github.jonloucks.contracts.api">Promisor</a>&lt;T&gt;&nbsp;promisor,
+ <a href="BindStrategy.html" title="enum class in io.github.jonloucks.contracts.api">BindStrategy</a>&nbsp;bindStrategy)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3">
 <div class="block">Store the binding.</div>
 </div>
@@ -170,9 +188,31 @@ extends <a href="AutoOpen.html" title="interface in io.github.jonloucks.contract
 <h2>Method Details</h2>
 <ul class="member-list">
 <li>
-<section class="detail" id="store(io.github.jonloucks.contracts.api.Contract,io.github.jonloucks.contracts.api.Promisor)">
+<section class="detail" id="store(io.github.jonloucks.contracts.api.Contract,io.github.jonloucks.contracts.api.Promisor,io.github.jonloucks.contracts.api.BindStrategy)">
 <h3>store</h3>
 <div class="member-signature"><span class="type-parameters">&lt;T&gt;</span>&nbsp;<span class="return-type"><a href="AutoClose.html" title="interface in io.github.jonloucks.contracts.api">AutoClose</a></span>&nbsp;<span class="element-name">store</span><wbr><span class="parameters">(<a href="Contract.html" title="class in io.github.jonloucks.contracts.api">Contract</a>&lt;T&gt;&nbsp;contract,
+ <a href="Promisor.html" title="interface in io.github.jonloucks.contracts.api">Promisor</a>&lt;T&gt;&nbsp;promisor,
+ <a href="BindStrategy.html" title="enum class in io.github.jonloucks.contracts.api">BindStrategy</a>&nbsp;bindStrategy)</span></div>
+<div class="block">Store the binding.
+ If the Repository is not open, the binding will be created when repository is opened.
+ If the Repository has already been opened the binding is created immediately
+ Note: If never explicitly closed, the order of closing promisors is the reverse order they are stored</div>
+<dl class="notes">
+<dt>Type Parameters:</dt>
+<dd><code>T</code> - the type of contract deliverable</dd>
+<dt>Parameters:</dt>
+<dd><code>contract</code> - the contract to be bound</dd>
+<dd><code>promisor</code> - the promisor to be bounded</dd>
+<dd><code>bindStrategy</code> - the config for storing the binding</dd>
+<dt>Returns:</dt>
+<dd>AutoClose responsible for removing the binding from this Repository</dd>
+</dl>
+</section>
+</li>
+<li>
+<section class="detail" id="store(io.github.jonloucks.contracts.api.Contract,io.github.jonloucks.contracts.api.Promisor)">
+<h3>store</h3>
+<div class="member-signature"><span class="modifiers">default</span>&nbsp;<span class="type-parameters">&lt;T&gt;</span>&nbsp;<span class="return-type"><a href="AutoClose.html" title="interface in io.github.jonloucks.contracts.api">AutoClose</a></span>&nbsp;<span class="element-name">store</span><wbr><span class="parameters">(<a href="Contract.html" title="class in io.github.jonloucks.contracts.api">Contract</a>&lt;T&gt;&nbsp;contract,
  <a href="Promisor.html" title="interface in io.github.jonloucks.contracts.api">Promisor</a>&lt;T&gt;&nbsp;promisor)</span></div>
 <div class="block">Store the binding.
  If the Repository is not open, the binding will be created when repository is opened.
@@ -186,6 +226,26 @@ extends <a href="AutoOpen.html" title="interface in io.github.jonloucks.contract
 <dd><code>promisor</code> - the promisor to be bounded</dd>
 <dt>Returns:</dt>
 <dd>AutoClose responsible for removing the binding from this Repository</dd>
+</dl>
+</section>
+</li>
+<li>
+<section class="detail" id="keep(io.github.jonloucks.contracts.api.Contract,io.github.jonloucks.contracts.api.Promisor,io.github.jonloucks.contracts.api.BindStrategy)">
+<h3>keep</h3>
+<div class="member-signature"><span class="modifiers">default</span>&nbsp;<span class="type-parameters">&lt;T&gt;</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">keep</span><wbr><span class="parameters">(<a href="Contract.html" title="class in io.github.jonloucks.contracts.api">Contract</a>&lt;T&gt;&nbsp;contract,
+ <a href="Promisor.html" title="interface in io.github.jonloucks.contracts.api">Promisor</a>&lt;T&gt;&nbsp;promisor,
+ <a href="BindStrategy.html" title="enum class in io.github.jonloucks.contracts.api">BindStrategy</a>&nbsp;bindStrategy)</span></div>
+<div class="block">Keep the binding for the life of the repository
+ If the Repository is not open, the binding will be created when repository is opened.
+ If the Repository has already been opened the binding is created immediately
+ Note: The order of closing promisors is the reverse order they are stored</div>
+<dl class="notes">
+<dt>Type Parameters:</dt>
+<dd><code>T</code> - the type of contract deliverable</dd>
+<dt>Parameters:</dt>
+<dd><code>contract</code> - the contract to be bound</dd>
+<dd><code>promisor</code> - the promisor to be bounded</dd>
+<dd><code>bindStrategy</code> - the config for storing the binding</dd>
 </dl>
 </section>
 </li>

@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>BindStrategy.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">contracts</a> &gt; <a href="index.source.html" class="el_package">io.github.jonloucks.contracts.api</a> &gt; <span class="el_source">BindStrategy.java</span></div><h1>BindStrategy.java</h1><pre class="source lang-java linenums">package io.github.jonloucks.contracts.api;
+
+/**
+ * Binding strategy.
+ * &lt;p&gt;
+ * Used to dictate how or if binding should happen when the Contract is already bound.
+ * &lt;/p&gt;
+ * @see Contracts#bind(Contract, Promisor, BindStrategy)
+ * @see Repository#store(Contract, Promisor, BindStrategy)
+ * @see Repository#keep(Contract, Promisor, BindStrategy)
+ */
+<span class="fc" id="L12">public enum BindStrategy {</span>
+    /**
+     * Bind the new promisor to the given contract always or else throws an error.
+     */
+<span class="fc" id="L16">    ALWAYS,</span>
+    /**
+     * Bind the new promisor to the given contract if not already bound.
+     */
+<span class="fc" id="L20">    IF_NOT_BOUND,</span>
+    /**
+     * Bind the new promisor to the given contract only if replacement is allowed
+     */
+<span class="fc" id="L24">    IF_ALLOWED</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>

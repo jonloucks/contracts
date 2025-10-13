@@ -68,7 +68,7 @@ loadScripts(document, 'script');</script>
 <ul class="summary-list">
 <li>
 <div id="class-summary">
-<div class="table-tabs" role="tablist" aria-orientation="horizontal"><button id="class-summary-tab0" role="tab" aria-selected="true" aria-controls="class-summary.tabpanel" tabindex="0" onkeydown="switchTab(event)" onclick="show('class-summary', 'class-summary', 2)" class="active-table-tab">All Classes and Interfaces</button><button id="class-summary-tab1" role="tab" aria-selected="false" aria-controls="class-summary.tabpanel" tabindex="-1" onkeydown="switchTab(event)" onclick="show('class-summary', 'class-summary-tab1', 2)" class="table-tab">Interfaces</button><button id="class-summary-tab2" role="tab" aria-selected="false" aria-controls="class-summary.tabpanel" tabindex="-1" onkeydown="switchTab(event)" onclick="show('class-summary', 'class-summary-tab2', 2)" class="table-tab">Classes</button><button id="class-summary-tab5" role="tab" aria-selected="false" aria-controls="class-summary.tabpanel" tabindex="-1" onkeydown="switchTab(event)" onclick="show('class-summary', 'class-summary-tab5', 2)" class="table-tab">Exceptions</button></div>
+<div class="table-tabs" role="tablist" aria-orientation="horizontal"><button id="class-summary-tab0" role="tab" aria-selected="true" aria-controls="class-summary.tabpanel" tabindex="0" onkeydown="switchTab(event)" onclick="show('class-summary', 'class-summary', 2)" class="active-table-tab">All Classes and Interfaces</button><button id="class-summary-tab1" role="tab" aria-selected="false" aria-controls="class-summary.tabpanel" tabindex="-1" onkeydown="switchTab(event)" onclick="show('class-summary', 'class-summary-tab1', 2)" class="table-tab">Interfaces</button><button id="class-summary-tab2" role="tab" aria-selected="false" aria-controls="class-summary.tabpanel" tabindex="-1" onkeydown="switchTab(event)" onclick="show('class-summary', 'class-summary-tab2', 2)" class="table-tab">Classes</button><button id="class-summary-tab3" role="tab" aria-selected="false" aria-controls="class-summary.tabpanel" tabindex="-1" onkeydown="switchTab(event)" onclick="show('class-summary', 'class-summary-tab3', 2)" class="table-tab">Enum Classes</button><button id="class-summary-tab5" role="tab" aria-selected="false" aria-controls="class-summary.tabpanel" tabindex="-1" onkeydown="switchTab(event)" onclick="show('class-summary', 'class-summary-tab5', 2)" class="table-tab">Exceptions</button></div>
 <div id="class-summary.tabpanel" role="tabpanel" aria-labelledby="class-summary-tab0">
 <div class="summary-table two-column-summary">
 <div class="table-header col-first">Class</div>
@@ -82,55 +82,59 @@ loadScripts(document, 'script');</script>
 <div class="block">Opt-in interface to be called once after creation, although implementations should
  handle this gracefully.</div>
 </div>
-<div class="col-first even-row-color class-summary class-summary-tab2"><a href="Checks.html" title="class in io.github.jonloucks.contracts.api">Checks</a></div>
-<div class="col-last even-row-color class-summary class-summary-tab2">
+<div class="col-first even-row-color class-summary class-summary-tab3"><a href="BindStrategy.html" title="enum class in io.github.jonloucks.contracts.api">BindStrategy</a></div>
+<div class="col-last even-row-color class-summary class-summary-tab3">
+<div class="block">Binding strategy.</div>
+</div>
+<div class="col-first odd-row-color class-summary class-summary-tab2"><a href="Checks.html" title="class in io.github.jonloucks.contracts.api">Checks</a></div>
+<div class="col-last odd-row-color class-summary class-summary-tab2">
 <div class="block">Checks used internally and supported for external use.</div>
 </div>
-<div class="col-first odd-row-color class-summary class-summary-tab2"><a href="Contract.html" title="class in io.github.jonloucks.contracts.api">Contract</a>&lt;T&gt;</div>
-<div class="col-last odd-row-color class-summary class-summary-tab2">
+<div class="col-first even-row-color class-summary class-summary-tab2"><a href="Contract.html" title="class in io.github.jonloucks.contracts.api">Contract</a>&lt;T&gt;</div>
+<div class="col-last even-row-color class-summary class-summary-tab2">
 <div class="block">The API agreement for a Contract between the claimee and the claimant.</div>
 </div>
-<div class="col-first even-row-color class-summary class-summary-tab1"><a href="Contract.Config.html" title="interface in io.github.jonloucks.contracts.api">Contract.Config</a>&lt;T&gt;</div>
-<div class="col-last even-row-color class-summary class-summary-tab1">
+<div class="col-first odd-row-color class-summary class-summary-tab1"><a href="Contract.Config.html" title="interface in io.github.jonloucks.contracts.api">Contract.Config</a>&lt;T&gt;</div>
+<div class="col-last odd-row-color class-summary class-summary-tab1">
 <div class="block">The configuration for creating a custom Contract.</div>
 </div>
-<div class="col-first odd-row-color class-summary class-summary-tab1"><a href="Contract.Config.Builder.html" title="interface in io.github.jonloucks.contracts.api">Contract.Config.Builder</a>&lt;T&gt;</div>
-<div class="col-last odd-row-color class-summary class-summary-tab1">
+<div class="col-first even-row-color class-summary class-summary-tab1"><a href="Contract.Config.Builder.html" title="interface in io.github.jonloucks.contracts.api">Contract.Config.Builder</a>&lt;T&gt;</div>
+<div class="col-last even-row-color class-summary class-summary-tab1">
 <div class="block">Partial builder to streamline custom contracts</div>
 </div>
-<div class="col-first even-row-color class-summary class-summary-tab5"><a href="ContractException.html" title="class in io.github.jonloucks.contracts.api">ContractException</a></div>
-<div class="col-last even-row-color class-summary class-summary-tab5">
+<div class="col-first odd-row-color class-summary class-summary-tab5"><a href="ContractException.html" title="class in io.github.jonloucks.contracts.api">ContractException</a></div>
+<div class="col-last odd-row-color class-summary class-summary-tab5">
 <div class="block">Runtime exception thrown for Contract related problems.</div>
 </div>
-<div class="col-first odd-row-color class-summary class-summary-tab1"><a href="Contracts.html" title="interface in io.github.jonloucks.contracts.api">Contracts</a></div>
-<div class="col-last odd-row-color class-summary class-summary-tab1">
+<div class="col-first even-row-color class-summary class-summary-tab1"><a href="Contracts.html" title="interface in io.github.jonloucks.contracts.api">Contracts</a></div>
+<div class="col-last even-row-color class-summary class-summary-tab1">
 <div class="block">The actual implementation used for Contracts itself.</div>
 </div>
-<div class="col-first even-row-color class-summary class-summary-tab1"><a href="Contracts.Config.html" title="interface in io.github.jonloucks.contracts.api">Contracts.Config</a></div>
-<div class="col-last even-row-color class-summary class-summary-tab1">
+<div class="col-first odd-row-color class-summary class-summary-tab1"><a href="Contracts.Config.html" title="interface in io.github.jonloucks.contracts.api">Contracts.Config</a></div>
+<div class="col-last odd-row-color class-summary class-summary-tab1">
 <div class="block">The Contracts configuration</div>
 </div>
-<div class="col-first odd-row-color class-summary class-summary-tab1"><a href="ContractsFactory.html" title="interface in io.github.jonloucks.contracts.api">ContractsFactory</a></div>
-<div class="col-last odd-row-color class-summary class-summary-tab1">
+<div class="col-first even-row-color class-summary class-summary-tab1"><a href="ContractsFactory.html" title="interface in io.github.jonloucks.contracts.api">ContractsFactory</a></div>
+<div class="col-last even-row-color class-summary class-summary-tab1">
 <div class="block">A Contracts factory to bootstrapping GlobalContracts and provide
  Standalone services for special needs.</div>
 </div>
-<div class="col-first even-row-color class-summary class-summary-tab2"><a href="GlobalContracts.html" title="class in io.github.jonloucks.contracts.api">GlobalContracts</a></div>
-<div class="col-last even-row-color class-summary class-summary-tab2">
+<div class="col-first odd-row-color class-summary class-summary-tab2"><a href="GlobalContracts.html" title="class in io.github.jonloucks.contracts.api">GlobalContracts</a></div>
+<div class="col-last odd-row-color class-summary class-summary-tab2">
 <div class="block">Provides access to the shared singleton of a Contracts implementation</div>
 </div>
-<div class="col-first odd-row-color class-summary class-summary-tab1"><a href="Promisor.html" title="interface in io.github.jonloucks.contracts.api">Promisor</a>&lt;T&gt;</div>
-<div class="col-last odd-row-color class-summary class-summary-tab1">
+<div class="col-first even-row-color class-summary class-summary-tab1"><a href="Promisor.html" title="interface in io.github.jonloucks.contracts.api">Promisor</a>&lt;T&gt;</div>
+<div class="col-last even-row-color class-summary class-summary-tab1">
 <div class="block">Interface for providing a deliverable for a Contract
  The main and required implementation is <a href="Promisor.html#demand()"><code>Promisor.demand()</code></a>
  There are optional methods with appropriate defaults.</div>
 </div>
-<div class="col-first even-row-color class-summary class-summary-tab1"><a href="Promisors.html" title="interface in io.github.jonloucks.contracts.api">Promisors</a></div>
-<div class="col-last even-row-color class-summary class-summary-tab1">
+<div class="col-first odd-row-color class-summary class-summary-tab1"><a href="Promisors.html" title="interface in io.github.jonloucks.contracts.api">Promisors</a></div>
+<div class="col-last odd-row-color class-summary class-summary-tab1">
 <div class="block">Helper methods for creating and chaining Promisors used for <a href="GlobalContracts.html#bindContract(io.github.jonloucks.contracts.api.Contract,io.github.jonloucks.contracts.api.Promisor)"><code>GlobalContracts.bindContract(Contract, Promisor)</code></a></div>
 </div>
-<div class="col-first odd-row-color class-summary class-summary-tab1"><a href="Repository.html" title="interface in io.github.jonloucks.contracts.api">Repository</a></div>
-<div class="col-last odd-row-color class-summary class-summary-tab1">
+<div class="col-first even-row-color class-summary class-summary-tab1"><a href="Repository.html" title="interface in io.github.jonloucks.contracts.api">Repository</a></div>
+<div class="col-last even-row-color class-summary class-summary-tab1">
 <div class="block">A repository for multiple contract promisors
  This is an opt-in feature to simplify the managing of many contract bindings.</div>
 </div>

@@ -52,6 +52,10 @@ loadScripts(document, 'script');</script>
 <a href="#I:A">A</a>&nbsp;<a href="#I:B">B</a>&nbsp;<a href="#I:C">C</a>&nbsp;<a href="#I:D">D</a>&nbsp;<a href="#I:F">F</a>&nbsp;<a href="#I:G">G</a>&nbsp;<a href="#I:I">I</a>&nbsp;<a href="#I:K">K</a>&nbsp;<a href="#I:M">M</a>&nbsp;<a href="#I:N">N</a>&nbsp;<a href="#I:O">O</a>&nbsp;<a href="#I:P">P</a>&nbsp;<a href="#I:R">R</a>&nbsp;<a href="#I:S">S</a>&nbsp;<a href="#I:T">T</a>&nbsp;<a href="#I:U">U</a>&nbsp;<a href="#I:V">V</a>&nbsp;<br><a href="allclasses-index.html">All&nbsp;Classes&nbsp;and&nbsp;Interfaces</a><span class="vertical-separator">|</span><a href="allpackages-index.html">All&nbsp;Packages</a><span class="vertical-separator">|</span><a href="serialized-form.html">Serialized&nbsp;Form</a>
 <h2 class="title" id="I:A">A</h2>
 <dl class="index">
+<dt><a href="io.github.jonloucks.contracts.api/io/github/jonloucks/contracts/api/BindStrategy.html#ALWAYS" class="member-name-link">ALWAYS</a> - Enum constant in enum class io.github.jonloucks.contracts.api.<a href="io.github.jonloucks.contracts.api/io/github/jonloucks/contracts/api/BindStrategy.html" title="enum class in io.github.jonloucks.contracts.api">BindStrategy</a></dt>
+<dd>
+<div class="block">Bind the new promisor to the given contract always or else throws an error.</div>
+</dd>
 <dt><a href="io.github.jonloucks.contracts.api/io/github/jonloucks/contracts/api/AutoClose.html" class="type-name-link" title="interface in io.github.jonloucks.contracts.api">AutoClose</a> - Interface in <a href="io.github.jonloucks.contracts.api/io/github/jonloucks/contracts/api/package-summary.html">io.github.jonloucks.contracts.api</a></dt>
 <dd>
 <div class="block">Opt-in interface to  For example, this is when threads should be stopped or hooks removed.</div>
@@ -68,9 +72,17 @@ loadScripts(document, 'script');</script>
 <dd>
 <div class="block">Establish a binding between a Contract and a Promisor</div>
 </dd>
+<dt><a href="io.github.jonloucks.contracts.api/io/github/jonloucks/contracts/api/Contracts.html#bind(io.github.jonloucks.contracts.api.Contract,io.github.jonloucks.contracts.api.Promisor,io.github.jonloucks.contracts.api.BindStrategy)" class="member-name-link">bind(Contract&lt;T&gt;, Promisor&lt;T&gt;, BindStrategy)</a> - Method in interface io.github.jonloucks.contracts.api.<a href="io.github.jonloucks.contracts.api/io/github/jonloucks/contracts/api/Contracts.html" title="interface in io.github.jonloucks.contracts.api">Contracts</a></dt>
+<dd>
+<div class="block">Establish a binding between a Contract and a Promisor</div>
+</dd>
 <dt><a href="io.github.jonloucks.contracts.api/io/github/jonloucks/contracts/api/GlobalContracts.html#bindContract(io.github.jonloucks.contracts.api.Contract,io.github.jonloucks.contracts.api.Promisor)" class="member-name-link">bindContract(Contract&lt;T&gt;, Promisor&lt;T&gt;)</a> - Static method in class io.github.jonloucks.contracts.api.<a href="io.github.jonloucks.contracts.api/io/github/jonloucks/contracts/api/GlobalContracts.html" title="class in io.github.jonloucks.contracts.api">GlobalContracts</a></dt>
 <dd>
 <div class="block">Establish a binding between a Contract and a Promisor</div>
+</dd>
+<dt><a href="io.github.jonloucks.contracts.api/io/github/jonloucks/contracts/api/BindStrategy.html" class="type-name-link" title="enum class in io.github.jonloucks.contracts.api">BindStrategy</a> - Enum Class in <a href="io.github.jonloucks.contracts.api/io/github/jonloucks/contracts/api/package-summary.html">io.github.jonloucks.contracts.api</a></dt>
+<dd>
+<div class="block">Binding strategy.</div>
 </dd>
 <dt><a href="io.github.jonloucks.contracts.api/io/github/jonloucks/contracts/api/Checks.html#builderCheck(T)" class="member-name-link">builderCheck(T)</a> - Static method in class io.github.jonloucks.contracts.api.<a href="io.github.jonloucks.contracts.api/io/github/jonloucks/contracts/api/Checks.html" title="class in io.github.jonloucks.contracts.api">Checks</a></dt>
 <dd>
@@ -251,6 +263,14 @@ loadScripts(document, 'script');</script>
 </dl>
 <h2 class="title" id="I:I">I</h2>
 <dl class="index">
+<dt><a href="io.github.jonloucks.contracts.api/io/github/jonloucks/contracts/api/BindStrategy.html#IF_ALLOWED" class="member-name-link">IF_ALLOWED</a> - Enum constant in enum class io.github.jonloucks.contracts.api.<a href="io.github.jonloucks.contracts.api/io/github/jonloucks/contracts/api/BindStrategy.html" title="enum class in io.github.jonloucks.contracts.api">BindStrategy</a></dt>
+<dd>
+<div class="block">Bind the new promisor to the given contract only if replacement is allowed</div>
+</dd>
+<dt><a href="io.github.jonloucks.contracts.api/io/github/jonloucks/contracts/api/BindStrategy.html#IF_NOT_BOUND" class="member-name-link">IF_NOT_BOUND</a> - Enum constant in enum class io.github.jonloucks.contracts.api.<a href="io.github.jonloucks.contracts.api/io/github/jonloucks/contracts/api/BindStrategy.html" title="enum class in io.github.jonloucks.contracts.api">BindStrategy</a></dt>
+<dd>
+<div class="block">Bind the new promisor to the given contract if not already bound.</div>
+</dd>
 <dt><a href="io.github.jonloucks.contracts.api/io/github/jonloucks/contracts/api/Checks.html#illegalCheck(T,boolean,java.lang.String)" class="member-name-link">illegalCheck(T, boolean, String)</a> - Static method in class io.github.jonloucks.contracts.api.<a href="io.github.jonloucks.contracts.api/io/github/jonloucks/contracts/api/Checks.html" title="class in io.github.jonloucks.contracts.api">Checks</a></dt>
 <dd>
 <div class="block">Check if given instance is not null</div>
@@ -294,6 +314,11 @@ loadScripts(document, 'script');</script>
 <div class="block">Keep the binding for the life of the repository
  If the Repository is not open, the binding will be created when repository is opened.</div>
 </dd>
+<dt><a href="io.github.jonloucks.contracts.api/io/github/jonloucks/contracts/api/Repository.html#keep(io.github.jonloucks.contracts.api.Contract,io.github.jonloucks.contracts.api.Promisor,io.github.jonloucks.contracts.api.BindStrategy)" class="member-name-link">keep(Contract&lt;T&gt;, Promisor&lt;T&gt;, BindStrategy)</a> - Method in interface io.github.jonloucks.contracts.api.<a href="io.github.jonloucks.contracts.api/io/github/jonloucks/contracts/api/Repository.html" title="interface in io.github.jonloucks.contracts.api">Repository</a></dt>
+<dd>
+<div class="block">Keep the binding for the life of the repository
+ If the Repository is not open, the binding will be created when repository is opened.</div>
+</dd>
 </dl>
 <h2 class="title" id="I:M">M</h2>
 <dl class="index">
@@ -315,6 +340,14 @@ loadScripts(document, 'script');</script>
 <dt><a href="io.github.jonloucks.contracts.api/io/github/jonloucks/contracts/api/Checks.html#nameCheck(T)" class="member-name-link">nameCheck(T)</a> - Static method in class io.github.jonloucks.contracts.api.<a href="io.github.jonloucks.contracts.api/io/github/jonloucks/contracts/api/Checks.html" title="class in io.github.jonloucks.contracts.api">Checks</a></dt>
 <dd>
 <div class="block">Check if given name is not null or invalid</div>
+</dd>
+<dt><a href="io.github.jonloucks.contracts.api/io/github/jonloucks/contracts/api/AutoClose.html#NONE" class="member-name-link">NONE</a> - Static variable in interface io.github.jonloucks.contracts.api.<a href="io.github.jonloucks.contracts.api/io/github/jonloucks/contracts/api/AutoClose.html" title="interface in io.github.jonloucks.contracts.api">AutoClose</a></dt>
+<dd>
+<div class="block">For cases that need an AutoClose that does nothing</div>
+</dd>
+<dt><a href="io.github.jonloucks.contracts.api/io/github/jonloucks/contracts/api/AutoOpen.html#NONE" class="member-name-link">NONE</a> - Static variable in interface io.github.jonloucks.contracts.api.<a href="io.github.jonloucks.contracts.api/io/github/jonloucks/contracts/api/AutoOpen.html" title="interface in io.github.jonloucks.contracts.api">AutoOpen</a></dt>
+<dd>
+<div class="block">For cases that need an AutoOpen that does not open anything</div>
 </dd>
 <dt><a href="io.github.jonloucks.contracts.api/io/github/jonloucks/contracts/api/Checks.html#nullCheck(T,java.lang.String)" class="member-name-link">nullCheck(T, String)</a> - Static method in class io.github.jonloucks.contracts.api.<a href="io.github.jonloucks.contracts.api/io/github/jonloucks/contracts/api/Checks.html" title="class in io.github.jonloucks.contracts.api">Checks</a></dt>
 <dd>
@@ -371,6 +404,10 @@ loadScripts(document, 'script');</script>
 <dd>
 <div class="block">Store the binding.</div>
 </dd>
+<dt><a href="io.github.jonloucks.contracts.api/io/github/jonloucks/contracts/api/Repository.html#store(io.github.jonloucks.contracts.api.Contract,io.github.jonloucks.contracts.api.Promisor,io.github.jonloucks.contracts.api.BindStrategy)" class="member-name-link">store(Contract&lt;T&gt;, Promisor&lt;T&gt;, BindStrategy)</a> - Method in interface io.github.jonloucks.contracts.api.<a href="io.github.jonloucks.contracts.api/io/github/jonloucks/contracts/api/Repository.html" title="interface in io.github.jonloucks.contracts.api">Repository</a></dt>
+<dd>
+<div class="block">Store the binding.</div>
+</dd>
 </dl>
 <h2 class="title" id="I:T">T</h2>
 <dl class="index">
@@ -403,6 +440,15 @@ loadScripts(document, 'script');</script>
 <dt><a href="io.github.jonloucks.contracts.api/io/github/jonloucks/contracts/api/Checks.html#validateContracts(io.github.jonloucks.contracts.api.Contracts)" class="member-name-link">validateContracts(Contracts)</a> - Static method in class io.github.jonloucks.contracts.api.<a href="io.github.jonloucks.contracts.api/io/github/jonloucks/contracts/api/Checks.html" title="class in io.github.jonloucks.contracts.api">Checks</a></dt>
 <dd>
 <div class="block">A simple runtime validation of deployed implementation</div>
+</dd>
+<dt><a href="io.github.jonloucks.contracts.api/io/github/jonloucks/contracts/api/BindStrategy.html#valueOf(java.lang.String)" class="member-name-link">valueOf(String)</a> - Static method in enum class io.github.jonloucks.contracts.api.<a href="io.github.jonloucks.contracts.api/io/github/jonloucks/contracts/api/BindStrategy.html" title="enum class in io.github.jonloucks.contracts.api">BindStrategy</a></dt>
+<dd>
+<div class="block">Returns the enum constant of this class with the specified name.</div>
+</dd>
+<dt><a href="io.github.jonloucks.contracts.api/io/github/jonloucks/contracts/api/BindStrategy.html#values()" class="member-name-link">values()</a> - Static method in enum class io.github.jonloucks.contracts.api.<a href="io.github.jonloucks.contracts.api/io/github/jonloucks/contracts/api/BindStrategy.html" title="enum class in io.github.jonloucks.contracts.api">BindStrategy</a></dt>
+<dd>
+<div class="block">Returns an array containing the constants of this enum class, in
+the order they are declared.</div>
 </dd>
 </dl>
 <a href="#I:A">A</a>&nbsp;<a href="#I:B">B</a>&nbsp;<a href="#I:C">C</a>&nbsp;<a href="#I:D">D</a>&nbsp;<a href="#I:F">F</a>&nbsp;<a href="#I:G">G</a>&nbsp;<a href="#I:I">I</a>&nbsp;<a href="#I:K">K</a>&nbsp;<a href="#I:M">M</a>&nbsp;<a href="#I:N">N</a>&nbsp;<a href="#I:O">O</a>&nbsp;<a href="#I:P">P</a>&nbsp;<a href="#I:R">R</a>&nbsp;<a href="#I:S">S</a>&nbsp;<a href="#I:T">T</a>&nbsp;<a href="#I:U">U</a>&nbsp;<a href="#I:V">V</a>&nbsp;<br><a href="allclasses-index.html">All&nbsp;Classes&nbsp;and&nbsp;Interfaces</a><span class="vertical-separator">|</span><a href="allpackages-index.html">All&nbsp;Packages</a><span class="vertical-separator">|</span><a href="serialized-form.html">Serialized&nbsp;Form</a></main>
