@@ -1,5 +1,7 @@
 package io.github.jonloucks.contracts.api;
 
+import static io.github.jonloucks.contracts.api.BindStrategy.IF_ALLOWED;
+
 /**
  * The actual implementation used for Contracts itself.
  * It is used to bootstrap Contracts without it knowing the implementation if Contracts.
@@ -38,7 +40,22 @@ public interface Contracts extends AutoOpen {
      * @throws ContractException when contract is already bound and can't be replaced
      * @throws SecurityException when permission to bind is denied
      */
-    <T> AutoClose bind(Contract<T> contract, Promisor<T> promisor);
+    default <T> AutoClose bind(Contract<T> contract, Promisor<T> promisor) {
+        return bind(contract, promisor, IF_ALLOWED);
+    }
+    
+    /**
+     * Establish a binding between a Contract and a Promisor
+     *
+     * @param contract the contract to bind the Promisor
+     * @param promisor the Promisor for the given contract
+     * @param bindStrategy the binding strategy
+     * @param <T>      The type of the value returned by the promisor
+     * @return Use to release (unbind) this contract
+     * @throws ContractException when contract is already bound and can't be replaced
+     * @throws SecurityException when permission to bind is denied
+     */
+    <T> AutoClose bind(Contract<T> contract, Promisor<T> promisor, BindStrategy bindStrategy);
     
     /**
      * The Contracts configuration

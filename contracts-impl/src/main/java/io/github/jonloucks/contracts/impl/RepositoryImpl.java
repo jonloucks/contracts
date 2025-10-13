@@ -4,8 +4,7 @@ import io.github.jonloucks.contracts.api.*;
 
 import java.util.*;
 
-import static io.github.jonloucks.contracts.api.Checks.contractCheck;
-import static io.github.jonloucks.contracts.api.Checks.promisorCheck;
+import static io.github.jonloucks.contracts.api.Checks.*;
 import static java.util.Optional.ofNullable;
 
 /**
@@ -25,20 +24,23 @@ final class RepositoryImpl implements Repository {
     }
     
     @Override
-    public <T> AutoClose store(Contract<T> contract, Promisor<T> promisor) {
+    public <T> AutoClose store(Contract<T> contract, Promisor<T> promisor, BindStrategy bindStrategy) {
         final Contract<T> validContract = contractCheck(contract);
         final Promisor<T> validPromisor = promisorCheck(promisor);
+        final BindStrategy validBindStrategy = nullCheck(bindStrategy, "bindStrategy");
         
         if (storedContracts.containsKey(validContract)) {
-            throw new ContractException( "The contract " + validContract + "  is already promised.");
+            throw new ContractException( "The contract " + validContract + "  is already stored.");
         }
-        final StorageImpl<T> storage = new StorageImpl<>(contracts,validContract, validPromisor);
         
-        storedContracts.put(validContract, storage);
-  
+        final StorageImpl<T> storage = new StorageImpl<>(contracts, validContract, validPromisor, validBindStrategy);
+        
         if (openState.isOpen()) {
             storage.bind();
         }
+        
+        storedContracts.put(validContract, storage);
+  
         return () -> {
             if (storedContracts.remove(validContract, storage)) {
                 storage.close();
@@ -88,20 +90,19 @@ final class RepositoryImpl implements Repository {
      * Using LinkedHashMap to retain insertion order
      */
     private final Map<Contract<?>, StorageImpl<?>> storedContracts = new LinkedHashMap<>();
-    
+
     private static final class StorageImpl<T> implements AutoClose {
 
-        StorageImpl(Contracts contracts, Contract<T> contract, Promisor<T> promisor) {
+        StorageImpl(Contracts contracts, Contract<T> contract, Promisor<T> promisor, BindStrategy bindStrategy) {
             this.contracts = contracts;
             this.contract = contract;
             this.promisor = promisor;
+            this.bindStrategy = bindStrategy;
         }
     
         private void bind() {
-            if (contract.isReplaceable() || !contracts.isBound(contract)) {
-                close();
-                closeBinding = contracts.bind(contract, promisor);
-            }
+            close();
+            closeBinding = contracts.bind(contract, promisor, bindStrategy);
         }
         
         @Override
@@ -114,6 +115,7 @@ final class RepositoryImpl implements Repository {
         
         private final Contract<T> contract;
         private final Promisor<T> promisor;
+        private final BindStrategy bindStrategy;
         private final Contracts contracts;
         private AutoClose closeBinding;
     }

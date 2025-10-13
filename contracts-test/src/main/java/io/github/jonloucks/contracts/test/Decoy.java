@@ -22,7 +22,12 @@ public interface Decoy<D> extends Promisor<D>, ContractsFactory, Contracts, Auto
     
     @Override
     default <T> AutoClose bind(Contract<T> contract, Promisor<T> promisor) {
-        return () -> {};
+        return AutoClose.NONE;
+    }
+    
+    @Override
+    default <T> AutoClose bind(Contract<T> contract, Promisor<T> promisor, BindStrategy strategy) {
+        return AutoClose.NONE;
     }
     
     @Override

@@ -1,6 +1,7 @@
 package io.github.jonloucks.contracts.test;
 
 import io.github.jonloucks.contracts.api.*;
+import io.github.jonloucks.contracts.api.BindStrategy;
 import org.junit.jupiter.api.Test;
 import org.mockito.stubbing.Answer;
 
@@ -209,13 +210,28 @@ public interface RepositoryTests {
     }
     
     @Test
+    default void repository_keep_WhenNotReplaceableAndBoundAnd_BIND_ALWAYS_Throws() {
+        runWithScenario(( contracts,repository) -> {
+            final Contract<String> textContract = Contract.create(String.class, b -> b.replaceable(false));
+            
+            try (AutoClose closeFirstBinding = contracts.bind(textContract, () -> "x") ) {
+                final AutoClose ignoredFirstBinding = closeFirstBinding;
+                final ContractException thrown = assertThrows(ContractException.class, () -> {
+                    repository.keep(textContract, () -> "y", BindStrategy.ALWAYS);
+                });
+                assertThrown(thrown);
+            }
+        });
+    }
+    
+    @Test
     default void repository_InternalCoverage() {
         assertInstantiateThrows(RepositoryTestsTool.class);
     }
     
     final class RepositoryTestsTool {
         private RepositoryTestsTool() {
-            throw new AssertionError("Illegal constructor");
+            throw new AssertionError("Illegal constructor.");
         }
         interface ScenarioConfig extends BiConsumer<Contracts, Repository> {
         

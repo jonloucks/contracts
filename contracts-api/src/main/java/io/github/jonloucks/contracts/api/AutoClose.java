@@ -10,6 +10,11 @@ package io.github.jonloucks.contracts.api;
 public interface AutoClose extends AutoCloseable {
     
     /**
+     * For cases that need an AutoClose that does nothing
+     */
+    AutoClose NONE = () -> {};
+    
+    /**
      * AutoClose this instance.
      */
     void close();

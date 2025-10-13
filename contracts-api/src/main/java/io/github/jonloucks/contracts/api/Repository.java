@@ -2,6 +2,8 @@ package io.github.jonloucks.contracts.api;
 
 import java.util.function.Supplier;
 
+import static io.github.jonloucks.contracts.api.BindStrategy.IF_ALLOWED;
+
 /**
  * A repository for multiple contract promisors
  * This is an opt-in feature to simplify the managing of many contract bindings.
@@ -14,7 +16,20 @@ public interface Repository extends AutoOpen {
      * Contract to deliver a Repository factory
      */
     Contract<Supplier<Repository>> FACTORY = Contract.create("Repository Factory");
-    
+
+    /**
+     * Store the binding.
+     * If the Repository is not open, the binding will be created when repository is opened.
+     * If the Repository has already been opened the binding is created immediately
+     * Note: If never explicitly closed, the order of closing promisors is the reverse order they are stored
+     * @param contract the contract to be bound
+     * @param promisor the promisor to be bounded
+     * @param bindStrategy the config for storing the binding
+     * @return AutoClose responsible for removing the binding from this Repository
+     * @param <T> the type of contract deliverable
+     */
+    <T> AutoClose store(Contract<T> contract, Promisor<T> promisor, BindStrategy bindStrategy);
+
     /**
      * Store the binding.
      * If the Repository is not open, the binding will be created when repository is opened.
@@ -25,7 +40,25 @@ public interface Repository extends AutoOpen {
      * @return AutoClose responsible for removing the binding from this Repository
      * @param <T> the type of contract deliverable
      */
-    <T> AutoClose store(Contract<T> contract, Promisor<T> promisor);
+    default <T> AutoClose store(Contract<T> contract, Promisor<T> promisor) {
+        return store(contract, promisor, IF_ALLOWED);
+    }
+    
+    /**
+     * Keep the binding for the life of the repository
+     * If the Repository is not open, the binding will be created when repository is opened.
+     * If the Repository has already been opened the binding is created immediately
+     * Note: The order of closing promisors is the reverse order they are stored
+     * @param contract the contract to be bound
+     * @param promisor the promisor to be bounded
+     * @param bindStrategy the config for storing the binding
+
+     * @param <T> the type of contract deliverable
+     */
+    default <T> void keep(Contract<T> contract, Promisor<T> promisor, BindStrategy bindStrategy) {
+        //noinspection resource
+        store(contract, promisor, bindStrategy);
+    }
     
     /**
      * Keep the binding for the life of the repository
@@ -37,8 +70,7 @@ public interface Repository extends AutoOpen {
      * @param <T> the type of contract deliverable
      */
      default <T> void keep(Contract<T> contract, Promisor<T> promisor) {
-         //noinspection resource
-         store(contract, promisor);
+         keep(contract, promisor, IF_ALLOWED);
      }
     
     /**

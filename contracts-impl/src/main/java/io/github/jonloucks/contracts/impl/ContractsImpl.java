@@ -45,13 +45,12 @@ final class ContractsImpl implements Contracts {
     }
     
     @Override
-    public <T> AutoClose bind(Contract<T> contract, Promisor<T> promisor) {
+    public <T> AutoClose bind(Contract<T> contract, Promisor<T> promisor, BindStrategy bindStrategy) {
         final Contract<T> validContract = contractCheck(contract);
         final Promisor<T> validPromisor = promisorCheck(promisor);
+        final BindStrategy validBindStrategy = nullCheck(bindStrategy, "Bind strategy must be present.");
         
-        checkNewBinding(validContract, validPromisor);
-        
-        return makeBinding(validContract, validPromisor);
+        return maybeBind(validContract, validPromisor, validBindStrategy);
     }
     
     ContractsImpl(Contracts.Config config) {
@@ -84,35 +83,58 @@ final class ContractsImpl implements Contracts {
         }
     }
     
-    private void checkNewBinding(Contract<?> contract, Promisor<?> promisor) {
-        getFromPromisorMap(contract).ifPresent(currentPromisor -> {
-            // This check is required.
-            // It prohibits the redundant caller from being able to release
-            // the previous binding.
-            // It is not benign and could create unexpected behaviours.
-            if (currentPromisor == promisor) {
-                throw newContractDuplicateBindException(contract);
-            }
-            if (!contract.isReplaceable()) {
-                throw newContractNotReplaceableException(contract);
-            }
-        });
+    private <T> AutoClose maybeBind(Contract<T> contract, Promisor<T> newPromisor, BindStrategy bindStrategy) {
+        if (checkBind(contract, newPromisor, bindStrategy)) {
+            return doBind(contract, newPromisor);
+        } else {
+            return AutoClose.NONE;
+        }
     }
     
-    private <T> AutoClose makeBinding(Contract<T> contract, Promisor<T> promisor) {
+    private boolean checkBind(Contract<?> contract, Promisor<?> newPromisor, BindStrategy bindStrategy) {
+        final Optional<Promisor<?>> optionalCurrent = getFromPromisorMap(contract);
+        
+        //noinspection OptionalIsPresent
+        if (optionalCurrent.isPresent()) {
+            return checkReplacement(contract, newPromisor, bindStrategy, optionalCurrent.get());
+        } else {
+            return true;
+        }
+    }
+    
+    private static boolean checkReplacement(Contract<?> contract, Promisor<?> newPromisor, BindStrategy bindStrategy, Promisor<?> currentPromisor) {
+        // Double bind of same promisor, do not rebind
+        if (currentPromisor == newPromisor) {
+            return false;
+        }
+        
+        switch (bindStrategy) {
+            case ALWAYS:
+                if (contract.isReplaceable()) {
+                    return true;
+                }
+                throw newContractNotReplaceableException(contract);
+            case IF_NOT_BOUND:
+                return false;
+            case IF_ALLOWED:
+            default:
+                return contract.isReplaceable();
+        }
+    }
+    
+    private <T> AutoClose doBind(Contract<T> contract, Promisor<T> promisor) {
         // Since ReentrantReadWriteLock does not support lock upgrade, there are opportunities
         // for changes by other threads between the reads and writes.
         // This is mitigated by always incrementing the new value and decrementing the old value.
         promisor.incrementUsage();
         return applyWithLock(mapLock.writeLock(), () -> {
             ofNullable(promisorMap.put(contract, promisor)).ifPresent(Promisor::decrementUsage);
-            
             final IdempotentImpl breakBindingOnce = new IdempotentImpl();
             breakBindingOnce.transitionToOpen();
             return () -> {
-              if (breakBindingOnce.transitionToClosed()) {
-                  breakBinding(contract, promisor);
-              }
+                if (breakBindingOnce.transitionToClosed()) {
+                    breakBinding(contract, promisor);
+                }
             };
         });
     }
@@ -186,11 +208,7 @@ final class ContractsImpl implements Contracts {
     private static <T> ContractException newContractNotReplaceableException(Contract<T> contract) {
         return new ContractException("Contract " + contract + " is not replaceable.");
     }
-    
-    private static <T> ContractException newContractDuplicateBindException(Contract<T> contract) {
-        return new ContractException("Contract " + contract + " duplicated bindings not allowed.");
-    }
-    
+
     private final IdempotentImpl openState = new IdempotentImpl();
     private final ReentrantReadWriteLock mapLock = new ReentrantReadWriteLock();
     private final LinkedHashMap<Contract<?>, Promisor<?>> promisorMap = new LinkedHashMap<>();
