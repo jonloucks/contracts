@@ -26,14 +26,15 @@ String weather = GlobalContracts.claimContract(WEATHER);
 [![Javadoc Badge](https://raw.githubusercontent.com/jonloucks/contracts/refs/heads/badges/main-javadoc.svg)](https://jonloucks.github.io/contracts/javadoc/)
 
 ## Goals
-1. Security
-2. Encapsulation
-3. Use anywhere
-4. Type safe. no casting needed. No unchecked surprises
-5. By default, a Contract is only visible to the author
-6. Deploys on oldest supported LTS version of Java with JPMS. (currently 11)
-7. Compiles with minimum Java language (currently 9)
-8. Never impose reflection, injection, annotations etc
-9. Promote black box testing, leading to test reuse and maintainability
-10. Can be used in conjunction with spring-boot, Guice or other dependency libraries.
+1. Separate the consumption of an API from the implementation details.
+2. Security
+3. Encapsulation
+4. Use anywhere, anytime across many code bases
+5. Type safe. no casting needed. No unchecked surprises
+6. By default, a Contract is only visible to the author
+7. Deploys on oldest supported LTS version of Java with JPMS. (currently 11)
+8. Compiles with minimum Java language (currently 9)
+9. Never require reflection, injection, annotations etc
+10. Promote black box testing, leading to test reuse and maintainability
+11. Can be used in conjunction with spring-boot, Guice or other dependency libraries.
 
