@@ -57,7 +57,7 @@ public final class GlobalContracts {
      * @param <T> the type of deliverable
      */
     public static <T> Promisor<T> singleton(Promisor<T> promisor) {
-        return INSTANCE.contracts.claim(Promisors.CONTRACT).createSingletonPromisor(promisor);
+        return INSTANCE.promisors.createSingletonPromisor(promisor);
     }
     
     /**
@@ -69,7 +69,7 @@ public final class GlobalContracts {
      * @param <T> the type of deliverable
      */
     public static <T> Promisor<T> lifeCycle(Promisor<T> promisor) {
-        return INSTANCE.contracts.claim(Promisors.CONTRACT).createLifeCyclePromisor(promisor);
+        return INSTANCE.promisors.createLifeCyclePromisor(promisor);
     }
     
     /**
@@ -99,6 +99,7 @@ public final class GlobalContracts {
     
     private static final GlobalContracts INSTANCE = new GlobalContracts();
     private final Contracts contracts;
+    private final Promisors promisors;
     @SuppressWarnings({"FieldCanBeLocal","unused"})
     private final AutoClose close;
     
@@ -106,5 +107,6 @@ public final class GlobalContracts {
         this.contracts = createContracts(new Contracts.Config() {});
         this.close = contracts.open();
         validateContracts(contracts);
+        this.promisors = contracts.claim(Promisors.CONTRACT);
     }
 }
