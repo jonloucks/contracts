@@ -20,11 +20,13 @@ final class LifeCyclePromisorImpl<T> implements Promisor<T> {
     
     @Override
     public T demand() {
-        final AtomicReference<T> currentDeliverable = new AtomicReference<>();
-        if (getCurrentDeliverable(currentDeliverable)) {
-            return currentDeliverable.get();
+        synchronized (simpleLock) {
+            final AtomicReference<T> currentDeliverable = new AtomicReference<>();
+            if (getCurrentDeliverable(currentDeliverable)) {
+                return currentDeliverable.get();
+            }
+            return createDeliverableIfNeeded();
         }
-        return createDeliverableIfNeeded();
     }
     
     @Override
@@ -89,8 +91,8 @@ final class LifeCyclePromisorImpl<T> implements Promisor<T> {
         openException.set(null);
         final T currentDeliverable = referentPromisor.demand();
         atomicDeliverable.set(currentDeliverable);
-        openDeliverable(currentDeliverable);
         isDeliverableAcquired.set(true);
+        openDeliverable(currentDeliverable);
         return currentDeliverable;
     }
     
