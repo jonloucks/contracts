@@ -48,6 +48,31 @@ public final class GlobalContracts {
     }
     
     /**
+     * Creates a Promisor that only calls the source Promisor once and then always
+     * returns that value.
+     * Note: increment and decrementUsage are relayed to the source promisor.
+     *
+     * @param promisor the source Promisor
+     * @return The new Promisor
+     * @param <T> the type of deliverable
+     */
+    public static <T> Promisor<T> singleton(Promisor<T> promisor) {
+        return INSTANCE.contracts.claim(Promisors.CONTRACT).createSingletonPromisor(promisor);
+    }
+    
+    /**
+     * Reference counted, lazy loaded, with opt-in 'open' and 'close' invoked on deliverable.
+     * Note: increment and decrementUsage are relayed to the source promisor.
+     *
+     * @param promisor the source promisor
+     * @return the new Promisor
+     * @param <T> the type of deliverable
+     */
+    public static <T> Promisor<T> lifeCycle(Promisor<T> promisor) {
+        return INSTANCE.contracts.claim(Promisors.CONTRACT).createLifeCyclePromisor(promisor);
+    }
+    
+    /**
      * Return the global instance of Contracts
      * @return the instance
      */
@@ -67,14 +92,12 @@ public final class GlobalContracts {
      */
     public static Contracts createContracts(Contracts.Config config) {
         final Contracts.Config validConfig = configCheck(config);
-        
         final ContractsFactoryFinder factoryFinder = new ContractsFactoryFinder(config);
         final ContractsFactory contractsFactory = nullCheck(factoryFinder.find(), "Contracts factory not found.");
         return nullCheck(contractsFactory.create(validConfig), "Contracts could not be created.");
     }
     
     private static final GlobalContracts INSTANCE = new GlobalContracts();
-    
     private final Contracts contracts;
     @SuppressWarnings({"FieldCanBeLocal","unused"})
     private final AutoClose close;
