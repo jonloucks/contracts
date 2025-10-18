@@ -36,6 +36,24 @@ public interface GlobalContractsTests {
     }
     
     @Test
+    default void globalContracts_singleton_WithNullPromisor_Throws() {
+        final IllegalArgumentException thrown = assertThrows(IllegalArgumentException.class, () ->  {
+            GlobalContracts.singleton(null);
+        });
+        
+        assertThrown(thrown);
+    }
+    
+    @Test
+    default void globalContracts_lifeCycle_WithNullPromisor_Throws() {
+        final IllegalArgumentException thrown = assertThrows(IllegalArgumentException.class, () ->  {
+            GlobalContracts.lifeCycle(null);
+        });
+        
+        assertThrown(thrown);
+    }
+    
+    @Test
     default void globalContracts_claimContract_WithUnknownContract_Throws() {
         final Contract<String> contract = Contract.create("testContract");
         final ContractException thrown = assertThrows(ContractException.class, () ->  {
@@ -43,6 +61,26 @@ public interface GlobalContractsTests {
         });
         
         assertThrown(thrown);
+    }
+    
+    @Test
+    default void globalContracts_lifeCycle_WithNPromisor_Works() {
+        final Promisor<Integer> sourcePromisor = () -> 12;
+        final Promisor<Integer> lifeCyclePromisor = GlobalContracts.lifeCycle(sourcePromisor);
+        
+        assertObject(lifeCyclePromisor);
+        lifeCyclePromisor.incrementUsage();
+        assertEquals( sourcePromisor.demand(), lifeCyclePromisor.demand());
+    }
+    
+    @Test
+    default void globalContracts_singleton_WithNPromisor_Works() {
+        final Promisor<Integer> sourcePromisor = () -> 12;
+        final Promisor<Integer> singletonPromisor = GlobalContracts.singleton(sourcePromisor);
+        
+        assertObject(singletonPromisor);
+        singletonPromisor.incrementUsage();
+        assertEquals(sourcePromisor.demand(), singletonPromisor.demand());
     }
     
     @Test
