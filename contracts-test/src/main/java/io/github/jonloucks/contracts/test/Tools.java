@@ -222,12 +222,16 @@ public final class Tools {
         final Contracts contracts = GlobalContracts.createContracts(validConfig);
         
         try (AutoClose closeContracts = contracts.open()) {
-            final AutoClose ignored = closeContracts;
+            ignore(closeContracts);
             validBlock.accept(contracts);
         }
     }
     
     public static void implicitClose(AutoClose close) {
         close.close();
+    }
+    
+    @SuppressWarnings("unused")
+    public static void ignore(Object instance) {
     }
 }
