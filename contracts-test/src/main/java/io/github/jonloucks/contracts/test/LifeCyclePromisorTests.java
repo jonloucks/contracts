@@ -191,6 +191,30 @@ public interface LifeCyclePromisorTests {
     }
     
     @Test
+    default void lifeCyclePromisor_Reentrancy_Issue69_Works() {
+        withContracts(contracts -> {
+            final Promisors promisors = contracts.claim(Promisors.CONTRACT);
+            final Contract<AutoOpen> contract = Contract.create("Issue69");
+            final AtomicInteger openCounter = new AtomicInteger();
+            final AutoOpen instance = new AutoOpen() {
+                @Override
+                public AutoClose open() {
+                     if (openCounter.incrementAndGet() > 1) {
+                         throw new Error("Reentrancy failure: Issue #69");
+                     } else {
+                         contracts.claim(contract);
+                     }
+                     return AutoClose.NONE;
+                }
+            };
+            try (AutoClose unbind = contracts.bind(contract, promisors.createLifeCyclePromisor(() -> instance))) {
+                ignore(unbind);
+                contracts.claim(contract);
+            }
+        });
+    }
+    
+    @Test
     default void lifecyclePromisor_InternalCoverage() {
         assertInstantiateThrows(ConcurrencyTestsTool.class);
     }
