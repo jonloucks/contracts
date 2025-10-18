@@ -119,6 +119,17 @@ loadScripts(document, 'script');</script>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
 <div class="block">Checks if the contract is bound to a Promisor</div>
 </div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static &lt;T&gt;&nbsp;<a href="Promisor.html" title="interface in io.github.jonloucks.contracts.api">Promisor</a>&lt;T&gt;</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#lifeCycle(io.github.jonloucks.contracts.api.Promisor)" class="member-name-link">lifeCycle</a><wbr>(<a href="Promisor.html" title="interface in io.github.jonloucks.contracts.api">Promisor</a>&lt;T&gt;&nbsp;promisor)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="block">Reference counted, lazy loaded, with opt-in 'open' and 'close' invoked on deliverable.</div>
+</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static &lt;T&gt;&nbsp;<a href="Promisor.html" title="interface in io.github.jonloucks.contracts.api">Promisor</a>&lt;T&gt;</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#singleton(io.github.jonloucks.contracts.api.Promisor)" class="member-name-link">singleton</a><wbr>(<a href="Promisor.html" title="interface in io.github.jonloucks.contracts.api">Promisor</a>&lt;T&gt;&nbsp;promisor)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="block">Creates a Promisor that only calls the source Promisor once and then always
+ returns that value.</div>
+</div>
 </div>
 </div>
 </div>
@@ -192,6 +203,39 @@ loadScripts(document, 'script');</script>
 <dd><code>contract</code> - the contract to check</dd>
 <dt>Returns:</dt>
 <dd>true iif bound</dd>
+</dl>
+</section>
+</li>
+<li>
+<section class="detail" id="singleton(io.github.jonloucks.contracts.api.Promisor)">
+<h3>singleton</h3>
+<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="type-parameters">&lt;T&gt;</span>&nbsp;<span class="return-type"><a href="Promisor.html" title="interface in io.github.jonloucks.contracts.api">Promisor</a>&lt;T&gt;</span>&nbsp;<span class="element-name">singleton</span><wbr><span class="parameters">(<a href="Promisor.html" title="interface in io.github.jonloucks.contracts.api">Promisor</a>&lt;T&gt;&nbsp;promisor)</span></div>
+<div class="block">Creates a Promisor that only calls the source Promisor once and then always
+ returns that value.
+ Note: increment and decrementUsage are relayed to the source promisor.</div>
+<dl class="notes">
+<dt>Type Parameters:</dt>
+<dd><code>T</code> - the type of deliverable</dd>
+<dt>Parameters:</dt>
+<dd><code>promisor</code> - the source Promisor</dd>
+<dt>Returns:</dt>
+<dd>The new Promisor</dd>
+</dl>
+</section>
+</li>
+<li>
+<section class="detail" id="lifeCycle(io.github.jonloucks.contracts.api.Promisor)">
+<h3>lifeCycle</h3>
+<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="type-parameters">&lt;T&gt;</span>&nbsp;<span class="return-type"><a href="Promisor.html" title="interface in io.github.jonloucks.contracts.api">Promisor</a>&lt;T&gt;</span>&nbsp;<span class="element-name">lifeCycle</span><wbr><span class="parameters">(<a href="Promisor.html" title="interface in io.github.jonloucks.contracts.api">Promisor</a>&lt;T&gt;&nbsp;promisor)</span></div>
+<div class="block">Reference counted, lazy loaded, with opt-in 'open' and 'close' invoked on deliverable.
+ Note: increment and decrementUsage are relayed to the source promisor.</div>
+<dl class="notes">
+<dt>Type Parameters:</dt>
+<dd><code>T</code> - the type of deliverable</dd>
+<dt>Parameters:</dt>
+<dd><code>promisor</code> - the source promisor</dd>
+<dt>Returns:</dt>
+<dd>the new Promisor</dd>
 </dl>
 </section>
 </li>
