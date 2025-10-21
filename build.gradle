@@ -24,7 +24,6 @@ repositories {
 dependencies {
     api project(':contracts-api')
     api project(':contracts-impl')
-    api 'org.apache.commons:commons-lang3:3.19.0'
 
     testImplementation project(':contracts-test')
 }
