@@ -1,8 +1,11 @@
 # contracts 
 Java Dependency Contracts for dependency inversion 
 
-Separates the consumption of an API from its implementation by using a 'Contract'
+### Separates the API from its implementation by using a Contract.
 
+A core java library for dependency inversion, Dependency injection, Inversion of Control,
+ Solid Principles: Single responsibility, Open-closed, Liskov substitution, Interface segregation, Dependency inversion.
+ OpenSSF Best Practices. Java Module Support. Strong data encapsulation.
 ```
 // Authoring
 public static final Contact<String> WEATHER = Contract.create("Current Weather");
@@ -26,7 +29,7 @@ String weather = GlobalContracts.claimContract(WEATHER);
 [![Javadoc Badge](https://raw.githubusercontent.com/jonloucks/contracts/refs/heads/badges/main-javadoc.svg)](https://jonloucks.github.io/contracts/javadoc/)
 
 ## Goals
-1. Separate the consumption of an API from the implementation details.
+1. Solid Principles
 2. Security
 3. Encapsulation
 4. Use anywhere, anytime across many code bases
