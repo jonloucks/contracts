@@ -49,8 +49,15 @@ publishing {
             from components.java
             pom {
                 name = 'Contracts'
-                description = 'Java Dependency Contracts for dependency inversion.'
+                description = 'Contracts a core java library for dependency inversion, Dependency injection, Inversion of Control,' +
+                        ' Solid Principles: Single responsibility, Open-closed, Liskov substitution, Interface segregation, Dependency inversion.' +
+                        ' OpenSSF Best Practices. Java Module Support. Strong data encapsulation.'
                 url = 'https://github.com/jonloucks/contracts'
+                inceptionYear = '2025'
+                organization {
+                    name = 'io.github.jonloucks'
+                    url = 'https://github.com/jonloucks'
+                }
                 licenses {
                     license {
                         name = 'MIT License'
@@ -68,6 +75,10 @@ publishing {
                     connection = 'scm:git:git://github.com/jonloucks/contracts.git'
                     developerConnection = 'scm:git:ssh://github.com:jonloucks/contracts.git'
                     url = 'https://github.com/jonloucks/contracts'
+                }
+                issueManagement {
+                    name = 'Contracts Github Issues'
+                    url = 'https://github.com/jonloucks/contracts/issues'
                 }
             }
         }
