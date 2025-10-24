@@ -47,6 +47,14 @@ publishing {
     publications {
         mavenJava(MavenPublication) {
             from components.java
+            versionMapping {
+                usage('java-api') {
+                    fromResolutionOf('runtimeClasspath')
+                }
+                usage('java-runtime') {
+                    fromResolutionResult()
+                }
+            }
             pom {
                 name = 'Contracts'
                 description = 'Contracts a core java library for dependency inversion, Dependency injection, Inversion of Control,' +
