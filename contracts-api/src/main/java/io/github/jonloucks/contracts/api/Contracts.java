@@ -1,5 +1,8 @@
 package io.github.jonloucks.contracts.api;
 
+import java.util.Collections;
+import java.util.List;
+
 import static io.github.jonloucks.contracts.api.BindStrategy.IF_ALLOWED;
 
 /**
@@ -18,6 +21,7 @@ public interface Contracts extends AutoOpen {
      * @return the value returned by the bound Promisor. A Promisor can return null
      * @throws ContractException if Promisor binding does not exist for the contract
      * @throws SecurityException if permission is denied
+     * @throws IllegalArgumentException may throw when an argument is null
      */
     <T> T claim(Contract<T> contract);
     
@@ -27,6 +31,7 @@ public interface Contracts extends AutoOpen {
      * @param contract the contract to check
      * @param <T>      The type of the value returned by the promisor
      * @return true iif bound
+     * @throws IllegalArgumentException may throw when an argument is null
      */
     <T> boolean isBound(Contract<T> contract);
     
@@ -39,6 +44,7 @@ public interface Contracts extends AutoOpen {
      * @return Use to release (unbind) this contract
      * @throws ContractException when contract is already bound and can't be replaced
      * @throws SecurityException when permission to bind is denied
+     * @throws IllegalArgumentException may throw when an argument is null
      */
     default <T> AutoClose bind(Contract<T> contract, Promisor<T> promisor) {
         return bind(contract, promisor, IF_ALLOWED);
@@ -52,8 +58,9 @@ public interface Contracts extends AutoOpen {
      * @param bindStrategy the binding strategy
      * @param <T>      The type of the value returned by the promisor
      * @return Use to release (unbind) this contract
-     * @throws ContractException when contract is already bound and can't be replaced
+     * @throws ContractException when contract is already bound, can't be replaced or not accepting bindings
      * @throws SecurityException when permission to bind is denied
+     * @throws IllegalArgumentException may throw when an argument is null
      */
     <T> AutoClose bind(Contract<T> contract, Promisor<T> promisor, BindStrategy bindStrategy);
     
@@ -61,6 +68,13 @@ public interface Contracts extends AutoOpen {
      * The Contracts configuration
      */
     interface Config {
+        
+        /**
+         * @return optional partners. Aggregated Contracts
+         */
+        default List<Contracts> getPartners() {
+            return Collections.emptyList();
+        }
         
         /**
          * @return if true, shutdown hooks will be added to ensure cleanup of Contracts
