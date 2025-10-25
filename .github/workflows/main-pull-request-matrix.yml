@@ -1,4 +1,4 @@
-name: Main Pull Request
+name: Main Pull Request Matrix
 
 on:
   pull_request:
