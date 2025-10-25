@@ -7,7 +7,7 @@ on:
 
 jobs:
   build:
-
+    name: matrix-build
     runs-on: ubuntu-latest
     strategy:
       matrix: # maximum of 25 combinations
