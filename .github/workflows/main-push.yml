@@ -9,6 +9,12 @@ jobs:
   build:
 
     runs-on: ubuntu-latest
+    strategy:
+      matrix: # row matrix only!
+        java-version: [ 17 ]
+        distribution: [ 'temurin' ]
+        java-compiler-version: [ 17 ]
+        java-source-version: [ 9 ]
     permissions:
       contents: write
       packages: write
@@ -32,22 +38,24 @@ jobs:
         with:
           path: main-project
 
-      - name: Set up JDK 17
+      - name: Set up Java ${{ matrix.java-version }} with ${{ matrix.distribution }}
         uses: actions/setup-java@v4
         with:
-          java-version: '17'
-          distribution: 'temurin'
+          java-version: ${{ matrix.java-version }}
+          distribution: ${{ matrix.distribution }}
           server-id: github # Value of the distributionManagement/repository/id field of the pom.xml
           settings-path: ${{ github.workspace }} # location for the settings.xml file
 
       - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@af1da67850ed9a4cedd57bfd976089dd991e2582 # v4.0.0
+        uses: gradle/actions/setup-gradle@v5
 
       - name: Build Code Coverage and Source Documentation
         working-directory: main-project
         run: ./gradlew build jacocoTestReport javadoc
         env:
           PROJECT_WORKFLOW: 'main-pull-request'
+          KIT_JAVA_COMPILER_VERSION: ${{ matrix.java-compiler-version }}
+          KIT_JAVA_SOURCE_VERSION: ${{ matrix.java-source-version }}
 
       - name: Copy Code Coverage and Source Documentation
         working-directory: gh-pages
@@ -61,6 +69,7 @@ jobs:
         with:
           default_author: github_actions
           message: 'Update Source Documentation'
+          pull: '--rebase --autostash'
           cwd: gh-pages
 
       - name: Upload JaCoCo report artifact
@@ -85,6 +94,7 @@ jobs:
           default_author: github_actions
           message: 'Update JaCoCo coverage badge'
           add: '*.svg'
+          pull: '--rebase --autostash'
           cwd: badges
 
       - name: Log coverage percentage

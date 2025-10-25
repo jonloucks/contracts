@@ -1,0 +1,47 @@
+name: Main Pull Request Matrix
+
+on:
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build:
+    name: matrix-build
+    runs-on: ubuntu-latest
+    strategy:
+      matrix: # maximum of 25 combinations
+        java-version: [ 17, 21, 25 ]
+        distribution: [ 'zulu', 'temurin' ]
+        java-compiler-version: [ 17 ]
+        java-source-version: [ 9, 11, 17 ]
+    permissions:
+      contents: read
+      packages: read
+      pages: read
+
+    steps:
+    - name: Checkout Main Project
+      uses: actions/checkout@v4
+      with:
+        path: main-project
+
+    - name: Set up Java ${{ matrix.java-version }} with ${{ matrix.distribution }}
+      uses: actions/setup-java@v4
+      with:
+        java-version: ${{ matrix.java-version }}
+        distribution: ${{ matrix.distribution }}
+        server-id: github # Value of the distributionManagement/repository/id field of the pom.xml
+        settings-path: ${{ github.workspace }} # location for the settings.xml file
+
+    - name: Set up Gradle environment
+      uses: gradle/actions/setup-gradle@v5
+
+    - name: Build with Gradle with java source ${{ matrix.java-source-version }}
+      working-directory: main-project
+      run: ./gradlew check jacocoTestReport jacocoTestCoverageVerification spotbugsMain
+      env:
+        PROJECT_WORKFLOW: 'main-pull-request-matrix'
+        KIT_JAVA_COMPILER_VERSION: ${{ matrix.java-compiler-version }}
+        KIT_JAVA_SOURCE_VERSION: ${{ matrix.java-source-version }}
+

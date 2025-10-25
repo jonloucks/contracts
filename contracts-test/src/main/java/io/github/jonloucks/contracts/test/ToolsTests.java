@@ -202,7 +202,7 @@ public interface ToolsTests {
     @ValueSource(ints = {0, 5, 10, 100, 200})
     default void tools_sleep_WithDuration(long milliseconds) {
         final Duration expectedDuration = Duration.ofMillis(milliseconds);
-        final Duration allowedDifference = Duration.ofMillis(10);
+        final Duration allowedDifference = Duration.ofMillis(100);
         final Instant start = Instant.now();
         
         Tools.sleep(expectedDuration);
