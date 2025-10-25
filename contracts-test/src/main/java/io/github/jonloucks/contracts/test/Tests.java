@@ -11,6 +11,7 @@ public interface Tests extends
     GlobalContractsTests,
     ExceptionTests,
     RepositoryTests,
+    PartnersTests,
     PromisorsTests,
     ValidateTests
 {

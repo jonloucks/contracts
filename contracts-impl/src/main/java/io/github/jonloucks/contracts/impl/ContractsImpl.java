@@ -23,25 +23,27 @@ final class ContractsImpl implements Contracts {
             closeRepository = repository.open();
             return this::close;
         }
-        return ()->{};
+        return AutoClose.NONE;
     }
 
     @Override
     public <T> T claim(Contract<T> contract) {
         final Contract<T> validContract = contractCheck(contract);
+        final Optional<Promisor<?>> promisor = getFromPromisorMap(validContract);
         
-        final Object deliverable = getFromPromisorMap(validContract)
-            .orElseThrow(() -> newContractNotPromisedException(validContract))
-            .demand();
-        
-        return validContract.cast(deliverable);
+        if (promisor.isPresent()) {
+            return validContract.cast(promisor.get().demand());
+        } else {
+            return claimFromPartners(validContract);
+        }
     }
     
     @Override
     public <T> boolean isBound(Contract<T> contract) {
         final Contract<?> validContract = contractCheck(contract);
+        final Optional<Promisor<?>> promisor = getFromPromisorMap(validContract);
         
-        return getFromPromisorMap(validContract).isPresent();
+        return promisor.isPresent() || isAnyPartnerBound(contract);
     }
     
     @Override
@@ -59,6 +61,8 @@ final class ContractsImpl implements Contracts {
         // keeping the promises open permanently
         repository.keep(Promisors.CONTRACT, PromisorsImpl::new);
         repository.keep(Repository.FACTORY, () -> () -> new RepositoryImpl(this));
+        
+        partners.addAll(nullCheck(validConfig.getPartners(), "Partners must be present."));
         
         if (validConfig.useShutdownHooks()) {
             Runtime.getRuntime().addShutdownHook(new Thread(this::close));
@@ -188,6 +192,24 @@ final class ContractsImpl implements Contracts {
         });
     }
     
+    private <T> T claimFromPartners(Contract<T> contract) {
+        if (!partners.isEmpty()) {
+            for (Contracts partner : partners) {
+                if (partner.isBound(contract)) {
+                    return partner.claim(contract);
+                }
+            }
+        }
+        throw newContractNotPromisedException(contract);
+    }
+    
+    private <T> boolean isAnyPartnerBound(Contract<T> contract) {
+        if (!partners.isEmpty()) {
+            return partners.stream().anyMatch(partner -> partner.isBound(contract));
+        }
+        return false;
+    }
+    
     private static <T> T applyWithLock(Lock requestedLock, Supplier<T> block) {
         requestedLock.lock();
         try {
@@ -213,5 +235,6 @@ final class ContractsImpl implements Contracts {
     private final ReentrantReadWriteLock mapLock = new ReentrantReadWriteLock();
     private final LinkedHashMap<Contract<?>, Promisor<?>> promisorMap = new LinkedHashMap<>();
     private final RepositoryImpl repository = new RepositoryImpl(this);
+    private final List<Contracts> partners = new ArrayList<>();
     private AutoClose closeRepository;
 }
