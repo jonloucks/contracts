@@ -9,8 +9,6 @@ import java.time.Instant;
 import static io.github.jonloucks.contracts.test.Tools.*;
 import static org.junit.jupiter.api.Assertions.*;
 
-
-//@SuppressWarnings({"DataFlowIssue"})
 public interface ChecksTests {
     
     @Test
