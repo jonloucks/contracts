@@ -22,7 +22,6 @@ import static io.github.jonloucks.contracts.test.Tools.*;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
-@SuppressWarnings({"Convert2MethodRef"})
 @ExtendWith(MockitoExtension.class)
 @MockitoSettings(strictness = Strictness.LENIENT)
 public interface LifeCyclePromisorTests {
@@ -32,11 +31,7 @@ public interface LifeCyclePromisorTests {
         withContracts(contracts -> {
             final Promisors promisors = contracts.claim(Promisors.CONTRACT);
             
-            final IllegalArgumentException thrown = assertThrows(IllegalArgumentException.class, () ->
-                promisors.createLifeCyclePromisor(null)
-            );
-            
-            assertThrown(thrown);
+            assertThrown(IllegalArgumentException.class, () -> promisors.createLifeCyclePromisor(null));
         });
     }
     
@@ -46,11 +41,7 @@ public interface LifeCyclePromisorTests {
             final Promisors promisors = contracts.claim(Promisors.CONTRACT);
             final Promisor<String> promisor = promisors.createLifeCyclePromisor(() -> "abc");
             
-            final IllegalStateException thrown = assertThrows(IllegalStateException.class, () -> {
-                promisor.demand();
-            });
-            
-            assertThrown(thrown);
+            assertThrown(IllegalStateException.class, promisor::demand);
         });
     }
     
@@ -196,16 +187,13 @@ public interface LifeCyclePromisorTests {
             final Promisors promisors = contracts.claim(Promisors.CONTRACT);
             final Contract<AutoOpen> contract = Contract.create("Issue69");
             final AtomicInteger openCounter = new AtomicInteger();
-            final AutoOpen instance = new AutoOpen() {
-                @Override
-                public AutoClose open() {
-                     if (openCounter.incrementAndGet() > 1) {
-                         throw new Error("Reentrancy failure: Issue #69");
-                     } else {
-                         contracts.claim(contract);
-                     }
-                     return AutoClose.NONE;
-                }
+            final AutoOpen instance = () -> {
+                 if (openCounter.incrementAndGet() > 1) {
+                     throw new Error("Reentrancy failure: Issue #69");
+                 } else {
+                     contracts.claim(contract);
+                 }
+                 return AutoClose.NONE;
             };
             try (AutoClose unbind = contracts.bind(contract, promisors.createLifeCyclePromisor(() -> instance))) {
                 ignore(unbind);

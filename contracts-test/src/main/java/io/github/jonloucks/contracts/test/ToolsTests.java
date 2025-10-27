@@ -11,6 +11,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
 
+import java.io.IOException;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -20,7 +21,6 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
-@SuppressWarnings("CodeBlock2Expr")
 @ExtendWith(MockitoExtension.class)
 @MockitoSettings(strictness = Strictness.LENIENT)
 public interface ToolsTests {
@@ -90,11 +90,9 @@ public interface ToolsTests {
    
         assertAll(
             () -> assertFails(() -> Tools.assertThrown(null, validCause, validReason)),
-            
             () -> assertFails(() -> Tools.assertThrown(validCause, null, null)),
             () -> assertFails(() -> Tools.assertThrown(validCause, unknownException, null)),
             () -> assertFails(() -> Tools.assertThrown(validCause, validCause, validReason)),
-            
             () -> assertFails(() -> Tools.assertThrown(exceptionWithNullReason, validCause, validReason)),
             () -> assertDoesNotThrow(() -> Tools.assertThrown(validException, null, validReason)),
             () -> assertFails(() -> Tools.assertThrown(validExceptionWithCause, null, validReason)),
@@ -104,7 +102,7 @@ public interface ToolsTests {
     }
     
     @Test
-    default void tools_assertThrownThrown_Works() {
+    default void tools_assertThrown_WithThrowing_Works() {
         final String validReason = "This is a reason.";
         final Throwable validCause = new RuntimeException("This is a cause.");
         final Throwable validException = new RuntimeException(validReason);
@@ -114,10 +112,8 @@ public interface ToolsTests {
         
         assertAll(
             () -> assertFails(() -> Tools.assertThrown(null, validCause)),
-            
             () -> assertFails(() -> Tools.assertThrown(validCause, unknownException)),
             () -> assertFails(() -> Tools.assertThrown(validCause, validCause)),
-            
             () -> assertFails(() -> Tools.assertThrown(exceptionWithNullReason, validCause)),
             () -> assertDoesNotThrow(() -> Tools.assertThrown(validException, (Throwable)null)),
             () -> assertFails(() -> Tools.assertThrown(validExceptionWithCause, (Throwable)null)),
@@ -127,10 +123,7 @@ public interface ToolsTests {
     
     @Test
     default void tools_assertInstantiateThrows_With() {
-        final IllegalArgumentException thrown = assertThrows(IllegalArgumentException.class, ()-> {
-            assertInstantiateThrows(null);
-        });
-        assertThrown(thrown);
+        assertThrown(IllegalArgumentException.class, ()-> assertInstantiateThrows(null));
     }
     
     @Test
@@ -185,17 +178,70 @@ public interface ToolsTests {
     
     @Test
     default void tools_assertObject_WithString_Passes() {
-        assertDoesNotThrow(() -> {
-            assertObject("abc");
-        });
+        assertDoesNotThrow(() -> assertObject("abc") );
     }
     
     @Test
+    default void tools_assertMayThrow_WithNullType_Throws() {
+        final Executable executable = () -> {};
+        assertThrown(IllegalArgumentException.class, () -> assertMayThrow(null, executable ));
+    }
+    
+    @Test
+    default void tools_assertMayThrow_WithNullExecutable_Throws() {
+        final Class<IllegalStateException> type = IllegalStateException.class;
+        assertThrown(IllegalArgumentException.class, () -> assertMayThrow(type, null));
+    }
+    
+    @Test
+    default void tools_assertMayThrow_WithAllowedThrow_DoesNotThrow() {
+        final Class<IllegalArgumentException> type = IllegalArgumentException.class;
+        final IllegalArgumentException expected = new IllegalArgumentException("Illegal.");
+        final Executable executable = () -> { throw expected; };
+        
+        assertDoesNotThrow(() -> assertMayThrow(type, executable));
+    }
+    
+    @Test
+    default void tools_assertMayThrow_WithDisallowedThrow_Fails() {
+        final Class<IllegalStateException> type = IllegalStateException.class;
+        final Executable executable = () -> { throw new IOException("Input."); };
+        
+        assertFails(() -> assertMayThrow(type, executable));
+    }
+    
+    @Test
+    default void tools_assertThrownType_WithNullType_Throws() {
+        final IllegalArgumentException expected = new IllegalArgumentException("Illegal.");
+        
+        assertThrown(IllegalArgumentException.class, () -> assertThrownType(null, expected, "Problem."));
+    }
+    
+    @Test
+    default void tools_assertThrownType_WithNullThrown_Throws() {
+        final Class<IllegalStateException> type = IllegalStateException.class;
+        assertThrown(IllegalArgumentException.class, () -> assertThrownType(type, null, "Problem."));
+    }
+    
+    @Test
+    default void tools_assertThrownType_WithAllowedThrow_DoesNotThrow() {
+        final Class<IllegalArgumentException> type = IllegalArgumentException.class;
+        final IllegalArgumentException expected = new IllegalArgumentException("Illegal.");
+  
+        assertDoesNotThrow(() -> assertThrownType(type, expected, "Problem."));
+    }
+    
+    @Test
+    default void tools_assertThrownType_WithDisallowedThrow_Fails() {
+        final Class<IllegalStateException> type = IllegalStateException.class;
+        final IOException unexpected = new IOException("Out of diskspace.");
+        
+        assertFails(() -> assertThrownType(type, unexpected, "Problem."));
+    }
+
+    @Test
     default void tools_sleep_WithNullDuration_Throws() {
-        final IllegalArgumentException thrown = assertThrows(IllegalArgumentException.class, ()-> {
-            Tools.sleep(null);
-        });
-        assertThrown(thrown, "Duration must be present.");
+        assertThrown(IllegalArgumentException.class, ()-> Tools.sleep(null),"Duration must be present.");
     }
     
     @ParameterizedTest(name = "Duration {0} milliseconds")
@@ -217,9 +263,6 @@ public interface ToolsTests {
     @ValueSource(ints = {-1, -2 })
     default void tools_sleep_WithInvalidDuration(long milliseconds) {
         final Duration expectedDuration = Duration.ofMillis(milliseconds);
-        final IllegalArgumentException thrown = assertThrows(IllegalArgumentException.class, () -> {
-            Tools.sleep(expectedDuration);
-        });
-        assertThrown(thrown, "Duration must not be negative.");
+        assertThrown(IllegalArgumentException.class, () -> Tools.sleep(expectedDuration),"Duration must not be negative.");
     }
 }

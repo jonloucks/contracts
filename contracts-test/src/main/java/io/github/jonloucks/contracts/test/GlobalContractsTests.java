@@ -13,7 +13,6 @@ import static java.util.Optional.ofNullable;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
-@SuppressWarnings("CodeBlock2Expr")
 public interface GlobalContractsTests {
 
     @Test
@@ -28,39 +27,23 @@ public interface GlobalContractsTests {
     
     @Test
     default void globalContracts_claimContract_WithNullContract_Throws() {
-        final IllegalArgumentException thrown = assertThrows(IllegalArgumentException.class, () ->  {
-            GlobalContracts.claimContract(null);
-        });
-
-        assertThrown(thrown);
+        assertThrown(IllegalArgumentException.class, () -> GlobalContracts.claimContract(null));
     }
     
     @Test
     default void globalContracts_singleton_WithNullPromisor_Throws() {
-        final IllegalArgumentException thrown = assertThrows(IllegalArgumentException.class, () ->  {
-            GlobalContracts.singleton(null);
-        });
-        
-        assertThrown(thrown);
+        assertThrown(IllegalArgumentException.class, () -> GlobalContracts.singleton(null));
     }
     
     @Test
     default void globalContracts_lifeCycle_WithNullPromisor_Throws() {
-        final IllegalArgumentException thrown = assertThrows(IllegalArgumentException.class, () ->  {
-            GlobalContracts.lifeCycle(null);
-        });
-        
-        assertThrown(thrown);
+        assertThrown(IllegalArgumentException.class, () -> GlobalContracts.lifeCycle(null));
     }
     
     @Test
     default void globalContracts_claimContract_WithUnknownContract_Throws() {
         final Contract<String> contract = Contract.create("testContract");
-        final ContractException thrown = assertThrows(ContractException.class, () ->  {
-            GlobalContracts.claimContract(contract);
-        });
-        
-        assertThrown(thrown);
+        assertThrown(ContractException.class, () -> GlobalContracts.claimContract(contract));
     }
     
     @Test
@@ -105,7 +88,7 @@ public interface GlobalContractsTests {
         final Contract<String> contract = Contract.create("testContract");
         
         try (AutoClose closeBinding = GlobalContracts.bindContract(contract, () -> "abc")){
-            final AutoClose ignored = closeBinding;
+            ignore(closeBinding);
             assertTrue(GlobalContracts.isContractBound(contract), "Unbound Contract was bound.");
         }
     }
@@ -133,10 +116,10 @@ public interface GlobalContractsTests {
         assumeTrue(ofNullable(contracts).isPresent(), "createContracts failed");
         
         try (AutoClose closeContracts = contracts.open()) {
-            final AutoClose ignored = closeContracts;
+            ignore(closeContracts);
             
             try (AutoClose closeBinding = contracts.bind(contract, () -> "hello")) {
-                final AutoClose ignoredBinding = closeBinding;
+                ignore(closeBinding);
                 assertFalse(contracts.isBound(unboundContract), "Contract should be bound.");
                 assertTrue(contracts.isBound(contract), "Contract should be bound.");
                 assertEquals("hello", contracts.claim(contract), "Claimed value should match.");
@@ -147,11 +130,7 @@ public interface GlobalContractsTests {
     @ParameterizedTest
     @MethodSource("io.github.jonloucks.contracts.test.GlobalContractsTests$GlobalContractsTestsTools#invalidConfigs")
     default void globalContracts_SadPath(Contracts.Config contractsConfig) {
-        final ContractException thrown = assertThrows(ContractException.class, () -> {
-            GlobalContracts.createContracts(contractsConfig);
-        });
-        
-        assertThrown(thrown);
+        assertThrown(ContractException.class, () -> GlobalContracts.createContracts(contractsConfig));
     }
     
     @Test

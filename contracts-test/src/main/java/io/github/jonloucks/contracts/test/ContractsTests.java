@@ -3,10 +3,6 @@ package io.github.jonloucks.contracts.test;
 
 import io.github.jonloucks.contracts.api.*;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.junit.jupiter.MockitoExtension;
-import org.mockito.junit.jupiter.MockitoSettings;
-import org.mockito.quality.Strictness;
 
 import java.util.function.BiConsumer;
 
@@ -16,36 +12,46 @@ import static io.github.jonloucks.contracts.test.ContractsTests.ContractsTestsTo
 import static io.github.jonloucks.contracts.test.Tools.*;
 import static org.junit.jupiter.api.Assertions.*;
 
-@SuppressWarnings({"CodeBlock2Expr", "Convert2MethodRef"})
-@ExtendWith(MockitoExtension.class)
-@MockitoSettings(strictness = Strictness.LENIENT)
+@SuppressWarnings({"CodeBlock2Expr"})
 public interface ContractsTests {
     
     @Test
+    default void contracts_claim_WithNullContract_MayThrow() {
+        runWithScenario((contracts, closeContracts) -> {
+            assertThrown(IllegalArgumentException.class, () -> contracts.claim(null));
+        });
+    }
+    
+    @Test
     default void contracts_claim_NotBound_Throws() {
-        runWithScenario( (contracts, closeContracts) -> {
+        runWithScenario((contracts, closeContracts) -> {
             final Contract<Integer> contract = Contract.create("test");
             
-            final ContractException thrown = assertThrows(ContractException.class, () -> {
-                contracts.claim(contract);
-            });
-            
-            assertThrown(thrown);
+            assertThrown(ContractException.class, () -> contracts.claim(contract));
         });
     }
     
     @Test
     default void contracts_replaceBinding_Works() {
-        runWithScenario( (contracts, closeContracts) -> {
+        runWithScenario((contracts, closeContracts) -> {
             final Contract<Integer> contract = createReplaceableContract(Integer.class);
-
-            try (AutoClose firstBinding = contracts.bind(contract, ()-> 9)) {
-                try (AutoClose secondBinding = contracts.bind(contract, ()-> 100)) {
-                    final AutoClose ignored = secondBinding;
+            
+            try (AutoClose firstBinding = contracts.bind(contract, () -> 9)) {
+                try (AutoClose secondBinding = contracts.bind(contract, () -> 100)) {
+                    ignore(secondBinding);
                     implicitClose(firstBinding);
                     assertEquals(100, contracts.claim(contract));
                 }
             }
+        });
+    }
+    
+    @Test
+    default void contracts_bind_WithNullContract_MayThrow() {
+        runWithScenario((contracts, closeContracts) -> {
+            final Promisor<Integer> promisor = () -> 1;
+            //noinspection resource
+            assertThrown(IllegalArgumentException.class, () -> contracts.bind(null, promisor));
         });
     }
     
@@ -56,7 +62,7 @@ public interface ContractsTests {
             
             try (AutoClose firstBinding = contracts.bind(contract, () -> 9);
                  AutoClose secondBinding = contracts.bind(contract, () -> 100, IF_NOT_BOUND)) {
-                final AutoClose ignored1 = firstBinding, ignored2 = secondBinding;
+                ignore(firstBinding); ignore(secondBinding);
                 assertEquals(9, contracts.claim(contract));
             }
         });
@@ -69,7 +75,7 @@ public interface ContractsTests {
             
             try (AutoClose firstBinding = contracts.bind(contract, () -> 9);
                  AutoClose secondBinding = contracts.bind(contract, () -> 100, ALWAYS)) {
-                final AutoClose ignored1 = firstBinding, ignored2 = secondBinding;
+                ignore(firstBinding); ignore(secondBinding);
                 assertEquals(100, contracts.claim(contract));
             }
         });
@@ -77,10 +83,10 @@ public interface ContractsTests {
     
     @Test
     default void contracts_idempotent_DoesNotThrow() {
-        runWithScenario( (contracts, closeContracts) -> {
+        runWithScenario((contracts, closeContracts) -> {
             final Contract<Integer> contract = Contract.create("test");
             
-            try (AutoClose closeBinding = contracts.bind(contract, ()-> 9)) {
+            try (AutoClose closeBinding = contracts.bind(contract, () -> 9)) {
                 assertDoesNotThrow(() -> {
                     implicitClose(closeBinding);
                     implicitClose(closeBinding);
@@ -91,11 +97,11 @@ public interface ContractsTests {
     
     @Test
     default void contracts_open_twice_IsIgnored() {
-        runWithScenario( (contracts, closeContracts) -> {
+        runWithScenario((contracts, closeContracts) -> {
             final Contract<Integer> contract = Contract.create("test");
             
-            try (AutoClose closeBinding = contracts.bind(contract, ()-> 3)) {
-                final AutoClose ignored = closeBinding;
+            try (AutoClose closeBinding = contracts.bind(contract, () -> 3)) {
+                ignore(closeBinding);
                 
                 contracts.open().close();
                 
@@ -106,31 +112,27 @@ public interface ContractsTests {
     
     @Test
     default void contracts_bind_AlreadyBoundAndNotReplaceable_Throws() {
-        runWithScenario( (contracts, closeContracts) -> {
+        runWithScenario((contracts, closeContracts) -> {
             final Contract<Integer> contract = Contract.create("test");
-            try (AutoClose closeBinding = contracts.bind(contract, ()-> 3)) {
-                final AutoClose ignored = closeBinding;
+            try (AutoClose closeBinding = contracts.bind(contract, () -> 3)) {
+                ignore(closeBinding);
                 
-                final ContractException thrown = assertThrows(ContractException.class, () -> {
-                    //noinspection resource
-                    contracts.bind(contract, ()-> 4, BindStrategy.ALWAYS);
-                });
-                
-                assertThrown(thrown);
+                //noinspection resource
+                assertThrown(ContractException.class, () -> contracts.bind(contract, () -> 4, BindStrategy.ALWAYS));
             }
         });
     }
     
     @Test
     default void contracts_bind_Twice_IsIgnored() {
-        runWithScenario( (contracts, closeContracts) -> {
+        runWithScenario((contracts, closeContracts) -> {
             final Contract<Integer> contract = createReplaceableContract(Integer.class);
             final Promisor<Integer> promisor = () -> 7;
             try (AutoClose closeBinding = contracts.bind(contract, promisor)) {
-                final AutoClose ignored = closeBinding;
+                ignore(closeBinding);
                 
                 contracts.bind(contract, promisor).close();
-    
+                
                 assertTrue(contracts.isBound(contract));
             }
         });
@@ -138,7 +140,7 @@ public interface ContractsTests {
     
     @Test
     default void contracts_BindOnClose_Throws() {
-        runWithScenario( (contracts, closeContracts) -> {
+        runWithScenario((contracts, closeContracts) -> {
             final Contract<Integer> contract = Contract.create("test");
             final Promisor<Integer> promisor = new Promisor<>() {
                 @Override
@@ -154,14 +156,9 @@ public interface ContractsTests {
                 }
             };
             
-            //noinspection resource
-            contracts.bind(contract, promisor);
+            ignore(contracts.bind(contract, promisor));
             
-            final ContractException thrown = assertThrows(ContractException.class, () -> {
-                closeContracts.close();
-            });
-            
-            assertThrown(thrown);
+            assertThrown(ContractException.class, () -> implicitClose(closeContracts));
         });
     }
     
@@ -169,7 +166,7 @@ public interface ContractsTests {
     default void contracts_InternalCoverage() {
         assertInstantiateThrows(ContractsTestsTools.class);
     }
-
+    
     final class ContractsTestsTools {
         private ContractsTestsTools() {
             throw new AssertionError("Illegal constructor");
@@ -181,7 +178,7 @@ public interface ContractsTests {
         
         static void runWithScenario(ScenarioConfig config) {
             final Contracts contracts = GlobalContracts.createContracts(new Contracts.Config() {});
-            try (AutoClose autoClose = contracts.open()){
+            try (AutoClose autoClose = contracts.open()) {
                 config.accept(contracts, autoClose);
             }
         }
