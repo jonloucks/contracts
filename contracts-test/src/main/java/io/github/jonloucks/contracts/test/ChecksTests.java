@@ -2,13 +2,7 @@ package io.github.jonloucks.contracts.test;
 
 import io.github.jonloucks.contracts.api.Checks;
 import io.github.jonloucks.contracts.api.Contract;
-import io.github.jonloucks.contracts.api.Contracts;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
-import org.mockito.junit.jupiter.MockitoSettings;
-import org.mockito.quality.Strictness;
 
 import java.time.Instant;
 
@@ -16,9 +10,7 @@ import static io.github.jonloucks.contracts.test.Tools.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 
-@SuppressWarnings({"CodeBlock2Expr", "DataFlowIssue"})
-@ExtendWith(MockitoExtension.class)
-@MockitoSettings(strictness = Strictness.LENIENT)
+//@SuppressWarnings({"DataFlowIssue"})
 public interface ChecksTests {
     
     @Test
@@ -28,11 +20,7 @@ public interface ChecksTests {
     
     @Test
     default void checks_contractCheck_WhenNull_Throws() {
-        final IllegalArgumentException thrown = assertThrows(IllegalArgumentException.class, () -> {
-            Checks.contractCheck(null);
-        });
-        
-        assertThrown(thrown);
+        assertThrown(IllegalArgumentException.class, () -> Checks.contractCheck(null));
     }
     
     @Test
@@ -44,15 +32,11 @@ public interface ChecksTests {
     
     @Test
     default void checks_contractsCheck_WhenNull_Throws() {
-        final IllegalArgumentException thrown = assertThrows(IllegalArgumentException.class, () -> {
-            Checks.contractsCheck(null);
-        });
-        
-        assertThrown(thrown);
+        assertThrown(IllegalArgumentException.class, () -> Checks.contractsCheck(null));
     }
     
     @Test
-    default void checks_contractsCheck_WithValid_Works(@Mock Contracts contracts) {
+    default void checks_contractsCheck_WithValid_Works() {
         final Contract<?> contract = Contract.create(Instant.class);
         
         assertSame(contract, Checks.contractCheck(contract));
@@ -60,11 +44,7 @@ public interface ChecksTests {
     
     @Test
     default void checks_configCheck_WhenNull_Throws() {
-        final IllegalArgumentException thrown = assertThrows(IllegalArgumentException.class, () -> {
-            Checks.configCheck(null);
-        });
-        
-        assertThrown(thrown);
+        assertThrown(IllegalArgumentException.class, () -> Checks.configCheck(null));
     }
     
     @Test
@@ -76,11 +56,7 @@ public interface ChecksTests {
     
     @Test
     default void checks_nameCheck_WhenNull_Throws() {
-        final IllegalArgumentException thrown = assertThrows(IllegalArgumentException.class, () -> {
-            Checks.nameCheck(null);
-        });
-        
-        assertThrown(thrown);
+        assertThrown(IllegalArgumentException.class, () -> Checks.nameCheck(null));
     }
     
     @Test
@@ -92,11 +68,7 @@ public interface ChecksTests {
     
     @Test
     default void checks_builderConsumerCheck_WhenNull_Throws() {
-        final IllegalArgumentException thrown = assertThrows(IllegalArgumentException.class, () -> {
-            Checks.builderConsumerCheck(null);
-        });
-        
-        assertThrown(thrown);
+        assertThrown(IllegalArgumentException.class, () -> Checks.builderConsumerCheck(null));
     }
     
     @Test
@@ -108,11 +80,7 @@ public interface ChecksTests {
     
     @Test
     default void checks_builderCheck_WhenNull_Throws() {
-        final IllegalArgumentException thrown = assertThrows(IllegalArgumentException.class, () -> {
-            Checks.builderCheck(null);
-        });
-        
-        assertThrown(thrown);
+        assertThrown(IllegalArgumentException.class, () -> Checks.builderCheck(null));
     }
     
     @Test
@@ -124,11 +92,7 @@ public interface ChecksTests {
     
     @Test
     default void checks_typeCheck_WhenNull_Throws() {
-        final IllegalArgumentException thrown = assertThrows(IllegalArgumentException.class, () -> {
-            Checks.typeCheck(null);
-        });
-        
-        assertThrown(thrown);
+        assertThrown(IllegalArgumentException.class, () -> Checks.typeCheck(null));
     }
     
     @Test
@@ -154,18 +118,13 @@ public interface ChecksTests {
     
     @Test
     default void checks_illegalCheck_WhenFailed_Throws() {
-        final IllegalArgumentException thrown = assertThrows(IllegalArgumentException.class, () -> {
-            Checks.illegalCheck("abc", true, "Xyz.");
-        });
-        
-        assertThrown(thrown, "Xyz.");
+        //noinspection DataFlowIssue
+        assertThrown(IllegalArgumentException.class,
+           () -> Checks.illegalCheck("abc", true, "Xyz."), "Xyz.");
     }
     @Test
     default void checks_illegalCheck_WhenNullMessage_Throws() {
-        final IllegalArgumentException thrown = assertThrows(IllegalArgumentException.class, () -> {
-            Checks.illegalCheck("abc", false, null);
-        });
-        
-        assertThrown(thrown);
+        //noinspection DataFlowIssue
+        assertThrown(IllegalArgumentException.class, () -> Checks.illegalCheck("abc", false, null));
     }
 }

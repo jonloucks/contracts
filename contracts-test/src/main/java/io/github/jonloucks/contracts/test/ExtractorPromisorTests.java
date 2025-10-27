@@ -23,11 +23,8 @@ public interface ExtractorPromisorTests {
         withContracts(contracts -> {
             final Promisors promisors = contracts.claim(Promisors.CONTRACT);
             
-            final IllegalArgumentException thrown = assertThrows(IllegalArgumentException.class, () ->
-                promisors.createExtractPromisor(null, t -> "xyz")
-            );
-            
-            assertThrown(thrown);
+            assertThrown(IllegalArgumentException.class,
+                () -> promisors.createExtractPromisor(null, t -> "xyz"));
         });
     }
     
@@ -36,11 +33,8 @@ public interface ExtractorPromisorTests {
         withContracts(contracts -> {
             final Promisors promisors = contracts.claim(Promisors.CONTRACT);
             
-            final IllegalArgumentException thrown = assertThrows(IllegalArgumentException.class, () ->
-                promisors.createExtractPromisor(() -> "abc", null)
-            );
-            
-            assertThrown(thrown);
+            assertThrown(IllegalArgumentException.class,
+                () -> promisors.createExtractPromisor(() -> "abc", null));
         });
     }
     
