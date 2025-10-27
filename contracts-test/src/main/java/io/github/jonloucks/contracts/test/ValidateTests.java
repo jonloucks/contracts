@@ -13,7 +13,6 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import static io.github.jonloucks.contracts.test.Tools.assertThrown;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
 
 @SuppressWarnings("CodeBlock2Expr")
@@ -23,28 +22,20 @@ public interface ValidateTests {
     
     @Test
     default void validate_WithNullContracts_Throws() {
-        final IllegalArgumentException thrown = assertThrows(IllegalArgumentException.class, () -> {
-            Checks.validateContracts(null);
-        });
-        assertThrown(thrown);
+        assertThrown(IllegalArgumentException.class, () -> Checks.validateContracts(null));
     }
     
     @Test
     default void validate_WhenBindReturnsNull_Throws(@Mock Contracts contracts) {
         when(contracts.isBound(any())).thenReturn(false);
-        final ContractException thrown = assertThrows(ContractException.class, () -> {
-            Checks.validateContracts(contracts);
-        });
-        assertThrown(thrown);
+        assertThrown(ContractException.class, () -> Checks.validateContracts(contracts));
     }
     
     @Test
     default void validate_WithFirstIsBoundIsTrue_Throws(@Mock Contracts contracts) {
         when(contracts.isBound(any())).thenReturn(true);
-        final ContractException thrown = assertThrows(ContractException.class, () -> {
-            Checks.validateContracts(contracts);
-        });
-        assertThrown(thrown, "Contract should not be bound.");
+        assertThrown(ContractException.class,
+            () -> Checks.validateContracts(contracts), "Contract should not be bound.");
     }
     
     @Test
@@ -53,10 +44,8 @@ public interface ValidateTests {
         when(contracts.bind(any(), any())).thenAnswer((Answer<AutoClose>) invocationOnMock -> {
             return null;
         });
-        final ContractException thrown = assertThrows(ContractException.class, () -> {
-            Checks.validateContracts(contracts);
-        });
-        assertThrown(thrown, "Contract bind returned null.");
+        assertThrown(ContractException.class,
+            () -> Checks.validateContracts(contracts), "Contract bind returned null.");
     }
     
     @Test
@@ -66,10 +55,8 @@ public interface ValidateTests {
             when(contracts.isBound(any())).thenReturn(false);
             return closeBinding;
         });
-        final ContractException thrown = assertThrows(ContractException.class, () -> {
-            Checks.validateContracts(contracts);
-        });
-        assertThrown(thrown, "Contract should have been bound.");
+        assertThrown(ContractException.class,
+            () -> Checks.validateContracts(contracts), "Contract should have been bound.");
     }
     
     @Test
@@ -87,10 +74,7 @@ public interface ValidateTests {
             return null;
         });
         
-        final ContractException thrown = assertThrows(ContractException.class, () -> {
-            Checks.validateContracts(contracts);
-        });
-        assertThrown(thrown, "Contract claiming not working.");
+        assertThrown(ContractException.class, () -> Checks.validateContracts(contracts), "Contract claiming not working.");
     }
     
     @Test
@@ -108,10 +92,7 @@ public interface ValidateTests {
             throw new ArithmeticException("Math overflow.");
         });
         
-        final ContractException thrown = assertThrows(ContractException.class, () -> {
-            Checks.validateContracts(contracts);
-        });
-        assertThrown(thrown, "Contracts unexpected validation error.");
+        assertThrown(ContractException.class, () -> Checks.validateContracts(contracts), "Contracts unexpected validation error.");
     }
     
     @Test
@@ -144,7 +125,7 @@ public interface ValidateTests {
             when(contracts.isBound(any())).thenReturn(true);
             return null;
         }).when(closeBinding).close();
- 
+        
         when(contracts.bind(any(), any())).thenAnswer((Answer<AutoClose>) onMock -> {
             promisor.set(onMock.getArgument(1));
             when(contracts.isBound(any())).thenReturn(true);
@@ -153,9 +134,6 @@ public interface ValidateTests {
         when(contracts.claim(any())).thenAnswer((Answer<?>) invocationOnMock -> {
             return promisor.get().demand();
         });
-        final ContractException thrown = assertThrows(ContractException.class, () -> {
-            Checks.validateContracts(contracts);
-        });
-        assertThrown(thrown, "Contract unbinding not working.");
+        assertThrown(ContractException.class, () -> Checks.validateContracts(contracts), "Contract unbinding not working.");
     }
 }

@@ -5,18 +5,13 @@ import org.junit.jupiter.api.Test;
 
 import static io.github.jonloucks.contracts.test.Tools.assertIsSerializable;
 import static io.github.jonloucks.contracts.test.Tools.assertThrown;
-import static org.junit.jupiter.api.Assertions.*;
 
-@SuppressWarnings({"ThrowableNotThrown", "CodeBlock2Expr"})
+@SuppressWarnings({"ThrowableNotThrown"})
 public interface ExceptionTests {
     
     @Test
     default void exception_ContractException_WithNullMessage_Throws() {
-        final IllegalArgumentException thrown = assertThrows(IllegalArgumentException.class, () -> {
-            new ContractException(null);
-        });
-        
-        assertThrown(thrown);
+        assertThrown(IllegalArgumentException.class, () -> new ContractException(null));
     }
     
     @Test

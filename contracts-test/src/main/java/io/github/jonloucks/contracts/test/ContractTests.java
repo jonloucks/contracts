@@ -8,7 +8,6 @@ import java.util.function.Consumer;
 import static io.github.jonloucks.contracts.test.Tools.*;
 import static org.junit.jupiter.api.Assertions.*;
 
-@SuppressWarnings("CodeBlock2Expr")
 public interface ContractTests {
 
     @Test
@@ -18,48 +17,28 @@ public interface ContractTests {
     
     @Test
     default void contract_create_withNullTypes_Throws() {
-        final IllegalArgumentException thrown = assertThrows(IllegalArgumentException.class, () -> {
-            Contract.create("test", (String[]) null);
-        });
-        
-        assertThrown(thrown);
+        assertThrown(IllegalArgumentException.class, () -> Contract.create("test", (String[]) null));
     }
     
     @Test
     default void contract_create_withNullConfig_Throws() {
-        final IllegalArgumentException thrown = assertThrows(IllegalArgumentException.class, () -> {
-            Contract.create((Contract.Config<?>)null);
-        });
-        
-        assertThrown(thrown);
+        assertThrown(IllegalArgumentException.class, () -> Contract.create((Contract.Config<?>)null));
     }
     
     @Test
     default void contract_create_withNullClass_Throws() {
-        final IllegalArgumentException thrown = assertThrows(IllegalArgumentException.class, () -> {
-            Contract.create((Class<?>)null);
-        });
-        
-        assertThrown(thrown);
+        assertThrown(IllegalArgumentException.class, () -> Contract.create((Class<?>)null));
     }
     
     @Test
     default void contract_create_withNullClassAndBuilder_Throws() {
         final Consumer<Contract.Config.Builder<String>> builderConsumer = b -> {};
-        final IllegalArgumentException thrown = assertThrows(IllegalArgumentException.class, () -> {
-            Contract.create(null, builderConsumer);
-        });
-        
-        assertThrown(thrown);
+        assertThrown(IllegalArgumentException.class, () -> Contract.create(null, builderConsumer));
     }
     
     @Test
     default void contract_create_withClassAndNullBuilder_Throws() {
-        final IllegalArgumentException thrown = assertThrows(IllegalArgumentException.class, () -> {
-            Contract.create(String.class, null);
-        });
-        
-        assertThrown(thrown);
+        assertThrown(IllegalArgumentException.class, () -> Contract.create(String.class, null));
     }
     
     @Test
@@ -71,10 +50,10 @@ public interface ContractTests {
                 assertSame(b, b.typeName("chars"));
             });
         
-        assertNotNull(contract);
+        assertObject(contract);
         assertEquals("test", contract.getName());
         assertEquals("chars", contract.getTypeName());
-        assertTrue(contract.isReplaceable());
+        assertTrue(contract.isReplaceable(), "Contract should have been replaceable");
     }
     
     @Test
@@ -159,7 +138,7 @@ public interface ContractTests {
             () -> assertEquals("", defaults.name(), "Default for name."),
             () -> assertEquals("", defaults.typeName(), "Default for typeName."),
             () -> assertSame( "abc", defaults.cast("abc"), "Cast should work."),
-            () -> assertThrows(ClassCastException.class, () -> defaults.cast(12L))
+            () -> assertThrows(ClassCastException.class, () -> defaults.cast(12L), "Cast should fail on wrong type")
         );
     }
 }

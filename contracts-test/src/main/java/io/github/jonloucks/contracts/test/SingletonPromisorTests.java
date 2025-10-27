@@ -22,11 +22,7 @@ public interface SingletonPromisorTests {
         withContracts(contracts -> {
             final Promisors promisors = contracts.claim(Promisors.CONTRACT);
             
-            final IllegalArgumentException thrown = assertThrows(IllegalArgumentException.class, () ->
-                promisors.createSingletonPromisor(null)
-            );
-            
-            assertThrown(thrown);
+            assertThrown(IllegalArgumentException.class, () -> promisors.createSingletonPromisor(null));
         });
     }
     
