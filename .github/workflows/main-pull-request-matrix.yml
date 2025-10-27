@@ -13,7 +13,7 @@ jobs:
       matrix: # maximum of 25 combinations
         java-version: [ 17, 21, 25 ]
         distribution: [ 'zulu', 'temurin' ]
-        java-source-version: [ 9, 11, 17 ]
+        java-source-version: [ 11, 17, 21, 25 ]
     permissions:
       contents: read
       packages: read
