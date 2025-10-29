@@ -15,51 +15,52 @@ final class ContractsFactoryFinder {
 <span class="fc" id="L15">    }</span>
     
     ContractsFactory find() {
-<span class="fc" id="L18">        return createByReflection()</span>
-<span class="fc" id="L19">            .or(this::createByServiceLoader)</span>
-<span class="fc" id="L20">            .orElseThrow(this::newNotFoundException);</span>
+<span class="fc" id="L18">        return createByReflection().orElseGet(() -&gt; createByServiceLoader().orElseThrow(this::newNotFoundException));</span>
     }
 
-    private Optional&lt;? extends ContractsFactory&gt; createByServiceLoader() {
-<span class="fc bfc" id="L24" title="All 2 branches covered.">        if (config.useServiceLoader()) {</span>
+    private Optional&lt;ContractsFactory&gt; createByServiceLoader() {
+<span class="fc bfc" id="L22" title="All 2 branches covered.">        if (config.useServiceLoader()) {</span>
             try {
-<span class="fc" id="L26">                return ServiceLoader.load(getServiceFactoryClass()).findFirst();</span>
-<span class="fc" id="L27">            } catch (Throwable ignored) {</span>
-<span class="fc" id="L28">                return Optional.empty();</span>
-            }
+<span class="fc" id="L24">                final ServiceLoader&lt;? extends ContractsFactory&gt; loader = ServiceLoader.load(config.serviceLoaderClass());</span>
+<span class="pc bpc" id="L25" title="1 of 2 branches missed.">                for (ContractsFactory factory : loader) {</span>
+<span class="fc" id="L26">                    return Optional.of(factory);</span>
+                }
+<span class="fc" id="L28">            } catch (Throwable ignored) {</span>
+<span class="fc" id="L29">                return Optional.empty();</span>
+<span class="nc" id="L30">            }</span>
         }
-<span class="fc" id="L31">        return Optional.empty();</span>
+<span class="fc" id="L32">        return Optional.empty();</span>
     }
     
     private Class&lt;? extends ContractsFactory&gt; getServiceFactoryClass() {
-<span class="fc" id="L35">        return nullCheck(config.serviceLoaderClass(), &quot;Contracts Service Loader class must be present.&quot;);</span>
+<span class="nc" id="L36">        return nullCheck(config.serviceLoaderClass(), &quot;Contracts Service Loader class must be present.&quot;);</span>
     }
     
     private Optional&lt;ContractsFactory&gt; createByReflection() {
-<span class="fc bfc" id="L39" title="All 2 branches covered.">        if (config.useReflection()) {</span>
-<span class="fc" id="L40">            final String className = getClassName();</span>
-<span class="fc bfc" id="L41" title="All 2 branches covered.">            if (className.isEmpty()) {</span>
-<span class="fc" id="L42">                return Optional.empty();</span>
+<span class="fc bfc" id="L40" title="All 2 branches covered.">        if (config.useReflection()) {</span>
+<span class="fc" id="L41">            final String className = getClassName();</span>
+<span class="fc bfc" id="L42" title="All 2 branches covered.">            if (className.isEmpty()) {</span>
+<span class="fc" id="L43">                return Optional.empty();</span>
             }
             try {
-<span class="fc" id="L45">                return Optional.of((ContractsFactory) getConstructor(className).newInstance());</span>
-<span class="fc" id="L46">            } catch (Throwable ignored) {</span>
-<span class="fc" id="L47">                return Optional.empty();</span>
+<span class="fc" id="L46">                return Optional.of((ContractsFactory) getConstructor(className).newInstance());</span>
+<span class="fc" id="L47">            } catch (Throwable ignored) {</span>
+<span class="fc" id="L48">                return Optional.empty();</span>
             }
         }
-<span class="fc" id="L50">        return Optional.empty();</span>
+<span class="fc" id="L51">        return Optional.empty();</span>
     }
     
     private String getClassName() {
-<span class="fc" id="L54">        return nullCheck(config.reflectionClassName(), &quot;Reflection reflection class name must be present.&quot;);</span>
+<span class="fc" id="L55">        return nullCheck(config.reflectionClassName(), &quot;Reflection reflection class name must be present.&quot;);</span>
     }
    
     private Constructor&lt;?&gt; getConstructor(String className) throws Throwable {
-<span class="fc" id="L58">        return Class.forName(className).getConstructor();</span>
+<span class="fc" id="L59">        return Class.forName(className).getConstructor();</span>
     }
     
     private ContractException newNotFoundException() {
-<span class="fc" id="L62">        return new ContractException(&quot;Unable to find Contracts factory.&quot;);</span>
+<span class="fc" id="L63">        return new ContractException(&quot;Unable to find Contracts factory.&quot;);</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>
