@@ -15,15 +15,16 @@ final class ContractsFactoryFinder {
     }
     
     ContractsFactory find() {
-        return createByReflection()
-            .or(this::createByServiceLoader)
-            .orElseThrow(this::newNotFoundException);
+        return createByReflection().orElseGet(() -> createByServiceLoader().orElseThrow(this::newNotFoundException));
     }
 
-    private Optional<? extends ContractsFactory> createByServiceLoader() {
+    private Optional<ContractsFactory> createByServiceLoader() {
         if (config.useServiceLoader()) {
             try {
-                return ServiceLoader.load(getServiceFactoryClass()).findFirst();
+                final ServiceLoader<? extends ContractsFactory> loader = ServiceLoader.load(config.serviceLoaderClass());
+                for (ContractsFactory factory : loader) {
+                    return Optional.of(factory);
+                }
             } catch (Throwable ignored) {
                 return Optional.empty();
             }
