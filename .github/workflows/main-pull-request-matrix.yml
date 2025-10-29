@@ -13,7 +13,6 @@ jobs:
       matrix: # maximum of 25 combinations
         java-version: [ 17, 21, 25 ]
         distribution: [ 'zulu', 'temurin' ]
-        java-compiler-version: [ 17 ]
         java-source-version: [ 9, 11, 17 ]
     permissions:
       contents: read
@@ -42,6 +41,7 @@ jobs:
       run: ./gradlew check jacocoTestReport jacocoTestCoverageVerification spotbugsMain
       env:
         PROJECT_WORKFLOW: 'main-pull-request-matrix'
-        KIT_JAVA_COMPILER_VERSION: ${{ matrix.java-compiler-version }}
+        KIT_JAVA_COMPILER_VERSION: ${{ matrix.java-version }}
         KIT_JAVA_SOURCE_VERSION: ${{ matrix.java-source-version }}
+        KIT_JAVA_TEST_SOURCE_VERSION: ${{ matrix.java-version }}
 
