@@ -1,6 +1,7 @@
 package io.github.jonloucks.contracts.api;
 
 import static io.github.jonloucks.contracts.api.Checks.*;
+import static io.github.jonloucks.contracts.api.PunchBoard.getPunch;
 
 /**
  * Provides access to the shared singleton of a Contracts implementation
@@ -104,7 +105,8 @@ public final class GlobalContracts {
     private final AutoClose close;
     
     private GlobalContracts() {
-        this.contracts = createContracts(new Contracts.Config() {});
+        this.contracts = createContracts(getPunch(PunchBoard.GLOBAL_CONFIG)
+            .orElseThrow(() -> new ContractException("Global Contracts configuration must be present.")));
         this.close = contracts.open();
         validateContracts(contracts);
         this.promisors = contracts.claim(Promisors.CONTRACT);

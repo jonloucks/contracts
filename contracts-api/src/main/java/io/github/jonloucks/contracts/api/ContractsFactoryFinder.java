@@ -1,11 +1,13 @@
 package io.github.jonloucks.contracts.api;
 
+import io.github.jonloucks.contracts.api.PunchBoard.ServiceFinder;
+
 import java.lang.reflect.Constructor;
 import java.util.Optional;
-import java.util.ServiceLoader;
 
 import static io.github.jonloucks.contracts.api.Checks.configCheck;
 import static io.github.jonloucks.contracts.api.Checks.nullCheck;
+import static io.github.jonloucks.contracts.api.PunchBoard.SERVICE_FINDER;
 
 final class ContractsFactoryFinder {
     private final Contracts.Config config;
@@ -16,14 +18,17 @@ final class ContractsFactoryFinder {
     
     ContractsFactory find() {
         return createByReflection()
-            .or(this::createByServiceLoader)
-            .orElseThrow(this::newNotFoundException);
+            .orElseGet(() -> createByServiceLoader()
+                .orElseThrow(this::newNotFoundException));
     }
 
     private Optional<? extends ContractsFactory> createByServiceLoader() {
         if (config.useServiceLoader()) {
             try {
-                return ServiceLoader.load(getServiceFactoryClass()).findFirst();
+                final Optional<ServiceFinder> optionalPunch = PunchBoard.getPunch(SERVICE_FINDER);
+                if (optionalPunch.isPresent()) {
+                    return optionalPunch.get().findInstance(getServiceFactoryClass());
+                }
             } catch (Throwable ignored) {
                 return Optional.empty();
             }
