@@ -166,13 +166,33 @@ public interface RepositoryTests {
     }
     
     @Test
-    default void repository_keep_WhenCalledTwice_Throws() {
+    default void repository_keep_ReplaceWhenOpen_Throws() {
         runWithScenario(( contracts,repository) -> {
             final Contract<String> contract = Contract.create("test text");
             
             repository.keep(contract, () -> "x");
             
-            assertThrown(ContractException.class, () -> repository.keep(contract, () -> "y"));
+            try (AutoClose closeRepository = repository.open()) {
+                ignore(closeRepository);
+                assertThrown(ContractException.class, () -> repository.keep(contract, () -> "y"));
+            }
+        });
+    }
+    
+    @Test
+    default void repository_keep_ReplaceBeforeOpen_Works() {
+        final Contract<String> contract = Contract.create("test text");
+        
+        runWithScenario(new RepositoryTestsTool.ScenarioConfig() {
+            @Override
+            public void beforeRepositoryOpen(Repository repository) {
+                repository.keep(contract, () -> "x");
+                repository.keep(contract, () -> "y");
+            }
+            @Override
+            public void accept(Contracts contracts, Repository repository) {
+                assertEquals("y", contracts.claim(contract), "Changing bindings before should be allowed.");
+            }
         });
     }
     
@@ -226,12 +246,13 @@ public interface RepositoryTests {
             throw new AssertionError("Illegal constructor.");
         }
         interface ScenarioConfig extends BiConsumer<Contracts, Repository> {
-        
+            default void beforeRepositoryOpen(@SuppressWarnings("unused") Repository repository) {}
         }
         
         static void runWithScenario(ScenarioConfig block) {
             withContracts(contracts -> {
                 final Repository repository = contracts.claim(Repository.FACTORY).get();
+                block.beforeRepositoryOpen(repository);
                 try (AutoClose closeRepository = repository.open()) {
                     ignore(closeRepository);
                     block.accept(contracts, repository);

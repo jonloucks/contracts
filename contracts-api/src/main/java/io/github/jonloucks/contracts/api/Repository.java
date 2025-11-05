@@ -19,8 +19,10 @@ public interface Repository extends AutoOpen {
 
     /**
      * Store the binding.
-     * If the Repository is not open, the binding will be created when repository is opened.
-     * If the Repository has already been opened the binding is created immediately
+     * Note: Replacing a Contract already promised in this Repository is forbidden after the Repository is opened.
+     * If the Repository is not open an existing Promisor can be replaced, otherwise it is forbidden.
+     * If the Repository is not open, the binding will be applied when repository is opened.
+     * If the Repository has already been opened the binding is applied immediately
      * Note: If never explicitly closed, the order of closing promisors is the reverse order they are stored
      * @param contract the contract to be bound
      * @param promisor the promisor to be bounded
@@ -32,8 +34,10 @@ public interface Repository extends AutoOpen {
 
     /**
      * Store the binding.
-     * If the Repository is not open, the binding will be created when repository is opened.
-     * If the Repository has already been opened the binding is created immediately
+     * Note: Replacing a Contract already promised in this Repository is forbidden after the Repository is opened.
+     * If the Repository is not open an existing Promisor can be replaced, otherwise it is forbidden.
+     * If the Repository is not open, the binding will be applied when repository is opened.
+     * If the Repository has already been opened the binding is applied immediately
      * Note: If never explicitly closed, the order of closing promisors is the reverse order they are stored
      * @param contract the contract to be bound
      * @param promisor the promisor to be bounded
@@ -56,7 +60,7 @@ public interface Repository extends AutoOpen {
      * @param <T> the type of contract deliverable
      */
     default <T> void keep(Contract<T> contract, Promisor<T> promisor, BindStrategy bindStrategy) {
-        //noinspection resource
+        //noinspection resource; all repository promises are closed when the repository is closed
         store(contract, promisor, bindStrategy);
     }
     
