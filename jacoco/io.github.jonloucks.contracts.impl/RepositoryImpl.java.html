@@ -29,7 +29,7 @@ final class RepositoryImpl implements Repository {
 <span class="fc" id="L29">        final Promisor&lt;T&gt; validPromisor = promisorCheck(promisor);</span>
 <span class="fc" id="L30">        final BindStrategy validBindStrategy = nullCheck(bindStrategy, &quot;bindStrategy&quot;);</span>
         
-<span class="fc bfc" id="L32" title="All 2 branches covered.">        if (storedContracts.containsKey(validContract)) {</span>
+<span class="fc bfc" id="L32" title="All 4 branches covered.">        if (storedContracts.containsKey(validContract) &amp;&amp; openState.isOpen()) {</span>
 <span class="fc" id="L33">            throw new ContractException( &quot;The contract &quot; + validContract + &quot;  is already stored.&quot;);</span>
         }
         

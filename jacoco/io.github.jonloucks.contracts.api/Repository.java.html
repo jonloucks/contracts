@@ -19,8 +19,10 @@ public interface Repository extends AutoOpen {
 
     /**
      * Store the binding.
-     * If the Repository is not open, the binding will be created when repository is opened.
-     * If the Repository has already been opened the binding is created immediately
+     * Note: Replacing a Contract already promised in this Repository is forbidden after the Repository is opened.
+     * If the Repository is not open an existing Promisor can be replaced, otherwise it is forbidden.
+     * If the Repository is not open, the binding will be applied when repository is opened.
+     * If the Repository has already been opened the binding is applied immediately
      * Note: If never explicitly closed, the order of closing promisors is the reverse order they are stored
      * @param contract the contract to be bound
      * @param promisor the promisor to be bounded
@@ -32,8 +34,10 @@ public interface Repository extends AutoOpen {
 
     /**
      * Store the binding.
-     * If the Repository is not open, the binding will be created when repository is opened.
-     * If the Repository has already been opened the binding is created immediately
+     * Note: Replacing a Contract already promised in this Repository is forbidden after the Repository is opened.
+     * If the Repository is not open an existing Promisor can be replaced, otherwise it is forbidden.
+     * If the Repository is not open, the binding will be applied when repository is opened.
+     * If the Repository has already been opened the binding is applied immediately
      * Note: If never explicitly closed, the order of closing promisors is the reverse order they are stored
      * @param contract the contract to be bound
      * @param promisor the promisor to be bounded
@@ -41,7 +45,7 @@ public interface Repository extends AutoOpen {
      * @param &lt;T&gt; the type of contract deliverable
      */
     default &lt;T&gt; AutoClose store(Contract&lt;T&gt; contract, Promisor&lt;T&gt; promisor) {
-<span class="fc" id="L44">        return store(contract, promisor, IF_ALLOWED);</span>
+<span class="fc" id="L48">        return store(contract, promisor, IF_ALLOWED);</span>
     }
     
     /**
@@ -56,9 +60,9 @@ public interface Repository extends AutoOpen {
      * @param &lt;T&gt; the type of contract deliverable
      */
     default &lt;T&gt; void keep(Contract&lt;T&gt; contract, Promisor&lt;T&gt; promisor, BindStrategy bindStrategy) {
-        //noinspection resource
-<span class="fc" id="L60">        store(contract, promisor, bindStrategy);</span>
-<span class="fc" id="L61">    }</span>
+        //noinspection resource; all repository promises are closed when the repository is closed
+<span class="fc" id="L64">        store(contract, promisor, bindStrategy);</span>
+<span class="fc" id="L65">    }</span>
     
     /**
      * Keep the binding for the life of the repository
@@ -70,8 +74,8 @@ public interface Repository extends AutoOpen {
      * @param &lt;T&gt; the type of contract deliverable
      */
      default &lt;T&gt; void keep(Contract&lt;T&gt; contract, Promisor&lt;T&gt; promisor) {
-<span class="fc" id="L73">         keep(contract, promisor, IF_ALLOWED);</span>
-<span class="fc" id="L74">     }</span>
+<span class="fc" id="L77">         keep(contract, promisor, IF_ALLOWED);</span>
+<span class="fc" id="L78">     }</span>
     
     /**
      * Check that all requirements have fulfilled

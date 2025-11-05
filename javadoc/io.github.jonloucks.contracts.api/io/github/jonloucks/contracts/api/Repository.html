@@ -194,8 +194,10 @@ extends <a href="AutoOpen.html" title="interface in io.github.jonloucks.contract
  <a href="Promisor.html" title="interface in io.github.jonloucks.contracts.api">Promisor</a>&lt;T&gt;&nbsp;promisor,
  <a href="BindStrategy.html" title="enum class in io.github.jonloucks.contracts.api">BindStrategy</a>&nbsp;bindStrategy)</span></div>
 <div class="block">Store the binding.
- If the Repository is not open, the binding will be created when repository is opened.
- If the Repository has already been opened the binding is created immediately
+ Note: Replacing a Contract already promised in this Repository is forbidden after the Repository is opened.
+ If the Repository is not open an existing Promisor can be replaced, otherwise it is forbidden.
+ If the Repository is not open, the binding will be applied when repository is opened.
+ If the Repository has already been opened the binding is applied immediately
  Note: If never explicitly closed, the order of closing promisors is the reverse order they are stored</div>
 <dl class="notes">
 <dt>Type Parameters:</dt>
@@ -215,8 +217,10 @@ extends <a href="AutoOpen.html" title="interface in io.github.jonloucks.contract
 <div class="member-signature"><span class="modifiers">default</span>&nbsp;<span class="type-parameters">&lt;T&gt;</span>&nbsp;<span class="return-type"><a href="AutoClose.html" title="interface in io.github.jonloucks.contracts.api">AutoClose</a></span>&nbsp;<span class="element-name">store</span><wbr><span class="parameters">(<a href="Contract.html" title="class in io.github.jonloucks.contracts.api">Contract</a>&lt;T&gt;&nbsp;contract,
  <a href="Promisor.html" title="interface in io.github.jonloucks.contracts.api">Promisor</a>&lt;T&gt;&nbsp;promisor)</span></div>
 <div class="block">Store the binding.
- If the Repository is not open, the binding will be created when repository is opened.
- If the Repository has already been opened the binding is created immediately
+ Note: Replacing a Contract already promised in this Repository is forbidden after the Repository is opened.
+ If the Repository is not open an existing Promisor can be replaced, otherwise it is forbidden.
+ If the Repository is not open, the binding will be applied when repository is opened.
+ If the Repository has already been opened the binding is applied immediately
  Note: If never explicitly closed, the order of closing promisors is the reverse order they are stored</div>
 <dl class="notes">
 <dt>Type Parameters:</dt>
