@@ -21,8 +21,7 @@ final class ContractsFactoryFinder {
     private Optional<ContractsFactory> createByServiceLoader() {
         if (config.useServiceLoader()) {
             try {
-                final ServiceLoader<? extends ContractsFactory> loader = ServiceLoader.load(config.serviceLoaderClass());
-                for (ContractsFactory factory : loader) {
+                for (ContractsFactory factory : ServiceLoader.load(getServiceFactoryClass())) {
                     return Optional.of(factory);
                 }
             } catch (Throwable ignored) {

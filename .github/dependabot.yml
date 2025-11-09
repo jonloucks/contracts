@@ -11,3 +11,5 @@ updates:
       interval: "daily"
   - dependency-name: "org.junit.jupiter:*"
     versions: [ ">=6.0.0" ]
+  - dependency-name: "org.junit:junit-bom:*"
+    versions: [ ">=6.0.0" ]
