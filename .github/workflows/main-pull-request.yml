@@ -24,11 +24,9 @@ jobs:
     - name: Modify branch name
       run: |
         BRANCH_NAME="${{ github.head_ref || github.ref_name}}"
-        # Replace slashes with underscores
-        MODIFIED_BRANCH_NAME_SLASHS_REPLACED="${BRANCH_NAME//\//_}"
-        # Remove dashes
-        SIMPLE_BRANCH_NAME="${MODIFIED_BRANCH_NAME_SLASHS_REPLACED//-/}"
+        SIMPLE_BRANCH_NAME="${BRANCH_NAME//\//-}"
         echo "SIMPLE_BRANCH_NAME=${SIMPLE_BRANCH_NAME}" >> $GITHUB_ENV
+
     - name: Checkout badges branch dedicated to storing badges only
       uses: actions/checkout@v4
       with:
