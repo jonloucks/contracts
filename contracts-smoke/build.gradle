@@ -8,10 +8,6 @@ tasks.named('check') {
     dependsOn('installDist')
 }
 
-tasks.named('build') {
-    finalizedBy('installDist')
-}
-
 javadoc {
     exclude '**/**'
 }
