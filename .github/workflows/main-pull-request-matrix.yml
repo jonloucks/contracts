@@ -59,7 +59,7 @@ jobs:
       with:
         name: smoke-app
         path: |
-          ${SIMPLE_REPOSITORY_NAME}-smoke/build/distributions/*.tar
+          ${{ SIMPLE_REPOSITORY_NAME }}-smoke/build/distributions/*.tar
 
   smoke-test:
     name: main-pull-request-matrix-smoke
@@ -76,6 +76,11 @@ jobs:
     steps:
       - name: Assigning SIMPLE_REPOSITORY_NAME
         run: echo "SIMPLE_REPOSITORY_NAME=${GITHUB_REPOSITORY#*/}" >> $GITHUB_ENV
+
+      - name: Download Smoke Test
+        uses: actions/download-artifact@v4
+        with:
+          name: smoke-app
 
       - name: Set up JRE ${{ matrix.java-jre-version }} for Running
         uses: actions/setup-java@v4
