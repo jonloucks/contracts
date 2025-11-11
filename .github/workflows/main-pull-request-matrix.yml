@@ -73,6 +73,6 @@ jobs:
       run: |
         if [ -d "${SIMPLE_REPOSITORY_NAME}-smoke/build/install/smoke" ]; then
           cd "${SIMPLE_REPOSITORY_NAME}-smoke/build/install/smoke"
-          JAVA_HOME=${ env.JRE_HOME } ./bin/smoke
+          JAVA_HOME=${{ env.JRE_HOME }} ./bin/smoke
         fi
 
