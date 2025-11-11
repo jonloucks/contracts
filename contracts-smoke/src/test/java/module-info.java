@@ -1,5 +1,5 @@
 /**
- * Includes all default components of the Concurrency library needed for a working deployment.
+ * Includes all components for testing the smoke app
  */
 module io.github.jonloucks.contracts.smoke.test {
     requires transitive io.github.jonloucks.contracts;
