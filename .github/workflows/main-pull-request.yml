@@ -110,7 +110,7 @@ jobs:
   smoke-test:
     name: main-pull-request-smoke
     runs-on: ubuntu-latest
-    needs: main-pull-request
+    needs: build
     strategy:
       matrix: # maximum of 25 combinations
         distribution: [ 'zulu', 'temurin' ]
