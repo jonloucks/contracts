@@ -8,12 +8,19 @@ tasks.named('check') {
     dependsOn('distTar')
 }
 
+distZip {
+    archiveFileName.set( "smoke.zip")
+}
+
+distTar {
+    archiveFileName.set( "smoke.tar")
+}
+
 tasks.named('distTar') {
     doLast { task ->
         copy {
             from task.outputs.files
             into rootProject.layout.buildDirectory.get()
-            rename 'smoke-(.*)\\.tar', 'smoke.tar'
         }
     }
 }

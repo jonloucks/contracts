@@ -135,6 +135,5 @@ jobs:
       - name: Run Smoke Tests
         run: |
           tar -xzvf smoke.tar
-          if [ -d "bin/" ]; then
-            ./bin/smoke
-          fi
+          cd smoke
+          ./bin/smoke
