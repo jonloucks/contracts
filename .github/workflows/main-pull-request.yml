@@ -80,7 +80,7 @@ jobs:
 
     - name: Run Smoke Tests
       if: steps.smoke_check.outputs.directory_exists == 'true'
-      working-directory: main-project/${SIMPLE_REPOSITORY_NAME}-smoke/build/install/smoke
+      working-directory: "main-project/{{ env.SIMPLE_REPOSITORY_NAME }}-smoke/build/install/smoke"
       run: JAVA_HOME=${{ env.JAVA_HOME_11_X64 }} ./bin/smoke
 
     - name: Upload JaCoCo report artifact
