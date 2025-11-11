@@ -11,7 +11,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix: # row matrix only!
-        java-version: [ 17 ]
+        java-jdk-version: [ 17 ]
         distribution: [ 'temurin' ]
         java-compiler-version: [ 17 ]
         java-source-version: [ 9 ]
@@ -49,10 +49,10 @@ jobs:
         java-package: 'jre'
         distribution: ${{ matrix.distribution }}
 
-    - name: Set up JDK ${{ matrix.java-version }} with ${{ matrix.distribution }}
+    - name: Set up JDK ${{ matrix.java-jdk-version }} with ${{ matrix.distribution }}
       uses: actions/setup-java@v4
       with:
-        java-version: ${{ matrix.java-version }}
+        java-version: ${{ matrix.java-jdk-version }}
         distribution: ${{ matrix.distribution }}
         settings-path: ${{ github.workspace }} # location for the settings.xml file
 
