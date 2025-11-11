@@ -12,10 +12,10 @@ jobs:
     strategy:
       matrix: # maximum of 25 combinations
         distribution: [ 'zulu', 'temurin' ]
-        java-jdk-version: [ 17, 21, 25 ]
+        java-jdk-version: [ 17, 25 ] # oldest and latest LTS JDK
         java-compiler-version: [ 17 ] # vector, only minimum JDK
-        java-source-version: [ 9, 11 ] # highest is minimum LTS
-        java-jre-version: [ 11 ] # 17, 21, 25
+        java-source-version: [ 9, 11 ] # current source version and next version
+        java-jre-version: [ 11, 17, 25 ]  # all LTS JRE's
     permissions:
       contents: read
       packages: read
