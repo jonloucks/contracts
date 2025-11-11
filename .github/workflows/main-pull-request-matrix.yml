@@ -74,20 +74,12 @@ jobs:
         KIT_JAVA_COMPILER_VERSION: ${{ matrix.java-compiler-version }}
         KIT_JAVA_SOURCE_VERSION: ${{ matrix.java-source-version }}
 
-#    - name: Run Smoke Tests
-#      working-directory: main-project
-#      run: |
-#        if [ -d "${SIMPLE_REPOSITORY_NAME}-smoke/build/install/smoke" ]; then
-#          cd "${SIMPLE_REPOSITORY_NAME}-smoke/build/install/smoke"
-#          JAVA_HOME=${{ env.JRE_HOME }} ./bin/smoke
-#        fi
-#    - name: Run Smoke Tests
-#      working-directory: main-project
-#      run: |
-#        if [ -d "${SIMPLE_REPOSITORY_NAME}-smoke/build/install/smoke" ]; then
-#          cd "${SIMPLE_REPOSITORY_NAME}-smoke/build/install/smoke"
-#          JAVA_HOME=${{ env.JRE_HOME }} ./bin/smoke
-#        fi
+    - name: Upload Smoke Test
+      uses: actions/upload-artifact@v3
+      with:
+        name: smoke-app
+        path: |
+          ${SIMPLE_REPOSITORY_NAME}-smoke/build/distributions/*.tar
 
   smoke-test:
     name: main-pull-request-matrix-smoke
@@ -113,9 +105,7 @@ jobs:
           distribution: ${{ matrix.distribution }}
 
       - name: Run Smoke Tests
-        working-directory: jre-only
         run: |
-          if [ -d "${SIMPLE_REPOSITORY_NAME}-smoke/build/install/smoke" ]; then
-            cd "${SIMPLE_REPOSITORY_NAME}-smoke/build/install/smoke"
+          if [ -d "bin/" ]; then
             ./bin/smoke
           fi
