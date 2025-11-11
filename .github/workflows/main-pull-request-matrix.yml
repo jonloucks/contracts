@@ -34,7 +34,7 @@ jobs:
         //env.JAVA_HOME_11_X64
     - name: Assigning JRE_HOME
       run: |
-        JRE_ENV_VARIABLE="env.JAVA_HOME_${{ matrix.java-jre-version }}_X64"
+        JRE_ENV_VARIABLE="${JAVA_HOME_${{ matrix.java-jre-version }}_X64}"
         echo "JRE_HOME=${JRE_ENV_VARIABLE}" >> $GITHUB_ENV
 
     - name: Checkout Main Project
