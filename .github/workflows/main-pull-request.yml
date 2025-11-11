@@ -135,6 +135,7 @@ jobs:
 
       - name: Run Smoke Tests
         run: |
-          tar -xzvf smoke.tar
+          ls -la 
+          unzip smoke-app.zip
           cd smoke
           ./bin/smoke
