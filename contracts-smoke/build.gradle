@@ -4,12 +4,18 @@ plugins {
     id 'application'
 }
 
-//tasks.named('check') {
-//    dependsOn('installDist')
-//}
-
 tasks.named('check') {
     dependsOn('distTar')
+}
+
+tasks.named('distTar') {
+    doLast { task ->
+        copy {
+            from task.outputs.files
+            into rootProject.layout.buildDirectory.get()
+            rename 'smoke-(.*)\\.tar', 'smoke.tar'
+        }
+    }
 }
 
 javadoc {

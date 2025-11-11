@@ -47,13 +47,6 @@ jobs:
       with:
         path: main-project
 
-    - name: Set up JRE ${{ matrix.java-jre-version }} for Running
-      uses: actions/setup-java@v4
-      with:
-        java-version: ${{ matrix.java-jre-version }}
-        java-package: 'jre'
-        distribution: ${{ matrix.distribution }}
-
     - name: Set up JDK ${{ matrix.java-jdk-version }} with ${{ matrix.distribution }}
       uses: actions/setup-java@v4
       with:
@@ -66,19 +59,26 @@ jobs:
 
     - name: Build with Gradle with java source ${{ matrix.java-source-version }}
       working-directory: main-project
-      run: ./gradlew build jacocoTestReport
+      run: ./gradlew build distTar jacocoTestReport
       env:
         PROJECT_WORKFLOW: 'main-pull-request'
         KIT_JAVA_COMPILER_VERSION: ${{ matrix.java-compiler-version }}
         KIT_JAVA_SOURCE_VERSION: ${{ matrix.java-source-version }}
 
-    - name: Run Smoke Tests
-      working-directory: main-project
-      run: |
-        if [ -d "${SIMPLE_REPOSITORY_NAME}-smoke/build/install/smoke" ]; then
-          cd "${SIMPLE_REPOSITORY_NAME}-smoke/build/install/smoke"
-          JAVA_HOME=${{ env.JRE_HOME }} ./bin/smoke
-        fi
+    - name: Upload Smoke Test
+      uses: actions/upload-artifact@v4
+      with:
+        name: smoke-app
+        path: |
+          "main-project/build/smoke.tar"
+
+#    - name: Run Smoke Tests
+#      working-directory: main-project
+#      run: |
+#        if [ -d "${SIMPLE_REPOSITORY_NAME}-smoke/build/install/smoke" ]; then
+#          cd "${SIMPLE_REPOSITORY_NAME}-smoke/build/install/smoke"
+#          JAVA_HOME=${{ env.JRE_HOME }} ./bin/smoke
+#        fi
 
     - name: Upload JaCoCo report artifact
       uses: actions/upload-artifact@v4
@@ -115,3 +115,38 @@ jobs:
         PROJECT_WORKFLOW: 'main-pull-request'
         KIT_JAVA_COMPILER_VERSION: ${{ matrix.java-compiler-version }}
         KIT_JAVA_SOURCE_VERSION: ${{ matrix.java-source-version }}
+
+  smoke-test:
+    name: main-pull-request-smoke
+    runs-on: ubuntu-latest
+    strategy:
+      matrix: # maximum of 25 combinations
+        distribution: [ 'zulu', 'temurin' ]
+        java-jre-version: [ 11 ] # , 17, 21, 25 ]  # all LTS JRE's
+    permissions:
+      contents: read
+      packages: read
+      pages: read
+
+    steps:
+      - name: Assigning SIMPLE_REPOSITORY_NAME
+        run: echo "SIMPLE_REPOSITORY_NAME=${GITHUB_REPOSITORY#*/}" >> $GITHUB_ENV
+
+      - name: Download Smoke Test
+        uses: actions/download-artifact@v4
+        with:
+          name: smoke-app
+
+      - name: Set up JRE ${{ matrix.java-jre-version }} for Running
+        uses: actions/setup-java@v4
+        with:
+          java-version: ${{ matrix.java-jre-version }}
+          java-package: 'jre'
+          distribution: ${{ matrix.distribution }}
+
+      - name: Run Smoke Tests
+        run: |
+          tar -xzvf smoke.tar
+          if [ -d "bin/" ]; then
+            ./bin/smoke
+          fi
