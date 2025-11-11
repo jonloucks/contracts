@@ -30,6 +30,12 @@ jobs:
         BRANCH_NAME="${{ github.head_ref || github.ref_name}}"
         SIMPLE_BRANCH_NAME="${BRANCH_NAME//\//-}"
         echo "SIMPLE_BRANCH_NAME=${SIMPLE_BRANCH_NAME}" >> $GITHUB_ENV
+        
+        //env.JAVA_HOME_11_X64
+    - name: Assigning JRE_HOME
+      run: |
+        JRE_ENV_VARIABLE="env.JAVA_HOME_${{ java-jre-version }}_X64"
+        echo "JRE_HOME=${JRE_ENV_VARIABLE}" >> $GITHUB_ENV
 
     - name: Checkout Main Project
       uses: actions/checkout@v4
@@ -67,6 +73,6 @@ jobs:
       run: |
         if [ -d "${SIMPLE_REPOSITORY_NAME}-smoke/build/install/smoke" ]; then
           cd "${SIMPLE_REPOSITORY_NAME}-smoke/build/install/smoke"
-          JAVA_HOME=${{ env.JAVA_HOME_11_X64 }} ./bin/smoke
+          JAVA_HOME=${{ env.JRE_HOME }} ./bin/smoke
         fi
 
