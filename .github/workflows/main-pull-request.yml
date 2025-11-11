@@ -15,6 +15,7 @@ jobs:
         distribution: [ 'temurin' ]
         java-compiler-version: [ 17 ]
         java-source-version: [ 9 ]
+        java-jre-version: [ 11 ]
     permissions:
       contents: write
       packages: write
@@ -38,7 +39,14 @@ jobs:
       with:
         path: main-project
 
-    - name: Set up Java ${{ matrix.java-version }} with ${{ matrix.distribution }}
+    - name: Set up JRE ${{ matrix.java-jre-version }} for Running
+      uses: actions/setup-java@v4
+      with:
+        java-version: ${{ matrix.java-jre-version }}
+        java-package: "jre"
+        distribution: ${{ matrix.distribution }}
+
+    - name: Set up JDK ${{ matrix.java-version }} with ${{ matrix.distribution }}
       uses: actions/setup-java@v4
       with:
         java-version: ${{ matrix.java-version }}
@@ -51,11 +59,15 @@ jobs:
 
     - name: Build with Gradle with java source ${{ matrix.java-source-version }}
       working-directory: main-project
-      run: ./gradlew build jacocoTestReport
+      run: ./gradlew build installDist jacocoTestReport
       env:
         PROJECT_WORKFLOW: 'main-pull-request'
         KIT_JAVA_COMPILER_VERSION: ${{ matrix.java-compiler-version }}
         KIT_JAVA_SOURCE_VERSION: ${{ matrix.java-source-version }}
+
+    - name: Run Smoke test
+      working-directory: main-project/contracts-smoke/build/install/smoke
+      run: JAVA_HOME=${{ env.JAVA_HOME_11_X64 }} ./bin/smoke
 
     - name: Upload JaCoCo report artifact
       uses: actions/upload-artifact@v4

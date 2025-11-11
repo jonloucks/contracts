@@ -11,6 +11,7 @@
             <option value="$PROJECT_DIR$" />
             <option value="$PROJECT_DIR$/contracts-api" />
             <option value="$PROJECT_DIR$/contracts-impl" />
+            <option value="$PROJECT_DIR$/contracts-smoke" />
             <option value="$PROJECT_DIR$/contracts-test" />
           </set>
         </option>
