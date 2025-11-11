@@ -13,8 +13,8 @@ jobs:
       matrix: # maximum of 25 combinations
         java-jdk-version: [ 17, 21, 25 ]
         distribution: [ 'zulu', 'temurin' ]
-        java-compiler-version: [ 17 ]
-        java-source-version: [ 9, 11, 17 ]
+        java-compiler-version: [ 17 ] # vector, only minimum JDK
+        java-source-version: [ 9, 11 ] # highest is minimum LTS
         java-jre-version: [ 11 ] # 17, 21, 25
     permissions:
       contents: read
