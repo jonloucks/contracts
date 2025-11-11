@@ -59,7 +59,7 @@ jobs:
       with:
         name: smoke-app
         path: |
-          ${{ SIMPLE_REPOSITORY_NAME }}-smoke/build/distributions/*.tar
+          "${{ env.SIMPLE_REPOSITORY_NAME }}-smoke/build/distributions/*.tar"
 
   smoke-test:
     name: main-pull-request-matrix-smoke
