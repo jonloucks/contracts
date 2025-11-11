@@ -15,7 +15,7 @@ jobs:
         java-jdk-version: [ 17, 25 ] # oldest and latest LTS JDK
         java-compiler-version: [ 17 ] # vector, only minimum JDK
         java-source-version: [ 9, 11 ] # current source version and next version
-        java-jre-version: [ 11, 17, 25 ]  # all LTS JRE's
+#        java-jre-version: [ 11, 17, 25 ]  # all LTS JRE's
     permissions:
       contents: read
       packages: read
@@ -31,12 +31,12 @@ jobs:
         SIMPLE_BRANCH_NAME="${BRANCH_NAME//\//-}"
         echo "SIMPLE_BRANCH_NAME=${SIMPLE_BRANCH_NAME}" >> $GITHUB_ENV
 
-    - name: Set JRE_HOME relative to JAVA_HOME
-      run: |
-        echo "JRE_HOME=$JAVA_HOME/jre" >> $GITHUB_ENV
-        echo "JRE_HOME is set to: $JRE_HOME"
-      shell: bash
-
+#    - name: Set JRE_HOME relative to JAVA_HOME
+#      run: |
+#        echo "JRE_HOME=$JAVA_HOME/jre" >> $GITHUB_ENV
+#        echo "JRE_HOME is set to: $JRE_HOME"
+#      shell: bash
+#
 #    - name: Assigning JRE_HOME
 #      run: |
 #        JRE_ENV_VARIABLE="${JAVA_HOME_${{ matrix.java-jre-version }}_X64}"
@@ -47,13 +47,13 @@ jobs:
       with:
         path: main-project
 
-    - name: Set up JRE ${{ matrix.java-jre-version }} for Running
-      uses: actions/setup-java@v4
-      with:
-        java-version: ${{ matrix.java-jre-version }}
-        java-package: 'jre'
-        distribution: ${{ matrix.distribution }}
-        targets: 'JRE_HOME'
+#    - name: Set up JRE ${{ matrix.java-jre-version }} for Running
+#      uses: actions/setup-java@v4
+#      with:
+#        java-version: ${{ matrix.java-jre-version }}
+#        java-package: 'jre'
+#        distribution: ${{ matrix.distribution }}
+#        targets: 'JRE_HOME'
 
     - name: Set up JDK ${{ matrix.java-jdk-version }} with ${{ matrix.distribution }}
       uses: actions/setup-java@v4
@@ -74,13 +74,13 @@ jobs:
         KIT_JAVA_COMPILER_VERSION: ${{ matrix.java-compiler-version }}
         KIT_JAVA_SOURCE_VERSION: ${{ matrix.java-source-version }}
 
-    - name: Run Smoke Tests
-      working-directory: main-project
-      run: |
-        if [ -d "${SIMPLE_REPOSITORY_NAME}-smoke/build/install/smoke" ]; then
-          cd "${SIMPLE_REPOSITORY_NAME}-smoke/build/install/smoke"
-          JAVA_HOME=${{ env.JRE_HOME }} ./bin/smoke
-        fi
+#    - name: Run Smoke Tests
+#      working-directory: main-project
+#      run: |
+#        if [ -d "${SIMPLE_REPOSITORY_NAME}-smoke/build/install/smoke" ]; then
+#          cd "${SIMPLE_REPOSITORY_NAME}-smoke/build/install/smoke"
+#          JAVA_HOME=${{ env.JRE_HOME }} ./bin/smoke
+#        fi
 #    - name: Run Smoke Tests
 #      working-directory: main-project
 #      run: |
@@ -89,3 +89,33 @@ jobs:
 #          JAVA_HOME=${{ env.JRE_HOME }} ./bin/smoke
 #        fi
 
+  smoke-test:
+    name: main-pull-request-matrix-smoke
+    runs-on: ubuntu-latest
+    strategy:
+      matrix: # maximum of 25 combinations
+        distribution: [ 'zulu', 'temurin' ]
+        java-jre-version: [ 11, 17, 21, 25 ]  # all LTS JRE's
+    permissions:
+      contents: read
+      packages: read
+      pages: read
+
+    steps:
+      - name: Assigning SIMPLE_REPOSITORY_NAME
+        run: echo "SIMPLE_REPOSITORY_NAME=${GITHUB_REPOSITORY#*/}" >> $GITHUB_ENV
+
+      - name: Set up JRE ${{ matrix.java-jre-version }} for Running
+        uses: actions/setup-java@v4
+        with:
+          java-version: ${{ matrix.java-jre-version }}
+          java-package: 'jre'
+          distribution: ${{ matrix.distribution }}
+
+      - name: Run Smoke Tests
+        working-directory: jre-only
+        run: |
+          if [ -d "${SIMPLE_REPOSITORY_NAME}-smoke/build/install/smoke" ]; then
+            cd "${SIMPLE_REPOSITORY_NAME}-smoke/build/install/smoke"
+            ./bin/smoke
+          fi

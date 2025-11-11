@@ -4,8 +4,12 @@ plugins {
     id 'application'
 }
 
+//tasks.named('check') {
+//    dependsOn('installDist')
+//}
+
 tasks.named('check') {
-    dependsOn('installDist')
+    dependsOn('distTar')
 }
 
 javadoc {
