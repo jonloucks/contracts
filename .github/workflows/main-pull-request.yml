@@ -69,9 +69,10 @@ jobs:
         KIT_JAVA_SOURCE_VERSION: ${{ matrix.java-source-version }}
 
     - name: Check if Smoke Test exists
+      working-directory: main-project
       id: smoke_check
       run: |
-        if [ -d "main-project/{{ env.SIMPLE_REPOSITORY_NAME }}-smoke/build/install/smoke" ]; then
+        if [ -d "${SIMPLE_REPOSITORY_NAME}-smoke/build/install/smoke" ]; then
           echo "directory_exists=true" >> "$GITHUB_OUTPUT"
         else
           echo "directory_exists=false" >> "$GITHUB_OUTPUT"
