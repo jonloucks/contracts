@@ -31,6 +31,12 @@ jobs:
         SIMPLE_BRANCH_NAME="${BRANCH_NAME//\//-}"
         echo "SIMPLE_BRANCH_NAME=${SIMPLE_BRANCH_NAME}" >> $GITHUB_ENV
 
+    - name: Set JRE_HOME relative to JAVA_HOME
+      run: |
+        echo "JRE_HOME=$JAVA_HOME/jre" >> $GITHUB_ENV
+        echo "JRE_HOME is set to: $JRE_HOME"
+      shell: bash
+
 #    - name: Assigning JRE_HOME
 #      run: |
 #        JRE_ENV_VARIABLE="${JAVA_HOME_${{ matrix.java-jre-version }}_X64}"
@@ -75,4 +81,11 @@ jobs:
           cd "${SIMPLE_REPOSITORY_NAME}-smoke/build/install/smoke"
           JAVA_HOME=${{ env.JRE_HOME }} ./bin/smoke
         fi
+#    - name: Run Smoke Tests
+#      working-directory: main-project
+#      run: |
+#        if [ -d "${SIMPLE_REPOSITORY_NAME}-smoke/build/install/smoke" ]; then
+#          cd "${SIMPLE_REPOSITORY_NAME}-smoke/build/install/smoke"
+#          JAVA_HOME=${{ env.JRE_HOME }} ./bin/smoke
+#        fi
 
