@@ -46,7 +46,7 @@ jobs:
       uses: actions/setup-java@v4
       with:
         java-version: ${{ matrix.java-jre-version }}
-        java-package: "jre"
+        java-package: 'jre'
         distribution: ${{ matrix.distribution }}
 
     - name: Set up JDK ${{ matrix.java-version }} with ${{ matrix.distribution }}
@@ -54,7 +54,6 @@ jobs:
       with:
         java-version: ${{ matrix.java-version }}
         distribution: ${{ matrix.distribution }}
-        server-id: github # Value of the distributionManagement/repository/id field of the pom.xml
         settings-path: ${{ github.workspace }} # location for the settings.xml file
 
     - name: Setup Gradle
@@ -62,21 +61,11 @@ jobs:
 
     - name: Build with Gradle with java source ${{ matrix.java-source-version }}
       working-directory: main-project
-      run: ./gradlew build installDist jacocoTestReport
+      run: ./gradlew build jacocoTestReport
       env:
         PROJECT_WORKFLOW: 'main-pull-request'
         KIT_JAVA_COMPILER_VERSION: ${{ matrix.java-compiler-version }}
         KIT_JAVA_SOURCE_VERSION: ${{ matrix.java-source-version }}
-
-    - name: Check if Smoke Test exists
-      working-directory: main-project
-      id: smoke_check
-      run: |
-        if [ -d "${SIMPLE_REPOSITORY_NAME}-smoke/build/install/smoke" ]; then
-          echo "directory_exists=true" >> "$GITHUB_OUTPUT"
-        else
-          echo "directory_exists=false" >> "$GITHUB_OUTPUT"
-        fi
 
     - name: Run Smoke Tests
       working-directory: main-project
