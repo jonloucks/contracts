@@ -22,7 +22,10 @@ jobs:
       pages: write
 
     steps:
-    - name: Modify branch name
+    - name: Assigning SIMPLE_REPOSITORY_NAME
+      run: echo "SIMPLE_REPOSITORY_NAME=${GITHUB_REPOSITORY#*/}" >> $GITHUB_ENV
+
+    - name: Assigning SIMPLE_BRANCH_NAME
       run: |
         BRANCH_NAME="${{ github.head_ref || github.ref_name}}"
         SIMPLE_BRANCH_NAME="${BRANCH_NAME//\//-}"
@@ -65,8 +68,18 @@ jobs:
         KIT_JAVA_COMPILER_VERSION: ${{ matrix.java-compiler-version }}
         KIT_JAVA_SOURCE_VERSION: ${{ matrix.java-source-version }}
 
-    - name: Run Smoke test
-      working-directory: main-project/contracts-smoke/build/install/smoke
+    - name: Check if Smoke Test exists
+      id: smoke_check
+      run: |
+        if [ -d "main-project/{{ env.SIMPLE_REPOSITORY_NAME }}-smoke/build/install/smoke" ]; then
+          echo "directory_exists=true" >> "$GITHUB_OUTPUT"
+        else
+          echo "directory_exists=false" >> "$GITHUB_OUTPUT"
+        fi
+
+    - name: Run Smoke Tests
+      if: steps.smoke_check.outputs.directory_exists == 'true'
+      working-directory: main-project/{{ env.SIMPLE_REPOSITORY_NAME }}-smoke/build/install/smoke
       run: JAVA_HOME=${{ env.JAVA_HOME_11_X64 }} ./bin/smoke
 
     - name: Upload JaCoCo report artifact
