@@ -39,6 +39,7 @@ public final class Main {
             SYSTEM_EXIT.accept(0);
         } catch (Exception thrown) {
             System.err.println(thrown.getMessage());
+            thrown.printStackTrace(System.err);
             SYSTEM_EXIT.accept(1);
         }
     }
