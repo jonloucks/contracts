@@ -7,7 +7,7 @@ on:
 
 jobs:
   build:
-    name: matrix-build
+    name: main-pull-request-matrix
     runs-on: ubuntu-latest
     strategy:
       matrix: # maximum of 25 combinations
