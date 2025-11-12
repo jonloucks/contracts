@@ -7,32 +7,41 @@ on:
 
 jobs:
   build:
-    name: matrix-build
+    name: main-pull-request-matrix
     runs-on: ubuntu-latest
     strategy:
       matrix: # maximum of 25 combinations
-        java-version: [ 17, 21, 25 ]
         distribution: [ 'zulu', 'temurin' ]
-        java-compiler-version: [ 17 ]
-        java-source-version: [ 9, 11, 17 ]
+        java-jdk-version: [ 17, 25 ] # oldest and latest LTS JDK
+        java-compiler-version: [ 17 ] # vector, only minimum JDK
+        java-source-version: [ 9, 11 ] # current source version and next version
     permissions:
       contents: read
       packages: read
       pages: read
 
     steps:
+    - name: Assigning SIMPLE_REPOSITORY_NAME
+      run: echo "SIMPLE_REPOSITORY_NAME=${GITHUB_REPOSITORY#*/}" >> $GITHUB_ENV
+
+    - name: Assigning SIMPLE_BRANCH_NAME
+      run: |
+        BRANCH_NAME="${{ github.head_ref || github.ref_name }}"
+        SIMPLE_BRANCH_NAME="${BRANCH_NAME//\//-}"
+        echo "SIMPLE_BRANCH_NAME=${SIMPLE_BRANCH_NAME}" >> $GITHUB_ENV
+
     - name: Checkout Main Project
       uses: actions/checkout@v4
       with:
         path: main-project
 
-    - name: Set up Java ${{ matrix.java-version }} with ${{ matrix.distribution }}
+    - name: Set up JDK ${{ matrix.java-jdk-version }} with ${{ matrix.distribution }}
       uses: actions/setup-java@v4
       with:
-        java-version: ${{ matrix.java-version }}
+        java-version: ${{ matrix.java-jdk-version }}
+        java-package: 'jdk'
         distribution: ${{ matrix.distribution }}
-        server-id: github # Value of the distributionManagement/repository/id field of the pom.xml
-        settings-path: ${{ github.workspace }} # location for the settings.xml file
+        settings-path: ${{ github.workspace }}
 
     - name: Set up Gradle environment
       uses: gradle/actions/setup-gradle@v5
@@ -44,4 +53,3 @@ jobs:
         PROJECT_WORKFLOW: 'main-pull-request-matrix'
         KIT_JAVA_COMPILER_VERSION: ${{ matrix.java-compiler-version }}
         KIT_JAVA_SOURCE_VERSION: ${{ matrix.java-source-version }}
-

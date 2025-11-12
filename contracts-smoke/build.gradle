@@ -1,0 +1,53 @@
+plugins {
+    id 'io.github.jonloucks.java-library-kit'
+    id 'io.github.jonloucks.maven-publish-kit'
+    id 'application'
+}
+
+tasks.named('check') {
+    dependsOn('distTar')
+}
+
+distZip {
+    archiveFileName.set( "smoke.zip")
+}
+
+distTar {
+    archiveFileName.set( "smoke.tar")
+}
+
+tasks.named('distTar') {
+    doLast { task ->
+        copy {
+            from task.outputs.files
+            into rootProject.layout.buildDirectory.get()
+        }
+    }
+}
+
+javadoc {
+    exclude '**/**'
+}
+
+jar {
+    manifest {
+        attributes 'Main-Class': 'io.github.jonloucks.contracts.smoke.Main'
+    }
+}
+
+application {
+    applicationName = 'smoke'
+    mainModule = 'io.github.jonloucks.contracts.smoke'
+    mainClass = 'io.github.jonloucks.contracts.smoke.Main'
+}
+
+dependencies {
+    api project(":")
+
+    testImplementation project(":contracts-test")
+}
+
+repositories {
+    mavenCentral()
+    mavenLocal()
+}

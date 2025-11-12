@@ -1,6 +1,7 @@
 package io.github.jonloucks.contracts;
 
 import io.github.jonloucks.contracts.api.Checks;
+import io.github.jonloucks.contracts.api.Contracts;
 import io.github.jonloucks.contracts.api.GlobalContracts;
 
 /**
@@ -18,9 +19,17 @@ public final class Stub {
     }
     
     /**
-     * Validates basic functionality.
+     * Quick validation the Global shared Contracts.
      */
     public static void validate() {
-        Checks.validateContracts(GlobalContracts.getInstance());
+        validate(GlobalContracts.getInstance());
+    }
+    
+    /**
+     * Quick validation of basic functionality.
+     * @param contracts the contracts to validate
+     */
+    public static void validate(Contracts contracts) {
+        Checks.validateContracts(contracts);
     }
 }

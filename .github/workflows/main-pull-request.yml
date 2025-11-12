@@ -7,12 +7,12 @@ on:
 
 jobs:
   build:
-    name: build
+    name: main-pull-request
     runs-on: ubuntu-latest
     strategy:
       matrix: # row matrix only!
-        java-version: [ 17 ]
         distribution: [ 'temurin' ]
+        java-jdk-version: [ 17 ]
         java-compiler-version: [ 17 ]
         java-source-version: [ 9 ]
     permissions:
@@ -21,7 +21,10 @@ jobs:
       pages: write
 
     steps:
-    - name: Modify branch name
+    - name: Assigning SIMPLE_REPOSITORY_NAME
+      run: echo "SIMPLE_REPOSITORY_NAME=${GITHUB_REPOSITORY#*/}" >> $GITHUB_ENV
+
+    - name: Assigning SIMPLE_BRANCH_NAME
       run: |
         BRANCH_NAME="${{ github.head_ref || github.ref_name}}"
         SIMPLE_BRANCH_NAME="${BRANCH_NAME//\//-}"
@@ -38,12 +41,11 @@ jobs:
       with:
         path: main-project
 
-    - name: Set up Java ${{ matrix.java-version }} with ${{ matrix.distribution }}
+    - name: Set up JDK ${{ matrix.java-jdk-version }} with ${{ matrix.distribution }}
       uses: actions/setup-java@v4
       with:
-        java-version: ${{ matrix.java-version }}
+        java-version: ${{ matrix.java-jdk-version }}
         distribution: ${{ matrix.distribution }}
-        server-id: github # Value of the distributionManagement/repository/id field of the pom.xml
         settings-path: ${{ github.workspace }} # location for the settings.xml file
 
     - name: Setup Gradle
@@ -51,11 +53,17 @@ jobs:
 
     - name: Build with Gradle with java source ${{ matrix.java-source-version }}
       working-directory: main-project
-      run: ./gradlew build jacocoTestReport
+      run: ./gradlew build assembleDist jacocoTestReport
       env:
         PROJECT_WORKFLOW: 'main-pull-request'
         KIT_JAVA_COMPILER_VERSION: ${{ matrix.java-compiler-version }}
         KIT_JAVA_SOURCE_VERSION: ${{ matrix.java-source-version }}
+
+    - name: Upload Smoke Test
+      uses: actions/upload-artifact@v4
+      with:
+        name: smoke-app
+        path: main-project/build/smoke.tar
 
     - name: Upload JaCoCo report artifact
       uses: actions/upload-artifact@v4
@@ -92,3 +100,36 @@ jobs:
         PROJECT_WORKFLOW: 'main-pull-request'
         KIT_JAVA_COMPILER_VERSION: ${{ matrix.java-compiler-version }}
         KIT_JAVA_SOURCE_VERSION: ${{ matrix.java-source-version }}
+
+  smoke-test:
+    name: main-pull-request-smoke
+    runs-on: ubuntu-latest
+    needs: build
+    strategy:
+      matrix: # maximum of 25 combinations
+        distribution: [ 'zulu', 'temurin' ]
+        java-jre-version: [ 11 , 17, 21, 25 ]  # all LTS JRE's
+    permissions:
+      contents: read
+      packages: read
+      pages: read
+
+    steps:
+      - name: Set up JRE ${{ matrix.java-jre-version }} for Running
+        uses: actions/setup-java@v4
+        with:
+          java-version: ${{ matrix.java-jre-version }}
+          java-package: 'jre'
+          distribution: ${{ matrix.distribution }}
+
+      - name: Download Smoke Test
+        uses: actions/download-artifact@v4
+        with:
+          name: smoke-app
+
+      - name: Run Smoke Tests
+        run: |
+          java --version
+          tar -xf smoke.tar
+          cd smoke
+          ./bin/smoke
