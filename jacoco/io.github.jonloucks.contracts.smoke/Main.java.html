@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Main.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">contracts</a> &gt; <a href="index.source.html" class="el_package">io.github.jonloucks.contracts.smoke</a> &gt; <span class="el_source">Main.java</span></div><h1>Main.java</h1><pre class="source lang-java linenums">package io.github.jonloucks.contracts.smoke;
+
+import io.github.jonloucks.contracts.Stub;
+import io.github.jonloucks.contracts.api.AutoClose;
+import io.github.jonloucks.contracts.api.Contracts;
+import io.github.jonloucks.contracts.api.GlobalContracts;
+
+import java.util.function.Consumer;
+import java.util.function.IntConsumer;
+
+import static io.github.jonloucks.contracts.api.Checks.configCheck;
+import static io.github.jonloucks.contracts.api.Checks.nullCheck;
+
+/**
+ * Smoke test, to validate running on real environment
+ */
+public final class Main {
+    
+    /**
+     * For testing the smoke application
+     * @param consumer for the exit code
+     * @return the previous system exit method
+     */
+    public static IntConsumer setSystemExit(IntConsumer consumer) {
+<span class="fc" id="L25">        final IntConsumer save = SYSTEM_EXIT;</span>
+<span class="fc" id="L26">        SYSTEM_EXIT = consumer;</span>
+<span class="fc" id="L27">        return save;</span>
+    }
+    
+    /**
+     * The main entry point
+     * @param args the program arguments
+     */
+    public static void main(String[] args) {
+        try {
+<span class="fc" id="L36">            Stub.validate();</span>
+<span class="fc" id="L37">            validateReflectionOnly();</span>
+<span class="fc" id="L38">            validateServiceLoaderOnly();</span>
+<span class="fc" id="L39">            SYSTEM_EXIT.accept(0);</span>
+<span class="fc" id="L40">        } catch (Exception thrown) {</span>
+<span class="fc" id="L41">            System.err.println(thrown.getMessage());</span>
+<span class="fc" id="L42">            thrown.printStackTrace(System.err);</span>
+<span class="fc" id="L43">            SYSTEM_EXIT.accept(1);</span>
+<span class="fc" id="L44">        }</span>
+<span class="fc" id="L45">    }</span>
+    
+    private static void validateReflectionOnly() {
+<span class="fc" id="L48">        validateHelper(true, false);</span>
+<span class="fc" id="L49">    }</span>
+    
+    private static void validateServiceLoaderOnly() {
+<span class="fc" id="L52">        validateHelper(false, true);</span>
+<span class="fc" id="L53">    }</span>
+    
+    private static void validateHelper(boolean useReflection, boolean useServiceLoader) {
+<span class="fc" id="L56">        final Contracts.Config contractsConfig = new Contracts.Config() {</span>
+            @Override
+            public boolean useReflection() {
+<span class="fc" id="L59">                return useReflection;</span>
+            }
+            @Override
+            public boolean useServiceLoader() {
+<span class="fc" id="L63">                return useServiceLoader;</span>
+            }
+        };
+<span class="fc" id="L66">        withContracts(contractsConfig, Stub::validate);</span>
+<span class="fc" id="L67">    }</span>
+  
+    @SuppressWarnings({&quot;try&quot;})
+    private static void withContracts(Contracts.Config config, Consumer&lt;Contracts&gt; consumerBlock) {
+<span class="fc" id="L71">        final Contracts.Config validConfig = configCheck(config);</span>
+<span class="fc" id="L72">        final Consumer&lt;Contracts&gt; validConsumerBlock = nullCheck(consumerBlock, &quot;Block must be present.&quot;);</span>
+<span class="fc" id="L73">        final Contracts contracts = GlobalContracts.createContracts(validConfig);</span>
+        
+<span class="fc" id="L75">        try (AutoClose ignored = contracts.open()) {</span>
+<span class="fc" id="L76">            validConsumerBlock.accept(contracts);</span>
+        }
+<span class="fc" id="L78">    }</span>
+
+    private Main() {
+    
+    }
+    
+<span class="fc" id="L84">    private static IntConsumer SYSTEM_EXIT = System::exit;</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>
