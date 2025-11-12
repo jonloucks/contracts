@@ -58,12 +58,14 @@ public interface ToolsTests {
     
     @Test
     default void tools_assertFails_WhenNoFailure_Fails() {
-        assertFails(() -> assertFails(()->{}));
+        assertFails( // Note: Using assertFails to test assertFails
+            () -> assertFails(()->{}));
     }
     
     @Test
     default void tools_assertFails_WhenThrowsNonAssertions_Fails() {
-        assertFails(() -> assertFails(() -> { throw new IllegalStateException("Oh My."); }));
+        assertFails( // Note: Using assertFails to test assertFails
+            () -> assertFails(() -> { throw new IllegalStateException("Oh My."); }));
     }
     
     @Test
@@ -76,8 +78,8 @@ public interface ToolsTests {
         final Contract<String> validContract = Contract.create("test");
         final Contract.Config<String> validConfig = String.class::cast;
         
-        assertFails(() -> Tools.assertContract(null, validConfig, "abc"));
-        assertFails(() -> Tools.assertContract(validContract, null, "abc"));
+        assertFails(() -> assertContract(null, validConfig, "abc"));
+        assertFails(() -> assertContract(validContract, null, "abc"));
     }
     
     @Test
@@ -90,15 +92,15 @@ public interface ToolsTests {
         final Throwable unknownException = new RuntimeException("This is an unknown exception.");
    
         assertAll(
-            () -> assertFails(() -> Tools.assertThrown(null, validCause, validReason)),
-            () -> assertFails(() -> Tools.assertThrown(validCause, null, null)),
-            () -> assertFails(() -> Tools.assertThrown(validCause, unknownException, null)),
-            () -> assertFails(() -> Tools.assertThrown(validCause, validCause, validReason)),
-            () -> assertFails(() -> Tools.assertThrown(exceptionWithNullReason, validCause, validReason)),
-            () -> assertDoesNotThrow(() -> Tools.assertThrown(validException, null, validReason)),
-            () -> assertFails(() -> Tools.assertThrown(validExceptionWithCause, null, validReason)),
-            () -> assertFails(() -> Tools.assertThrown(validExceptionWithCause, validCause, "Different.")),
-            () -> assertDoesNotThrow(() -> Tools.assertThrown(validExceptionWithCause, validCause, validReason))
+            () -> assertFails(() -> assertThrown(null, validCause, validReason)),
+            () -> assertFails(() -> assertThrown(validCause, null, null)),
+            () -> assertFails(() -> assertThrown(validCause, unknownException, null)),
+            () -> assertFails(() -> assertThrown(validCause, validCause, validReason)),
+            () -> assertFails(() -> assertThrown(exceptionWithNullReason, validCause, validReason)),
+            () -> assertDoesNotThrow(() -> assertThrown(validException, null, validReason)),
+            () -> assertFails(() -> assertThrown(validExceptionWithCause, null, validReason)),
+            () -> assertFails(() -> assertThrown(validExceptionWithCause, validCause, "Different.")),
+            () -> assertDoesNotThrow(() -> assertThrown(validExceptionWithCause, validCause, validReason))
         );
     }
     
@@ -112,13 +114,13 @@ public interface ToolsTests {
         final Throwable unknownException = new RuntimeException("This is an unknown exception.");
         
         assertAll(
-            () -> assertFails(() -> Tools.assertThrown(null, validCause)),
-            () -> assertFails(() -> Tools.assertThrown(validCause, unknownException)),
-            () -> assertFails(() -> Tools.assertThrown(validCause, validCause)),
-            () -> assertFails(() -> Tools.assertThrown(exceptionWithNullReason, validCause)),
-            () -> assertDoesNotThrow(() -> Tools.assertThrown(validException, (Throwable)null)),
-            () -> assertFails(() -> Tools.assertThrown(validExceptionWithCause, (Throwable)null)),
-            () -> assertDoesNotThrow(() -> Tools.assertThrown(validExceptionWithCause, validCause))
+            () -> assertFails(() -> assertThrown(null, validCause)),
+            () -> assertFails(() -> assertThrown(validCause, unknownException)),
+            () -> assertFails(() -> assertThrown(validCause, validCause)),
+            () -> assertFails(() -> assertThrown(exceptionWithNullReason, validCause)),
+            () -> assertDoesNotThrow(() -> assertThrown(validException, (Throwable)null)),
+            () -> assertFails(() -> assertThrown(validExceptionWithCause, (Throwable)null)),
+            () -> assertDoesNotThrow(() -> assertThrown(validExceptionWithCause, validCause))
         );
     }
     
@@ -248,7 +250,7 @@ public interface ToolsTests {
     @Test
     default void tools_sleep_WithNullDuration_Throws() {
         assertThrown(IllegalArgumentException.class,
-            () -> Tools.sleep(null),"Duration must be present.");
+            () -> sleep(null),"Duration must be present.");
     }
     
     @ParameterizedTest(name = "Duration {0} milliseconds")
@@ -258,7 +260,7 @@ public interface ToolsTests {
         final Duration allowedDifference = Duration.ofMillis(100);
         final Instant start = Instant.now();
         
-        Tools.sleep(expectedDuration);
+        sleep(expectedDuration);
         
         final Duration actualDuration = Duration.between(start, Instant.now());
         
@@ -271,7 +273,7 @@ public interface ToolsTests {
     default void tools_sleep_WithInvalidDuration(long milliseconds) {
         final Duration expectedDuration = Duration.ofMillis(milliseconds);
         assertThrown(IllegalArgumentException.class,
-            () -> Tools.sleep(expectedDuration),
+            () -> sleep(expectedDuration),
             "Duration must not be negative.");
     }
     

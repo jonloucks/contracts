@@ -11,10 +11,7 @@ public interface AutoTests {
     @Test
     default void auto_AutoOpen_NONE() {
         assertObject(AutoOpen.NONE);
-        
-        try (AutoClose autoClose = AutoOpen.NONE.open()) {
-            assertIdempotent(autoClose);
-        }
+        assertIdempotent(AutoOpen.NONE.open());
     }
     
     @Test
