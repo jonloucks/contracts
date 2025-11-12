@@ -95,8 +95,7 @@ public interface RepositoryTests {
         runWithScenario(( contracts,repository) -> {
             final Contract<String> contract = Contract.create("test text");
             try (AutoClose closeStore = repository.store(contract, () -> "x")) {
-                assertDoesNotThrow(closeStore::close);
-                assertDoesNotThrow(closeStore::close);
+                assertIdempotent(closeStore);
             }
         });
     }
@@ -121,8 +120,7 @@ public interface RepositoryTests {
             final Repository repository = contracts.claim(Repository.FACTORY).get();
             
             try (AutoClose closeRepository = repository.open()) {
-                implicitClose(closeRepository);
-                assertDoesNotThrow(closeRepository::close);
+                assertIdempotent(closeRepository);
             }
         });
     }

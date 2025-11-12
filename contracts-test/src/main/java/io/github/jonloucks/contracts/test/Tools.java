@@ -36,9 +36,9 @@ public final class Tools {
      */
     public static void assertFails(Executable executable) {
         final Executable validExecutable = nullCheck(executable, "Executable must be present.");
-        final AssertionError thrown = assertThrows(AssertionError.class, validExecutable);
+        final AssertionError thrown = assertThrows(AssertionError.class, validExecutable, "Expected AssertionError to be thrown.");
         assertObject(thrown);
-        assertNotNull(thrown.getMessage());
+        assertNotNull(thrown.getMessage(), "Message must be present.");
     }
     
     /**
@@ -96,7 +96,7 @@ public final class Tools {
             () -> assertMessage(thrown.getMessage()),
             () -> assertEquals(cause, thrown.getCause(), "The cause should match."),
             () -> assertEquals(reason, thrown.getMessage(), "The reason should match."),
-            () -> assertNotNull(thrown.toString(), "The string should not be null.")
+            () -> assertNotNull(thrown.toString(), "The toString() should not be null.")
         );
     }
     
@@ -366,9 +366,25 @@ public final class Tools {
      * Closes the AutoClose, used to avoid getting explicit close warnings in tests.
      *
      * @param autoClose the instance to close
+     * @throws IllegalArgumentException when arguments are null
      */
     public static void implicitClose(AutoClose autoClose) {
-        autoClose.close();
+        final AutoClose validClose = nullCheck(autoClose, "AutoClose must be present.");
+        validClose.close();
+    }
+    
+    /**
+     * Assert close can be called more than once without producing an exception
+     *
+     * @param autoClose the AutoClose to close
+     * @throws IllegalArgumentException when arguments are null
+     */
+    public static void assertIdempotent(AutoClose autoClose) {
+        final AutoClose validClose = nullCheck(autoClose, "AutoClose must be present.");
+        for (int n = 0; n < 7; n++) {
+            assertDoesNotThrow(() -> implicitClose(validClose), "AutoClose should be idempotent.");
+            assertObject(autoClose); // should not become a landmine
+        }
     }
     
     /**

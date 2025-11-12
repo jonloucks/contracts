@@ -87,10 +87,7 @@ public interface ContractsTests {
             final Contract<Integer> contract = Contract.create("test");
             
             try (AutoClose closeBinding = contracts.bind(contract, () -> 9)) {
-                assertDoesNotThrow(() -> {
-                    implicitClose(closeBinding);
-                    implicitClose(closeBinding);
-                });
+                assertIdempotent(closeBinding);
             }
         });
     }
