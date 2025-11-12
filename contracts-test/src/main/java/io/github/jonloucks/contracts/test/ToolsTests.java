@@ -1,5 +1,6 @@
 package io.github.jonloucks.contracts.test;
 
+import io.github.jonloucks.contracts.api.AutoClose;
 import io.github.jonloucks.contracts.api.Contract;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -62,7 +63,7 @@ public interface ToolsTests {
     
     @Test
     default void tools_assertFails_WhenThrowsNonAssertions_Fails() {
-        assertFails(() -> assertFails(()->{ throw new IllegalStateException("Oh My."); }));
+        assertFails(() -> assertFails(() -> { throw new IllegalStateException("Oh My."); }));
     }
     
     @Test
@@ -123,7 +124,8 @@ public interface ToolsTests {
     
     @Test
     default void tools_assertInstantiateThrows_With() {
-        assertThrown(IllegalArgumentException.class, ()-> assertInstantiateThrows(null));
+        assertThrown(IllegalArgumentException.class,
+            ()-> assertInstantiateThrows(null));
     }
     
     @Test
@@ -184,13 +186,15 @@ public interface ToolsTests {
     @Test
     default void tools_assertMayThrow_WithNullType_Throws() {
         final Executable executable = () -> {};
-        assertThrown(IllegalArgumentException.class, () -> assertMayThrow(null, executable ));
+        assertThrown(IllegalArgumentException.class,
+            () -> assertMayThrow(null, executable ));
     }
     
     @Test
     default void tools_assertMayThrow_WithNullExecutable_Throws() {
         final Class<IllegalStateException> type = IllegalStateException.class;
-        assertThrown(IllegalArgumentException.class, () -> assertMayThrow(type, null));
+        assertThrown(IllegalArgumentException.class,
+            () -> assertMayThrow(type, null));
     }
     
     @Test
@@ -214,13 +218,15 @@ public interface ToolsTests {
     default void tools_assertThrownType_WithNullType_Throws() {
         final IllegalArgumentException expected = new IllegalArgumentException("Illegal.");
         
-        assertThrown(IllegalArgumentException.class, () -> assertThrownType(null, expected, "Problem."));
+        assertThrown(IllegalArgumentException.class,
+            () -> assertThrownType(null, expected, "Problem."));
     }
     
     @Test
     default void tools_assertThrownType_WithNullThrown_Throws() {
         final Class<IllegalStateException> type = IllegalStateException.class;
-        assertThrown(IllegalArgumentException.class, () -> assertThrownType(type, null, "Problem."));
+        assertThrown(IllegalArgumentException.class,
+            () -> assertThrownType(type, null, "Problem."));
     }
     
     @Test
@@ -241,7 +247,8 @@ public interface ToolsTests {
 
     @Test
     default void tools_sleep_WithNullDuration_Throws() {
-        assertThrown(IllegalArgumentException.class, ()-> Tools.sleep(null),"Duration must be present.");
+        assertThrown(IllegalArgumentException.class,
+            () -> Tools.sleep(null),"Duration must be present.");
     }
     
     @ParameterizedTest(name = "Duration {0} milliseconds")
@@ -263,6 +270,49 @@ public interface ToolsTests {
     @ValueSource(ints = {-1, -2 })
     default void tools_sleep_WithInvalidDuration(long milliseconds) {
         final Duration expectedDuration = Duration.ofMillis(milliseconds);
-        assertThrown(IllegalArgumentException.class, () -> Tools.sleep(expectedDuration),"Duration must not be negative.");
+        assertThrown(IllegalArgumentException.class,
+            () -> Tools.sleep(expectedDuration),
+            "Duration must not be negative.");
+    }
+    
+    @Test
+    default void tools_assertIdempotent_WithNullAutoClose_Throws() {
+        assertThrown(IllegalArgumentException.class,
+            () -> assertIdempotent(null),
+            "AutoClose must be present.");
+    }
+    
+    @Test
+    default void tools_assertIdempotent_WhenFirstCloseThrows_Fails() {
+        final AutoClose autoClose = () -> { throw new RuntimeException("Not idempotent."); };
+        assertFails(() -> assertIdempotent(autoClose));
+    }
+    
+    @Test
+    default void tools_assertIdempotent_WhenSecondCloseThrows_Fails() {
+        final AtomicInteger counter = new AtomicInteger();
+        final AutoClose autoClose = () -> {
+            if (counter.getAndIncrement() == 2) {
+                throw new RuntimeException("Not idempotent.");
+            }
+        };
+        assertFails(() -> assertIdempotent(autoClose));
+    }
+    
+    @Test
+    default void tools_assertIdempotent_WhenThirdCloseThrows_Fails() {
+        final AtomicInteger counter = new AtomicInteger();
+        final AutoClose autoClose = () -> {
+            if (counter.getAndIncrement() == 3) {
+                throw new RuntimeException("Not idempotent.");
+            }
+        };
+        assertFails(() -> assertIdempotent(autoClose));
+    }
+    
+    @Test
+    default void tools_assertIdempotent_WhenIdempotent_Passes() {
+        final AutoClose autoClose = () -> {};
+        assertDoesNotThrow(() -> assertIdempotent(autoClose));
     }
 }
