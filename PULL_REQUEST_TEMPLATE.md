@@ -13,14 +13,6 @@
 - [ ] Documentation update
 - [ ] Chore (e.g., dependency updates, build tooling changes)
 
-## How Has This Been Tested?
-
-[Describe the testing you have performed to ensure the changes work as expected. Include details about:
-- Unit tests
-- Integration tests
-- Manual testing steps (if applicable, provide specific instructions for reviewers to verify the changes)
-- Screenshots or GIFs (if relevant, especially for UI changes)]
-
 ## Checklist:
 
 - [ ] My code follows the project's coding style guidelines.
@@ -32,5 +24,3 @@
 - [ ] New and existing unit tests pass locally with my changes.
 
 ## Additional Notes
-
-[Add any other relevant information for the reviewers, such as potential performance impacts, known limitations, or alternative solutions considered during development.]
