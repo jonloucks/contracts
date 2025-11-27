@@ -24,7 +24,7 @@ When submitting a [bug report](https://github.com/jonloucks/contracts/issues/new
 -   **Context:** Include your operating system, software version, and any relevant logs or screenshots.
 
 ## 2. Suggesting Enhancements
-For suggesting enhancements or new features, please [open a GitHub Issue]((https://github.com/jonloucks/contracts/issues/new)) and follow these guidelines:
+For suggesting enhancements or new features, please [open a GitHub Issue](https://github.com/jonloucks/contracts/issues/new) and follow these guidelines:
 -   **Use a descriptive title:** Identify the suggestion clearly.
 -   **Describe the enhancement:** Explain the feature in as much detail as possible, including its use case and why it would be valuable.
 -   **Check existing suggestions:** Search for similar ideas in the existing issues. If a similar suggestion exists, add your support or additional context there.
