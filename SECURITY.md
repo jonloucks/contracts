@@ -33,11 +33,10 @@ Only the latest stable release of this project is actively supported for securit
 
 ## Supported Versions
 | Version | Supported          |
-| ------- | ------------------ |
-| 2.0.x   | :white_check_mark: |
+|:--------|:-------------------|
+| 2.x     | :white_check_mark: |
 
 ## Reporting a Vulnerability
-
 Use this section to tell people how to report a vulnerability.
 
 Tell them where to go, how often they can expect to get an update on a
