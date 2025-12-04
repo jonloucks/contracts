@@ -1,17 +1,17 @@
-# Contributing to Contracts
+# Contracts Contributing Guidance
 
 Thank you for your interest in contributing to Contracts! We welcome and value all contributions, from new features to bug fixes and documentation improvements. This guide will help you navigate the process.
 
 Please note that this project is governed by our [Code of Conduct](CODE_OF_CONDUCT.md). By participating, you are expected to uphold this code.
 
 ## Table of Contents
-1.  [Reporting Bugs](#reporting-bugs)
-2.  [Suggesting Enhancements](#suggesting-enhancements)
-3.  [Setting up Your Development Environment](#setting-up-your-development-environment)
-4.  [Submitting a Pull Request](#submitting-a-pull-request)
-5.  [Improving the Documentation](#improving-the-documentation)
-6.  [Commit Message Styleguide](#commit-message-styleguide)
-7.  [Need Help?](#need-help)
+1.  [Reporting Bugs](#1-reporting-bugs)
+2.  [Suggesting Enhancements](#2-suggesting-enhancements)
+3.  [Setting up Your Development Environment](#3-setting-up-your-development-environment)
+4.  [Submitting a Pull Request](#4-submitting-a-pull-request)
+5.  [Improving the Documentation](#5-improving-the-documentation)
+6.  [Commit Message Styleguide](#6-commit-message-styleguide)
+7.  [Still Need Help?](#7-still-need-help) [Ask For Help](https://github.com/jonloucks/contracts/discussions/new?category=q-a)
 
 ## 1. Reporting Bugs
 We use [GitHub Issues](https://github.com/jonloucks/contracts/issues) to track bugs. Before creating a new issue, please check the existing issues to ensure the bug has not already been reported.
@@ -75,4 +75,7 @@ We use a conventional commit style for our commit messages to maintain a readabl
    Bullet Points (Optional): Use bullet points or lists for better organization and clarity when describing multiple aspects of the change.
    Issue References (Optional): If the commit addresses a specific issue or bug, reference its identifier (e.g., "Closes #123," "Fixes BUG-456").
    Breaking Changes (Optional): Clearly indicate any breaking changes, often by starting a new section in the body or footer with "BREAKING CHANGE:".
+
+## 7. Still Need Help?
+*   [Ask For Help](https://github.com/jonloucks/contracts/discussions/new?category=q-a)
 
