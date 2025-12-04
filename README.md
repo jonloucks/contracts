@@ -1,4 +1,4 @@
-# contracts 
+# Contracts 
 Java Dependency Contracts for dependency inversion 
 
 ### Separates the API from its implementation by using a Contract.
@@ -6,6 +6,8 @@ Java Dependency Contracts for dependency inversion
 A core java library for dependency inversion, Dependency injection, Inversion of Control,
  Solid Principles: Single responsibility, Open-closed, Liskov substitution, Interface segregation, Dependency inversion.
  OpenSSF Best Practices. Java Module Support. Strong data encapsulation.
+
+## Examples
 ```
 // Authoring
 public static final Contact<String> WEATHER = Contract.create("Current Weather");
@@ -18,17 +20,22 @@ GlobalContracts.bindContract(WEATHER, () -> "Raining");
 // Consumption
 String weather = GlobalContracts.claimContract(WEATHER);
 ```
-## Documentation and Reports
-[Java API](https://jonloucks.github.io/contracts/javadoc/)
-
-[Java Test Coverage](https://jonloucks.github.io/contracts/jacoco/)
+## Documentation
+* [License](LICENSE)
+* [Contributing](CONTRIBUTING.md)
+* [Code of conduct](CODE_OF_CONDUCT.md)
+* [Coding standards](CODING_STANDARDS.md)
+* [Security policy](SECURITY.md)
+* [Pull request template](PULL_REQUEST_TEMPLATE.md)
+* [How to use Java API](https://jonloucks.github.io/contracts/javadoc/)
+* [Java test coverage report](https://jonloucks.github.io/contracts/jacoco/)
 
 ## Badges
 [![OpenSSF Best Practices](https://www.bestpractices.dev/projects/11290/badge)](https://www.bestpractices.dev/projects/11290)
 [![Coverage Badge](https://raw.githubusercontent.com/jonloucks/contracts/refs/heads/badges/main-coverage.svg)](https://jonloucks.github.io/contracts/jacoco/)
 [![Javadoc Badge](https://raw.githubusercontent.com/jonloucks/contracts/refs/heads/badges/main-javadoc.svg)](https://jonloucks.github.io/contracts/javadoc/)
 
-## Goals
+## Guiding principles
 1. Solid Principles
 2. Security
 3. Encapsulation

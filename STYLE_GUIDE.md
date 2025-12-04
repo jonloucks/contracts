@@ -1,4 +1,6 @@
-# [Contracts uses Googles Style Guide](https://google.github.io/styleguide/javaguide.html)
+# Contracts Style Guide
+
+Based on [Googles Style Guide](https://google.github.io/styleguide/javaguide.html)
 
 ## With the following deviations
 ### Arrangement:
