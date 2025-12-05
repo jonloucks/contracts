@@ -1,4 +1,12 @@
+title: Contracts
 theme: jekyll-theme-minimal
+
+social:
+  name: Jon Loucks
+  links:
+    - https://github.com/jonloucks
+    - https://linkedin.com/in/jon-loucks-b94a19346
+
 include:
   - CONTRIBUTING.md 
   - CODE_OF_CONDUCT.md
