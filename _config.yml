@@ -1,19 +1,5 @@
 title: Contracts
 theme: jekyll-theme-minimal
-plugins:
-#  - jekyll-feed
-#  - jekyll-sitemap
-  - jekyll-seo-tag
-#  - jekyll-paginate 
-
-social_links:
-  - title: Jon Loucks on GitHub
-    icon: github
-    url: "https://github.com/jonloucks"
-  - title: Jon Loucks on LinkedIn
-    icon: linkedin
-    url: "https://linkedin.com/in/jon-loucks-b94a19346"
-
 include:
   - LICENSE.md
   - CONTRIBUTING.md 
