@@ -6,11 +6,13 @@ plugins:
   - jekyll-seo-tag
 #  - jekyll-paginate 
 
-social:
-  name: Jon Loucks
-  links:
-    - https://github.com/jonloucks
-    - https://linkedin.com/in/jon-loucks-b94a19346
+social_links:
+  - title: Jon Loucks on GitHub
+    icon: github
+    url: "https://github.com/jonloucks"
+  - title: Jon Loucks on LinkedIn
+    icon: linkedin
+    url: "https://linkedin.com/in/jon-loucks-b94a19346"
 
 include:
   - LICENSE.md
