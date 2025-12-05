@@ -21,7 +21,7 @@ GlobalContracts.bindContract(WEATHER, () -> "Raining");
 String weather = GlobalContracts.claimContract(WEATHER);
 ```
 ## Documentation
-* [License](LICENSE)
+* [License](LICENSE.md)
 * [Contributing](CONTRIBUTING.md)
 * [Code of conduct](CODE_OF_CONDUCT.md)
 * [Coding standards](CODING_STANDARDS.md)
