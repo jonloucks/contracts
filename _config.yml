@@ -1,5 +1,10 @@
 title: Contracts
 theme: jekyll-theme-minimal
+plugins:
+#  - jekyll-feed
+#  - jekyll-sitemap
+  - jekyll-seo-tag
+#  - jekyll-paginate 
 
 social:
   name: Jon Loucks
@@ -8,6 +13,7 @@ social:
     - https://linkedin.com/in/jon-loucks-b94a19346
 
 include:
+  - LICENSE.md
   - CONTRIBUTING.md 
   - CODE_OF_CONDUCT.md
   - CODING_STANDARDS.md
