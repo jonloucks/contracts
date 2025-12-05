@@ -1,0 +1,8 @@
+theme: jekyll-theme-minimal
+include: CODE_OF_CONDUCT.md
+include: CODING_STANDARDS.md
+include: CONTRIBUTING.md
+include: PULL_REQUEST_TEMPLATE.md
+include: SECURITY.md
+include: STYLE_GUIDE.md
+
