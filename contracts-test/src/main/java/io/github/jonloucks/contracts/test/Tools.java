@@ -26,7 +26,7 @@ import static org.junit.jupiter.api.Assertions.*;
 @SuppressWarnings("DataFlowIssue")
 public final class Tools {
     private Tools() {
-        throw new AssertionError("Illegal constructor call");
+        throw new AssertionError("Illegal constructor call.");
     }
     
     /**
