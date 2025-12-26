@@ -92,7 +92,7 @@ public final class Checks {
      * @throws IllegalArgumentException when invalid
      */
     public static <T> T typeCheck(T type) {
-        return nullCheck(type, "Type was must be present.");
+        return nullCheck(type, "Type must be present.");
     }
     
     /**
@@ -104,7 +104,7 @@ public final class Checks {
      * @throws IllegalArgumentException when invalid
      */
     public static <T> T nameCheck(T name) {
-        return nullCheck(name, "Name was must be present.");
+        return nullCheck(name, "Name must be present.");
     }
     
     /**
