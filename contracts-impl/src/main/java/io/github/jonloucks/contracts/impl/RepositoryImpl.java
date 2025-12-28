@@ -5,7 +5,6 @@ import io.github.jonloucks.contracts.api.*;
 import java.util.*;
 
 import static io.github.jonloucks.contracts.api.Checks.*;
-import static java.util.Optional.ofNullable;
 
 /**
  * Implementation for {@link io.github.jonloucks.contracts.api.Repository}
@@ -102,22 +101,19 @@ final class RepositoryImpl implements Repository {
     
         private void bind() {
             close();
-            closeBinding = contracts.bind(contract, promisor, bindStrategy);
+            closeBinding.set(contracts.bind(contract, promisor, bindStrategy));
         }
         
         @Override
         public void close() {
-            ofNullable(closeBinding).ifPresent(close -> {
-                this.closeBinding = null;
-                close.close();
-            });
+            closeBinding.close();
         }
         
         private final Contract<T> contract;
         private final Promisor<T> promisor;
         private final BindStrategy bindStrategy;
         private final Contracts contracts;
-        private AutoClose closeBinding;
+        private final CloserImpl closeBinding = new CloserImpl();
     }
     
     private final Contracts contracts;
