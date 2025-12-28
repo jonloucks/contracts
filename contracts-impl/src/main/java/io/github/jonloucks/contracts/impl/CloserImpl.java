@@ -20,8 +20,11 @@ final class CloserImpl {
         if (autoClose == reference.get()) {
             return;
         }
-        close();
-        reference.set(autoClose);
+        try {
+            close();
+        } finally {
+            reference.set(autoClose);
+        }
     }
     
     private final AtomicReference<AutoClose> reference = new AtomicReference<>();
