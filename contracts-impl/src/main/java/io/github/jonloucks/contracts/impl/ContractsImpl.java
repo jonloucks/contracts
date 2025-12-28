@@ -20,7 +20,7 @@ final class ContractsImpl implements Contracts {
     @Override
     public AutoClose open() {
         if (openState.transitionToOpen()) {
-            closeRepository = repository.open();
+            closeRepository.set(repository.open());
             return this::close;
         }
         return AutoClose.NONE;
@@ -78,11 +78,7 @@ final class ContractsImpl implements Contracts {
                     }
                 }
             } finally {
-                ofNullable(closeRepository).ifPresent( close -> {
-                    closeRepository = null;
-                    close.close();
-                });
-                
+                closeRepository.close();
             }
         }
     }
@@ -236,5 +232,5 @@ final class ContractsImpl implements Contracts {
     private final LinkedHashMap<Contract<?>, Promisor<?>> promisorMap = new LinkedHashMap<>();
     private final RepositoryImpl repository = new RepositoryImpl(this);
     private final List<Contracts> partners = new ArrayList<>();
-    private AutoClose closeRepository;
+    private final CloserImpl closeRepository = new CloserImpl();
 }
