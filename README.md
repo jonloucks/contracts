@@ -149,8 +149,6 @@ dependencies {
 ## Design Principles
 
 The library adheres to these core principles:
-The library adheres to these core principles:
-
 1. **SOLID Principles**: Dependency inversion, interface segregation, single responsibility
 2. **Security First**: OpenSSF Best Practices with contract-level access control
 3. **Strong Encapsulation**: Proper data hiding and module boundaries
