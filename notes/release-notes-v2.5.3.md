@@ -10,7 +10,7 @@ Bump org.junit:junit-bom from 5.14.1 to 5.14.2
 
 ## 🚀 New Features
 
-*   Feature: 
+*  None
 
 
 ## ✨ Improvements
