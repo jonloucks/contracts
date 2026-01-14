@@ -15,12 +15,9 @@ Bump org.junit:junit-bom from 5.14.1 to 5.14.2
 
 ## ✨ Improvements
 
-*   Performance: 
-*   Compatibility: 
-*   Documentation: 
+*  None
 
 ## 🐛 Bug Fixes
-
 *  None
 
 ## ⬇️ Download
