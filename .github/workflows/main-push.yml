@@ -47,7 +47,7 @@ jobs:
           settings-path: ${{ github.workspace }} # location for the settings.xml file
 
       - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@v5
+        uses: gradle/actions/setup-gradle@4d9f0ba0025fe599b4ebab900eb7f3a1d93ef4c2
 
       - name: Build Code Coverage and Source Documentation
         working-directory: main-project
@@ -81,7 +81,7 @@ jobs:
 
       - name: Generate JaCoCo Badge
         id: jacoco
-        uses: cicirello/jacoco-badge-generator@v2.11.0
+        uses: cicirello/jacoco-badge-generator@72266185b7ee48a6fd74eaf0238395cc8b14fef8
         with:
           coverage-badge-filename: ${{ env.BRANCH_NAME }}-coverage.svg
           badges-directory: badges
